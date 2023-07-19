@@ -5,20 +5,9 @@ import "./Styles/Header.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import Login from "./Login";
 import Logout from "./Logout";
-import { useEffect, useState } from "react";
 
-const Header = () => {
-  const { isAuthenticated, user } = useAuth0();
-  const [loggedUser, setLoggedUser] = useState([]);
-  const [isLogin, setIsLogin] = useState(false);
-  useEffect(() => {
-    if (isAuthenticated) {
-      setIsLogin(false);
-      setLoggedUser(user);
-    } else {
-      setIsLogin(true);
-    }
-  }, [isAuthenticated, user]);
+const Header = ({ user }) => {
+  const { isAuthenticated } = useAuth0();
 
   return (
     <header>
@@ -56,8 +45,8 @@ const Header = () => {
           </button> */}
           <div class="justify-content-end" id="navbarNav">
             <div style={{ position: "absolute", right: "8px", top: "41px" }}>
-              {!isLogin && <Login />}
-              {isLogin && <Logout />}
+              {!isAuthenticated && <Login />}
+              {isAuthenticated && <Logout />}
             </div>
             {isAuthenticated && (
               <ul class="navbar-nav">
@@ -78,10 +67,10 @@ const Header = () => {
                     aria-expanded="false"
                   >
                     <span style={{ marginRight: "15px" }}>
-                      Hello, {loggedUser?.name}
+                      Hello, {user?.name}
                     </span>
                     <img
-                      src={loggedUser?.picture}
+                      src={user?.picture}
                       alt="user profile"
                       class="rounded-circle"
                       width="50"

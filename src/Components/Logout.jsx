@@ -21,7 +21,10 @@ const Logout = () => {
 
   return (
     <div>
-      <button className="btn btn-primary buttonStyle" onClick={() => onLogout()}>
+      <button
+        className="btn btn-primary buttonStyle"
+        onClick={() => onLogout()}
+      >
         Logout
       </button>
     </div>
