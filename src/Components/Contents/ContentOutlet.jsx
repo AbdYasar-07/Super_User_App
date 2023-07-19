@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ContentHeader from "../Contents/ContentHeader";
 import ContentBody from "../Contents/ContentBody";
 import AddUser from "../Users/AddUser";
+import Modal from "../Users/demoModal";
 
 const ContentOutlet = () => {
   const [isUserAdded, setIsUserAdded] = useState(false);
@@ -11,7 +12,7 @@ const ContentOutlet = () => {
         title="Users"
         description="Open a user to add them to a group or assign them to a role"
       />
-      {/* <AddUser setIsUserAdded={setIsUserAdded} /> */}
+      <AddUser setIsUserAdded={setIsUserAdded} />
       <ContentBody isUserAdded={isUserAdded} />
     </div>
   );
