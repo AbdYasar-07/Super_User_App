@@ -20,8 +20,6 @@ const Search = ({ setRecords, records, setLoadSpinner }) => {
 
   // need to achieve search
   const handleSearch = (value) => {
-    console.log("data", data);
-    console.log("records", records);
     if (value) {
       setLoadSpinner(true);
       const searchedRecords = data?.filter((record) => {
