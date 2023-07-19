@@ -7,6 +7,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "react-router-dom";
 import AppSpinner from "../../Utils/AppSpinner";
 import { FaUser } from "react-icons/fa";
+import Search from "../../Utils/Search";
 
 const ContentBody = ({ isUserAdded }) => {
   const [data, setData] = useState([]);
@@ -93,11 +94,26 @@ const ContentBody = ({ isUserAdded }) => {
     }
   };
 
+  const formData = (users) => {
+    const actualUsers = users?.map((user) => {
+      return {
+        userId: user.user_id,
+        email: user.email,
+        name: user.name,
+        lastLogin: formatTimestamp(user.last_login),
+        loginCount: user.logins_count,
+        connection: user.identities[0].connection,
+      };
+    });
+
+    return actualUsers;
+  };
+
   const authExtensionApi = async (url, method, body, token) => {
     const response = Axios(resource + `/${url}`, method, body, token);
     response
       .then((data) => {
-        setData(data.users);
+        setData(formData(data?.users));
       })
       .catch((error) => {
         console.error(
@@ -135,6 +151,13 @@ const ContentBody = ({ isUserAdded }) => {
     <div>
       {loadSpinner && <AppSpinner />}
       {!loadSpinner && (
+        <Search
+          records={data}
+          setRecords={setData}
+          setLoadSpinner={setLoadSpinner}
+        />
+      )}
+      {!loadSpinner && (
         <div className="container" style={{ height: "499px" }}>
           {" "}
           <hr />
@@ -151,25 +174,27 @@ const ContentBody = ({ isUserAdded }) => {
             <tbody>
               {currentItems &&
                 currentItems.map((item) => (
-                  <tr key={item.user_id}>
+                  <tr key={item.userId}>
                     <td>
-                      <Link to={`/users/${item.user_id}`}>{item.name}</Link>
+                      <Link to={`/users/${item.userId}`}>{item.name}</Link>
                     </td>
                     <td>{item.email}</td>
-                    <td>{formatTimestamp(item.last_login)}</td>
-                    <td>{item.logins_count}</td>
-                    <td>{item.identities[0].connection}</td>
+                    <td>{item.lastLogin}</td>
+                    <td>{item.loginCount}</td>
+                    <td>{item.connection}</td>
                   </tr>
                 ))}
             </tbody>
           </table>
-          {!loadSpinner && !localStorage.getItem("auth_access_token") && (
-            <div>
-              <h6>
-                No user's found <FaUser style={{ marginBottom: "5px" }} />{" "}
-              </h6>
-            </div>
-          )}
+          {!loadSpinner &&
+            (!localStorage.getItem("auth_access_token") ||
+              data.length === 0) && (
+              <div>
+                <h6>
+                  No user's found <FaUser style={{ marginBottom: "5px" }} />{" "}
+                </h6>
+              </div>
+            )}
         </div>
       )}
       {!loadSpinner && localStorage.getItem("auth_access_token") && (
