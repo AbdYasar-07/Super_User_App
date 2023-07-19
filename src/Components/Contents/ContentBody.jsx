@@ -132,6 +132,7 @@ const ContentBody = ({ isUserAdded }) => {
         console.error("error ::", error);
       }
     };
+    setLoadSpinner(true);
     fetchData();
   }, []);
 
@@ -190,7 +191,7 @@ const ContentBody = ({ isUserAdded }) => {
           </table>
           {!loadSpinner &&
             (!localStorage.getItem("auth_access_token") ||
-              data.length === 0) && (
+              data?.length === 0) && (
               <div>
                 <h6>
                   No user's found <FaUser style={{ marginBottom: "5px" }} />{" "}
