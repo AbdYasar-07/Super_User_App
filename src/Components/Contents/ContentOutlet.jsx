@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import ContentHeader from "../Contents/ContentHeader";
 import ContentBody from "../Contents/ContentBody";
 import AddUser from "../Users/AddUser";
-import Modal from "../Users/demoModal";
 
 const ContentOutlet = () => {
   const [isUserAdded, setIsUserAdded] = useState(false);
