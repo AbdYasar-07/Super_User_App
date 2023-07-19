@@ -114,6 +114,7 @@ const ContentBody = ({ isUserAdded }) => {
     response
       .then((data) => {
         setData(formData(data?.users));
+        setLoadSpinner(false);
       })
       .catch((error) => {
         console.error(
@@ -141,6 +142,7 @@ const ContentBody = ({ isUserAdded }) => {
       null,
       localStorage.getItem("auth_access_token")
     );
+    setLoadSpinner(true);
   }, [isUserAdded]);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;

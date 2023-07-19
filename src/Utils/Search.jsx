@@ -43,13 +43,14 @@ const Search = ({ setRecords, records, setLoadSpinner }) => {
 
   return (
     <div className="container ms-auto mt-3">
-      <div className="input-group mb-3 w-25">
+      <div className="input-group mb-3">
         <input
           type="text"
           style={{
             font: "1.15rem/1.85rem var(--bs-font-sans-serif)",
             fontWeight: "400",
             color: "rgb(114, 114, 114)",
+            marginLeft: "73%",
           }}
           className="form-control p-1 px-3 border-1"
           placeholder="Search here...."

@@ -19,6 +19,7 @@ function AddUser({ setIsUserAdded }) {
   const [repeatPasswordValidation, setRepeatPasswordValidation] =
     useState(false);
   const [userModal, setUserModal] = useState(false);
+  const [isModelView,setIsModelView]=useState(false);
   const initializeFileds = () => {
     setUserModal(true);
     setValidation(false);
@@ -151,17 +152,19 @@ function AddUser({ setIsUserAdded }) {
       databaseConnection.length !== 0
     ) {
       createUser();
+      setIsUserAdded(false);
     }
   };
   const toggleButton = () => {
-    setIsUserAdded(false);
     setUserModal(false);
   };
   useEffect(() => {
     const init = () => {
       getDatabaseConnections();
     };
-
+    if (localStorage.getItem("access_token")?.length > 0) {
+      setIsModelView(true);
+    }
     init();
   }, []);
   return (
@@ -173,8 +176,8 @@ function AddUser({ setIsUserAdded }) {
       >
         + Create user
       </button>
-      {userModal && (
-        <div className="customModal">
+      {isModelView && userModal && (
+        <div className="customModal transitionEffect">
           <div className="col-3 m-auto">
             <div class="modal-content container col-4">
               <div class="modal-header">

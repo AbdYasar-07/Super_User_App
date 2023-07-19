@@ -7,11 +7,13 @@ const ContentOutlet = () => {
   const [isUserAdded, setIsUserAdded] = useState(false);
   return (
     <div>
-      <ContentHeader
-        title="Users"
-        description="Open a user to add them to a group or assign them to a role"
-      />
-      <AddUser setIsUserAdded={setIsUserAdded} />
+      <div className="d-flex align-items-center container">
+        <ContentHeader
+          title="Users"
+          description="Open a user to add them to a group or assign them to a role"
+        />
+        <AddUser setIsUserAdded={setIsUserAdded} />
+      </div>
       <ContentBody isUserAdded={isUserAdded} />
     </div>
   );
