@@ -12,7 +12,7 @@ const Logout = () => {
         localStorage.removeItem("user_profile");
       })
       .catch((error) => {
-        console.error("Error ::", error);
+        console.error("Error while logging out ::", error);
       })
       .finally(() => {
         console.log("removed local storages..");
