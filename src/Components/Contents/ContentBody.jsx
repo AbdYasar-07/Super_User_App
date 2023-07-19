@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import AppSpinner from "../../Utils/AppSpinner";
 import { FaUser } from "react-icons/fa";
 
-const ContentBody = ({isUserAdded}) => {
+const ContentBody = ({ isUserAdded }) => {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -117,19 +117,18 @@ const ContentBody = ({isUserAdded}) => {
     };
     fetchData();
   }, []);
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     authExtensionApi(
       "users",
       "GET",
       null,
       localStorage.getItem("auth_access_token")
     );
-  },[isUserAdded])
+  }, [isUserAdded]);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = data && data.slice(indexOfFirstItem, indexOfLastItem);
-        console.log(currentItems,"currentItems");
   const handlePageChange = (page) => setCurrentPage(page);
 
   return (
