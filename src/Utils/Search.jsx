@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FaSearch } from "react-icons/fa";
 
 /**
@@ -11,15 +11,10 @@ import { FaSearch } from "react-icons/fa";
  * @author k.Abdul Yashar
  */
 
-const Search = ({ setRecords, records, setLoadSpinner }) => {
-  const [data, SetData] = useState(records);
-
-  useEffect(() => {
-    SetData(records);
-  }, []);
-
-  // need to achieve search
+const Search = ({ setRecords, records, setLoadSpinner, data }) => {
   const handleSearch = (value) => {
+    console.log("data", data);
+    console.log("records", records);
     if (value) {
       setLoadSpinner(true);
       const searchedRecords = data?.filter((record) => {
@@ -43,14 +38,13 @@ const Search = ({ setRecords, records, setLoadSpinner }) => {
 
   return (
     <div className="container ms-auto mt-3">
-      <div className="input-group mb-3">
+      <div className="input-group mb-3 w-25">
         <input
           type="text"
           style={{
             font: "1.15rem/1.85rem var(--bs-font-sans-serif)",
             fontWeight: "400",
             color: "rgb(114, 114, 114)",
-            marginLeft: "73%",
           }}
           className="form-control p-1 px-3 border-1"
           placeholder="Search here...."

@@ -11,6 +11,7 @@ import Search from "../../Utils/Search";
 
 const ContentBody = ({ isUserAdded }) => {
   const [data, setData] = useState([]);
+  const [allRecords, setAllRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const { getAccessTokenSilently } = useAuth0();
@@ -114,6 +115,7 @@ const ContentBody = ({ isUserAdded }) => {
     response
       .then((data) => {
         setData(formData(data?.users));
+        setAllRecords(formData(data?.users));
         setLoadSpinner(false);
       })
       .catch((error) => {
@@ -158,6 +160,7 @@ const ContentBody = ({ isUserAdded }) => {
           records={data}
           setRecords={setData}
           setLoadSpinner={setLoadSpinner}
+          data={allRecords}
         />
       )}
       {!loadSpinner && (
@@ -176,7 +179,7 @@ const ContentBody = ({ isUserAdded }) => {
             </thead>
             <tbody>
               {currentItems &&
-                currentItems.map((item) => (
+                currentItems?.map((item) => (
                   <tr key={item.userId}>
                     <td>
                       <Link to={`/users/${item.userId}`}>{item.name}</Link>
@@ -191,7 +194,7 @@ const ContentBody = ({ isUserAdded }) => {
           </table>
           {!loadSpinner &&
             (!localStorage.getItem("auth_access_token") ||
-              data?.length === 0) && (
+              data.length === 0) && (
               <div>
                 <h6>
                   No user's found <FaUser style={{ marginBottom: "5px" }} />{" "}
