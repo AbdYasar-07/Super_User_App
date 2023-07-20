@@ -12,6 +12,7 @@ function AddUser({ setIsUserAdded }) {
   const [databaseConnection, setDatabaseConnection] = useState("");
   const [validation, setValidation] = useState(false);
   const [emailValidation, setEmailValidation] = useState(false);
+  const [isConnection, setIsConnection] = useState(false);
   const [passwordValidation, setPasswordValidation] = useState(false);
   const [passwordCapableValidation, setPasswordCapableValidation] =
     useState(false);
@@ -19,8 +20,11 @@ function AddUser({ setIsUserAdded }) {
   const [repeatPasswordValidation, setRepeatPasswordValidation] =
     useState(false);
   const [userModal, setUserModal] = useState(false);
-  const [isModelView,setIsModelView]=useState(false);
+  const [isModelView, setIsModelView] = useState(false);
+  const [isDisable, setIsDisable] = useState(false);
   const initializeFileds = () => {
+    setIsDisable(false);
+    setIsConnection(false);
     setUserModal(true);
     setValidation(false);
     setEmailValidation(false);
@@ -124,7 +128,12 @@ function AddUser({ setIsUserAdded }) {
       ? setPasswordCapableValidation(true)
       : setPasswordCapableValidation(false);
   };
-
+  const isConnectionValidate = () => {
+    console.log(databaseConnection);
+    databaseConnection.length === 0
+      ? setIsConnection(true)
+      : setIsConnection(false);
+  };
   const comparePassword = () => {
     setRepeatPasswordValidation(true);
     userPassword !== repeatPassword
@@ -153,6 +162,7 @@ function AddUser({ setIsUserAdded }) {
     ) {
       createUser();
       setIsUserAdded(false);
+      setIsDisable(true);
     }
   };
   const toggleButton = () => {
@@ -290,8 +300,9 @@ function AddUser({ setIsUserAdded }) {
                     <select
                       className="w-100 form-control"
                       onChange={(e) => setDatabaseConnection(e.target.value)}
+                      onBlur={isConnectionValidate}
                     >
-                      <option value={"none"}> None </option>
+                      <option value={""}> None </option>
                       {listOfConnnection.length > 0 &&
                         listOfConnnection?.map((dataBase, index) => {
                           return (
@@ -301,12 +312,10 @@ function AddUser({ setIsUserAdded }) {
                           );
                         })}
                       {listOfConnnection.length == 0 && (
-                        <option value={"No data base found"}>
-                          No data base found
-                        </option>
+                        <option value={""}>No data base found</option>
                       )}
                     </select>
-                    {validation && databaseConnection === "none" && (
+                    {validation && isConnection && (
                       <p className="text-start text-danger">
                         Connection is required
                       </p>
@@ -327,6 +336,7 @@ function AddUser({ setIsUserAdded }) {
                   type="submit"
                   class="btn btn-primary"
                   onClick={() => getUserData()}
+                  disabled={isDisable}
                 >
                   Create
                 </button>
