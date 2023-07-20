@@ -11,10 +11,18 @@ import { FaSearch } from "react-icons/fa";
  * @author k.Abdul Yashar
  */
 
-const Search = ({ setRecords, records, setLoadSpinner, data }) => {
+const Search = ({
+  setRecords,
+  records,
+  setLoadSpinner,
+  data,
+  isSearchActived,
+  lastTrackofPage,
+}) => {
   const handleSearch = (value) => {
-    console.log("data", data);
-    console.log("records", records);
+    // console.log(data);
+    // // console.log("data", data);
+    // console.log("records", records);
     if (value) {
       setLoadSpinner(true);
       const searchedRecords = data?.filter((record) => {
@@ -29,6 +37,7 @@ const Search = ({ setRecords, records, setLoadSpinner, data }) => {
       });
 
       setRecords(searchedRecords);
+      value.length !== 0 ? isSearchActived(true) : isSearchActived(false);
       setLoadSpinner(false);
       return;
     }

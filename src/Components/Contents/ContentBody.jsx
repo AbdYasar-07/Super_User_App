@@ -16,14 +16,17 @@ const ContentBody = ({ isUserAdded }) => {
   const [itemsPerPage] = useState(10);
   const { getAccessTokenSilently } = useAuth0();
   const [loadSpinner, setLoadSpinner] = useState(true);
-
+  const [currentItems, setcurrentItems] = useState([]);
+  const [isSearchActive, setIsSearchActive] = useState(false);
   const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
 
   const fetchAccessToken = async () => {
     await getAccessTokenSilently()
       .then(async (response) => {
         localStorage.setItem("access_token", response);
-        await fetchAuthorizationToken();
+        return await fetchAuthorizationToken().then(() => {
+          return true;
+        });
       })
       .catch((error) => {
         console.error("Error while fetching token", error);
@@ -88,9 +91,6 @@ const ContentBody = ({ isUserAdded }) => {
         })
         .catch((error) => {
           console.error("Error while fetching authorization token ::", error);
-        })
-        .finally(() => {
-          setLoadSpinner(false);
         });
     }
   };
@@ -129,12 +129,14 @@ const ContentBody = ({ isUserAdded }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchAccessToken();
+        await fetchAccessToken().finally((response) => {
+          console.log(response);
+          setLoadSpinner(true);
+        });
       } catch (error) {
         console.error("error ::", error);
       }
     };
-    setLoadSpinner(true);
     fetchData();
   }, []);
 
@@ -147,10 +149,18 @@ const ContentBody = ({ isUserAdded }) => {
     );
     setLoadSpinner(true);
   }, [isUserAdded]);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = data && data.slice(indexOfFirstItem, indexOfLastItem);
   const handlePageChange = (page) => setCurrentPage(page);
+  useEffect(() => {
+    var indexOfLastItem = currentPage * itemsPerPage;
+    if (isSearchActive === true) {
+      indexOfLastItem = 10;
+      setIsSearchActive(false);
+      setCurrentPage(1);
+    }
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItem = data && data.slice(indexOfFirstItem, indexOfLastItem);
+    setcurrentItems(currentItem);
+  }, [isSearchActive, data, currentPage]);
 
   return (
     <div>
@@ -159,6 +169,7 @@ const ContentBody = ({ isUserAdded }) => {
         <Search
           records={data}
           setRecords={setData}
+          isSearchActived={setIsSearchActive}
           setLoadSpinner={setLoadSpinner}
           data={allRecords}
         />
@@ -194,7 +205,7 @@ const ContentBody = ({ isUserAdded }) => {
           </table>
           {!loadSpinner &&
             (!localStorage.getItem("auth_access_token") ||
-              data.length === 0) && (
+              data?.length === 0) && (
               <div>
                 <h6>
                   No user's found <FaUser style={{ marginBottom: "5px" }} />{" "}

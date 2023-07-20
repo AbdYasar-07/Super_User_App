@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Axios from "../../Utils/Axios";
 import "../Styles/AddUser.css";
 import { FaUser } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function AddUser({ setIsUserAdded }) {
   const [userEmail, setUserEmail] = useState("");
@@ -37,6 +39,9 @@ function AddUser({ setIsUserAdded }) {
     setUserPassword("");
     setDatabaseConnection("");
     setRepeatPassword("");
+    if (localStorage.getItem("access_token")?.length > 0) {
+      setIsModelView(true);
+    }
   };
 
   const getAuthToken = async () => {
@@ -101,12 +106,23 @@ function AddUser({ setIsUserAdded }) {
           true
         )
           .then((addedUser) => {
-            console.log(addedUser, "addedUser");
-            setIsUserAdded(true);
+            console.log("added user", addedUser);
+            if (addedUser.hasOwnProperty("response")) {
+              console.log(addedUser.response.data.message, "addedUser");
+              toast(addedUser.response.data.message, { type: "error" });
+              setIsDisable(false);
+              return;
+            }
+            toast(`${addedUser.name} is added`, { type: "success" });
             setUserModal(false);
+            setIsUserAdded(true);
           })
           .catch((error) => {
-            console.error("error ::", error.message);
+            console.log("error :::", JSON.stringify(error));
+            if (JSON.stringify(error) !== "{}") {
+              toast(error.response.data.message, { type: "error" });
+              setIsDisable(false);
+            }
           });
       });
     }
@@ -172,13 +188,11 @@ function AddUser({ setIsUserAdded }) {
     const init = () => {
       getDatabaseConnections();
     };
-    if (localStorage.getItem("access_token")?.length > 0) {
-      setIsModelView(true);
-    }
     init();
   }, []);
   return (
     <div>
+      <ToastContainer />
       <button
         type="button"
         class="btn btn-primary"
