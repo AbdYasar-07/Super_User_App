@@ -8,6 +8,7 @@ Project Dependencies
     4. npm i react-router-dom
     5. npm install react-icons
     6. npm i @auth0/auth0-react
+    7. npm i react-toastify
 
 #####################################################################################
 
