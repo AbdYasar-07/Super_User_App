@@ -8,8 +8,9 @@ import { Link } from "react-router-dom";
 import AppSpinner from "../../Utils/AppSpinner";
 import { FaUser } from "react-icons/fa";
 import Search from "../../Utils/Search";
+import { toast } from "react-toastify";
 
-const ContentBody = ({ isUserAdded }) => {
+const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
   const [data, setData] = useState([]);
   const [allRecords, setAllRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,13 +25,14 @@ const ContentBody = ({ isUserAdded }) => {
     await getAccessTokenSilently()
       .then(async (response) => {
         localStorage.setItem("access_token", response);
+        setIsTokenFteched(true);
         return await fetchAuthorizationToken().then(() => {
           return true;
         });
       })
       .catch((error) => {
+        toast("Login required", { type: "error", position: "top-center" });
         console.error("Error while fetching token", error);
-        setLoadSpinner(false);
       });
   };
 
@@ -119,6 +121,7 @@ const ContentBody = ({ isUserAdded }) => {
         setLoadSpinner(false);
       })
       .catch((error) => {
+        setLoadSpinner(false);
         console.error(
           "Error while accessing authorization resource :::",
           error
@@ -130,8 +133,6 @@ const ContentBody = ({ isUserAdded }) => {
     const fetchData = async () => {
       try {
         await fetchAccessToken().finally((response) => {
-          console.log(response);
-          setLoadSpinner(true);
         });
       } catch (error) {
         console.error("error ::", error);
@@ -197,7 +198,7 @@ const ContentBody = ({ isUserAdded }) => {
                     </td>
                     <td>{item.email}</td>
                     <td>{item.lastLogin}</td>
-                    <td>{item.loginCount}</td>
+                    <td>{item.loginCount || 0}</td>
                     <td>{item.connection}</td>
                   </tr>
                 ))}
@@ -205,13 +206,17 @@ const ContentBody = ({ isUserAdded }) => {
           </table>
           {!loadSpinner &&
             (!localStorage.getItem("auth_access_token") ||
-              data?.length === 0) && (
+              data?.length === 0) &&
+            localStorage.getItem("auth_access_token") && (
               <div>
                 <h6>
                   No user's found <FaUser style={{ marginBottom: "5px" }} />{" "}
                 </h6>
               </div>
             )}
+          {!loadSpinner && (data?.length === 0) ||!localStorage.getItem("auth_access_token") && (
+            <h6 className="mt-4">Login required</h6>
+          )}
         </div>
       )}
       {!loadSpinner && localStorage.getItem("auth_access_token") && (

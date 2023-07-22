@@ -17,3 +17,6 @@
 .transitionEffect{
  top:0;
 }
+.cursorDisable{
+  cursor: not-allowed ;
+}

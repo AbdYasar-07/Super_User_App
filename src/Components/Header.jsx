@@ -8,7 +8,6 @@ import Logout from "./Logout";
 
 const Header = ({ user }) => {
   const { isAuthenticated } = useAuth0();
-
   return (
     <header>
       <nav

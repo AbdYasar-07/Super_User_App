@@ -5,7 +5,7 @@ import { FaUser } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function AddUser({ setIsUserAdded }) {
+function AddUser({ setIsUserAdded, isTokenFetched }) {
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUsername] = useState("");
   const [userPassword, setUserPassword] = useState("");
@@ -65,6 +65,7 @@ function AddUser({ setIsUserAdded }) {
       });
   };
   const getDatabaseConnections = async () => {
+    console.log(localStorage.getItem("access_token"));
     // check whether the access_token is valid or not
     if (localStorage.getItem("access_token")?.length > 0) {
       await getAuthToken()
@@ -189,13 +190,14 @@ function AddUser({ setIsUserAdded }) {
       getDatabaseConnections();
     };
     init();
-  }, []);
+  }, [isTokenFetched]);
   return (
-    <div>
+    <div className={`${!isTokenFetched ? "cursorDisable" : ""}`}>
       <ToastContainer />
       <button
         type="button"
         class="btn btn-primary"
+        disabled={!isTokenFetched}
         onClick={() => initializeFileds()}
       >
         + Create user

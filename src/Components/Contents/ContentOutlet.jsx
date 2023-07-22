@@ -5,6 +5,8 @@ import AddUser from "../Users/AddUser";
 
 const ContentOutlet = () => {
   const [isUserAdded, setIsUserAdded] = useState(false);
+  const [isTokenFetched, setIsTokenFteched] = useState(false);
+
   return (
     <div className="container">
       <ContentHeader
@@ -12,9 +14,15 @@ const ContentOutlet = () => {
         description="Open a user to add them to a group or assign them to a role"
       />
       <div className="position-relative mt-5 p-0">
-        <ContentBody isUserAdded={isUserAdded} />
+        <ContentBody
+          isUserAdded={isUserAdded}
+          setIsTokenFteched={setIsTokenFteched}
+        />
         <div className="position-absolute top-0 end-0 p-0 me-4">
-          <AddUser setIsUserAdded={setIsUserAdded} />
+          <AddUser
+            setIsUserAdded={setIsUserAdded}
+            isTokenFetched={isTokenFetched}
+          />
         </div>
       </div>
     </div>
