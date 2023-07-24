@@ -13,6 +13,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   const [listOfConnnection, setlistOfConnnection] = useState([]);
   const [databaseConnection, setDatabaseConnection] = useState("");
   const [userNameValidation, setUserNameValidation] = useState(false);
+  const [emailReqdValidation, setEmailReqdValidation] = useState(false);
   const [validation, setValidation] = useState(false);
   const [emailValidation, setEmailValidation] = useState(false);
   const [isConnection, setIsConnection] = useState(false);
@@ -31,6 +32,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
     setUserModal(true);
     setValidation(false);
     setUserNameValidation(false);
+    setEmailReqdValidation(false);
     setEmailValidation(false);
     setPasswordValidation(false);
     setPasswordCapableValidation(false);
@@ -135,6 +137,10 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
       userEmail
     );
     !emailValidation ? setEmailValidation(true) : setEmailValidation(false);
+    if (!userEmail.trim()) {
+      setEmailReqdValidation(true);
+      // setValidation(true); 
+    }
   };
 
   const isPassWordValidate = () => {
@@ -153,6 +159,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
       ? setIsConnection(true)
       : setIsConnection(false);
   };
+
   const comparePassword = () => {
     setRepeatPasswordValidation(true);
     userPassword !== repeatPassword
@@ -164,6 +171,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
     isConnectionValidate();
     setValidation(true);
     setUserNameValidation(true);
+    setEmailReqdValidation(true);
     setIsPasswordValue(true);
     setRepeatPasswordValidation(true);
 
@@ -201,6 +209,13 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
     };
     init();
   }, [isTokenFetched]);
+
+  useEffect(() => {
+    const init1 = () => {
+      isConnectionValidate();
+    };
+    init1();
+  }, [databaseConnection]);
   return (
     <div className={`${!isTokenFetched ? "cursorDisable" : ""}`}>
       <ToastContainer />
@@ -260,7 +275,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                       onChange={(e) => setUserEmail(e.target.value)}
                       onBlur={isemailvalidate}
                     />
-                    {validation && !userEmail && (
+                    {emailReqdValidation && !userEmail && (
                       <p className="text-danger mt-1 mb-0">
                         Email is required *
                       </p>
@@ -326,7 +341,9 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                     </label>
                     <select
                       className="w-100 form-control"
-                      onChange={(e) => setDatabaseConnection(e.target.value)}
+                      onChange={(e) => {
+                        setDatabaseConnection(e.target.value);
+                      }}
                       onBlur={isConnectionValidate}
                     >
                       <option value={""}> None </option>
