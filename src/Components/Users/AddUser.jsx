@@ -163,6 +163,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   const getUserData = () => {
     isConnectionValidate();
     setValidation(true);
+    setUserNameValidation(true);
     setIsPasswordValue(true);
     setRepeatPasswordValidation(true);
 
