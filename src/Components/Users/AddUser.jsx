@@ -65,7 +65,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
       });
   };
   const getDatabaseConnections = async () => {
-    console.log(localStorage.getItem("access_token"));
+    // console.log(localStorage.getItem("access_token"));
     // check whether the access_token is valid or not
     if (localStorage.getItem("access_token")?.length > 0) {
       await getAuthToken()
@@ -107,7 +107,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
           true
         )
           .then((addedUser) => {
-            console.log("added user", addedUser);
+            // console.log("added user", addedUser);
             if (addedUser.hasOwnProperty("response")) {
               console.log(addedUser.response.data.message, "addedUser");
               toast(addedUser.response.data.message, { type: "error" });
@@ -146,7 +146,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
       : setPasswordCapableValidation(false);
   };
   const isConnectionValidate = () => {
-    console.log(databaseConnection);
+    // console.log(databaseConnection);
     databaseConnection.length === 0
       ? setIsConnection(true)
       : setIsConnection(false);
@@ -159,6 +159,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   };
 
   const getUserData = () => {
+    isConnectionValidate();
     setValidation(true);
     setIsPasswordValue(true);
     setRepeatPasswordValidation(true);
@@ -305,7 +306,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                     )}
                     {repeatPassword && passwordValidation && (
                       <p className="text-danger">
-                        Password should be same as password
+                        Repeat password should be same as password
                       </p>
                     )}
                   </div>

@@ -11,26 +11,26 @@ const Header = ({ user }) => {
   return (
     <header>
       <nav
-        class="navbar navbar-expand-lg navbar-light"
+        class="d-block position-relative"
         style={{ padding: "0", boxShadow: "5px 5px 5px #adadad !important" }}
       >
-        <div class="d-flex justify-content-around align-items-center ms-5">
-          <a class="navbar-brand">
+        <div class="d-flex justify-content-between align-items-center ms-5">
+          <div>
             <img
               src="https://cdn.auth0.com/styleguide/latest/lib/logos/img/logo-blue.svg"
               alt="auth0"
               width="100"
               height="100"
+              className="ms-3 me-5"
             />
-          </a>
-          <a class="navbar-brand ms-4">
             <img
               src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSSetZHth0LHil6EGxW5ngEMCLEzKEyWrlaA&usqp=CAU"
               alt="Conception"
               width="120"
               height="100"
+              className="ms-3 me-3"
             />
-          </a>
+          </div>
           {/* <button
             class="navbar-toggler"
             type="button"
@@ -48,36 +48,23 @@ const Header = ({ user }) => {
               {isAuthenticated && <Logout />}
             </div>
             {isAuthenticated && (
-              <ul class="navbar-nav">
-                <li
-                  class="nav-item dropdown"
-                  style={{
-                    position: "absolute",
-                    right: "114px",
-                    bottom: "18px",
-                  }}
-                >
-                  <a
-                    class="nav-link"
-                    href="#"
-                    id="navbarDropdown"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    <span style={{ marginRight: "15px" }}>
-                      Hello, {user?.name}
-                    </span>
-                    <img
-                      src={user?.picture}
-                      alt="user profile"
-                      class="rounded-circle"
-                      width="50"
-                      height="50"
-                    />
-                  </a>
-                </li>
-              </ul>
+              <div
+                class=""
+                style={{
+                  position: "absolute",
+                  right: "128px",
+                  bottom: "18px",
+                }}
+              >
+                <span style={{ marginRight: "15px" }}>Hello, {user?.name}</span>
+                <img
+                  src={user?.picture}
+                  alt="user profile"
+                  class="rounded-circle"
+                  width="50"
+                  height="50"
+                />
+              </div>
             )}
           </div>
         </div>

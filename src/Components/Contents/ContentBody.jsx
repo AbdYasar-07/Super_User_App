@@ -132,8 +132,7 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchAccessToken().finally((response) => {
-        });
+        await fetchAccessToken().finally((response) => {});
       } catch (error) {
         console.error("error ::", error);
       }
@@ -214,9 +213,11 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
                 </h6>
               </div>
             )}
-          {!loadSpinner && (data?.length === 0) ||!localStorage.getItem("auth_access_token") && (
-            <h6 className="mt-4">Login required</h6>
-          )}
+          {!loadSpinner &&
+            (data?.length === 0 || data == undefined) &&
+            !localStorage.getItem("auth_access_token") && (
+              <h6 className="mt-4">Login required</h6>
+            )}
         </div>
       )}
       {!loadSpinner && localStorage.getItem("auth_access_token") && (

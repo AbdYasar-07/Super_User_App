@@ -11,7 +11,7 @@ const domain = process.env.REACT_APP_DOMAIN_ID;
 const clientID = process.env.REACT_APP_CLIENT_ID;
 const apiAudience = process.env.REACT_APP_AUDIENCE;
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Auth0Provider
       domain={domain}
       clientId={clientID}
@@ -25,5 +25,5 @@ root.render(
     >
       <App />
     </Auth0Provider>
-  </React.StrictMode>
+  // </React.StrictMode>
 );

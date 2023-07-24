@@ -16,19 +16,21 @@ const Groups = () => {
 
   return (
     <div className="container">
-      <NavTabBody
-        showDesc={true}
-        description={process.env.REACT_APP_AUTH_GROUPS_DESC}
-      />
-      <NavTabBodyButton
-        showButton={true}
-        buttonLabel={"ADD USER TO GROUPS"}
-        isAdded={isAdded}
-        setIsAdded={setIsAdded}
-        isRoles={false}
-        scopes={"groups"}
-        dialogBoxHeader={`Add ${userName} to one or more groups`}
-      />
+      <div className="d-flex justify-content-between mt-4 mb-4">
+        <NavTabBody
+          showDesc={true}
+          description={process.env.REACT_APP_AUTH_GROUPS_DESC}
+        />
+        <NavTabBodyButton
+          showButton={true}
+          buttonLabel={"ADD USER TO GROUPS"}
+          isAdded={isAdded}
+          setIsAdded={setIsAdded}
+          isRoles={false}
+          scopes={"groups"}
+          dialogBoxHeader={`Add ${userName} to one or more groups`}
+        />
+      </div>
       <NavTabTable
         columns={["Name", "Description", "Remove"]}
         showTable={true}
