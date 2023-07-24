@@ -12,6 +12,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   const [repeatPassword, setRepeatPassword] = useState("");
   const [listOfConnnection, setlistOfConnnection] = useState([]);
   const [databaseConnection, setDatabaseConnection] = useState("");
+  const [userNameValidation, setUserNameValidation] = useState(false);
   const [validation, setValidation] = useState(false);
   const [emailValidation, setEmailValidation] = useState(false);
   const [isConnection, setIsConnection] = useState(false);
@@ -29,6 +30,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
     setIsConnection(false);
     setUserModal(true);
     setValidation(false);
+    setUserNameValidation(false);
     setEmailValidation(false);
     setPasswordValidation(false);
     setPasswordCapableValidation(false);
@@ -186,6 +188,12 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   const toggleButton = () => {
     setUserModal(false);
   };
+  const handleBlur = () => {
+    if (!userName.trim()) {
+      setUserNameValidation(true);
+      // setValidation(true); 
+    }
+  };
   useEffect(() => {
     const init = () => {
       getDatabaseConnections();
@@ -231,8 +239,9 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                       id="userEmail"
                       value={userName}
                       onChange={(e) => setUsername(e.target.value)}
+                      onBlur={handleBlur}
                     />
-                    {validation && !userName && (
+                    {userNameValidation && !userName && (
                       <p className="text-danger mt-1 mb-0">
                         Name is required *
                       </p>
