@@ -1,3 +1,21 @@
+.nav-container {
+  position: relative;
+  padding-top: 20px; /* Adjust as needed for the header height */
+  border: 1px solid #444; /* Darker border color */
+  border-radius: 5px; /* Add border radius for enclosure effect */
+}
+
+/* Add styles for the header text */
+.nav-header {
+  position: absolute;
+  top: -10px; /* Adjust top position to move the header text slightly up */
+  left: 20px; /* Adjust left position as needed */
+  background-color: white; /* Match the background color of the container */
+  padding: 0 5px; /* Adjust padding as needed */
+  font-weight: bold;
+  color: black;
+}
+
 .col-auto {
   box-shadow: 5px 5px 5px #adadad70;
 }
@@ -19,14 +37,16 @@
 
 /* Button style */
 .links {
+  display: flex!important;
+  justify-content: center;
   color: #ffff !important;
-  margin: 10px;
-  width: 150px;
+  margin: 5px;
+  width: 95px;
   border: none;
-  padding: 10px;
+  /* padding: 5px; */
   border-radius: 5px !important;
-  padding: 12px 18px;
-  font-size: 16px;
+  padding: 5px 5px;
+  font-size: 14px;
   text-transform: uppercase;
   cursor: pointer;
   color: white;
@@ -35,4 +55,8 @@
   outline: none;
   background-position: center;
   transition: background 0.8s;
+}
+
+.links-advanced {
+  background-color: #adadad !important;
 }

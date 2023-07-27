@@ -32,44 +32,59 @@ const SidebarComponent = () => {
                 // className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start "
                 className="p-0 d-inline-block"
                 id="menu"
-                // style={{marginTop:"50px",marginLeft:"40px"}}
+              // style={{marginTop:"50px",marginLeft:"40px"}}
               >
-                <li className="nav-item mt-2">
+                <li className="nav-item mt-2 mb-4">
                   <Link
                     to={"/users"}
                     className="links nav-link align-middle px-0"
                   >
                     <i className="fs-4 bi-house"></i>{" "}
-                    <span className="ms-1 d-none d-sm-inline">User</span>
+                    <span className="d-none d-sm-inline">User</span>
                   </Link>
                 </li>
-                <li className=" mt-2">
-                  <a
-                    data-bs-toggle="collapse"
-                    className="links nav-link px-0 align-middle"
-                  >
-                    <i className="fs-4 bi-speedometer2"></i>{" "}
-                    <span className="ms-1 d-none d-sm-inline">Groups</span>{" "}
-                  </a>
-                </li>
-                <li className=" mt-2">
-                  <a className="links nav-link px-0 align-middle">
-                    <i className="fs-4 bi-table"></i>{" "}
-                    <span className="ms-1 d-none d-sm-inline">Roles</span>
-                  </a>
-                </li>
-                <li className=" mt-2">
-                  <a className="links ripple nav-link px-0 align-middle">
-                    <i className="fs-4 bi-table"></i>{" "}
-                    <span className="ms-1 d-none d-sm-inline">Permissions</span>
-                  </a>
-                </li>
               </ul>
+              <div className="nav-container">
+                <span className="nav-header">Administrators only !</span>
+                <ul>
+                  <span
+                    style={{
+                      position: "absolute",
+                      color: "black",
+                      fontFamily: "Lucida Handwriting",
+                      fontSize: "14px",
+                      left: "5px",
+                      top: "8px"
+                    }}
+                  >Advanced features</span>
+                  <li className=" mt-2">
+                    <a
+                      data-bs-toggle="collapse"
+                      className="links links-advanced nav-link px-0 align-middle"
+                    >
+                      <i className="fs-4 bi-speedometer2"></i>{" "}
+                      <span className="d-none d-sm-inline">Groups</span>{" "}
+                    </a>
+                  </li>
+                  <li className=" mt-2">
+                    <a className="links links-advanced nav-link px-0 align-middle">
+                      <i className="fs-4 bi-table"></i>{" "}
+                      <span className="d-none d-sm-inline">Roles</span>
+                    </a>
+                  </li>
+                  <li className=" mt-2">
+                    <a className="links links-advanced ripple nav-link px-0 align-middle">
+                      <i className="fs-4 bi-table"></i>{" "}
+                      <span className="d-none d-sm-inline">Permissions</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
               <hr />
             </div>
           </div>
           <div className="col py-3">
-            <Content/>
+            <Content />
           </div>
         </div>
       </div>
