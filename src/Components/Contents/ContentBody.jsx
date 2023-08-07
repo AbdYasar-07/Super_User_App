@@ -15,7 +15,7 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
   const [allRecords, setAllRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, getIdTokenClaims } = useAuth0();
   const [loadSpinner, setLoadSpinner] = useState(true);
   const [currentItems, setcurrentItems] = useState([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -130,12 +130,25 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
   };
 
   useEffect(() => {
+    const fetchPermissions = async () => {
+      await getIdTokenClaims()
+        .then(async (response) => {
+          localStorage.setItem("permissions", JSON.stringify(response?.user_profile?.authorization?.permissions));
+          localStorage.setItem("roles", JSON.stringify(response?.user_profile?.authorization?.roles));
+        })
+      }
+    fetchPermissions();
+  }, []);
+
+  useEffect(() => {
+
     const fetchData = async () => {
       try {
-        await fetchAccessToken().finally((response) => {});
+        await fetchAccessToken().finally((response) => { });
       } catch (error) {
         console.error("error ::", error);
       }
+
     };
     fetchData();
   }, []);
@@ -149,7 +162,9 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
     );
     setLoadSpinner(true);
   }, [isUserAdded]);
-  const handlePageChange = (page) => setCurrentPage(page);
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  }
   useEffect(() => {
     var indexOfLastItem = currentPage * itemsPerPage;
     if (isSearchActive === true) {
@@ -189,7 +204,7 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
               </tr>
             </thead>
             <tbody>
-              {currentItems &&
+              {currentItems && localStorage.getItem("permissions")?.includes("users:read") &&
                 currentItems?.map((item) => (
                   <tr key={item.userId}>
                     <td>
@@ -218,9 +233,16 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
             !localStorage.getItem("auth_access_token") && (
               <h6 className="mt-4">Login required</h6>
             )}
+
+          {!loadSpinner && !localStorage.getItem("permissions")?.includes("users:read") && localStorage.getItem("auth_access_token") &&
+            (
+              <>
+                <h6>The Logged-in User does NOT have the permission to view list of users <FaUser style={{ marginBottom: "5px" }} />{" "}</h6>
+              </>
+            )}
         </div>
       )}
-      {!loadSpinner && localStorage.getItem("auth_access_token") && (
+      {!loadSpinner && localStorage.getItem("permissions")?.includes("users:read") && localStorage.getItem("auth_access_token") && (
         <div className="paginator container">
           <Pagination
             currentPage={currentPage}

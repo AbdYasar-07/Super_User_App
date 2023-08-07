@@ -26,6 +26,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   const [userModal, setUserModal] = useState(false);
   const [isModelView, setIsModelView] = useState(false);
   const [isDisable, setIsDisable] = useState(false);
+  const createUserRoles = ["s","Test Role"];
   const initializeFileds = () => {
     setIsDisable(false);
     setIsConnection(false);
@@ -47,6 +48,37 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
       setIsModelView(true);
     }
   };
+
+
+  function hasAMatch(arr1, arr2) {
+    return arr1?.some(item1 => arr2?.some(item2 => item1 === item2));
+  }
+
+  function hasMatch(arr1, arr2) {
+    if (!Array.isArray(arr2)) return false;
+    for (const item1 of arr1) {
+      if (arr2.some(item2 => item1 === item2)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function hasExactMatch(arr1, storedArr2) {
+    let arr2 = [];
+    if (typeof storedArr2 === "string" && storedArr2.trim() !== "") {
+      try {
+        arr2 = JSON.parse(storedArr2);
+      } catch (error) {
+        // Handle the error or use a default value for arr2
+        console.error("Error parsing storedArr2:", error);
+      }
+    }
+    if (!Array.isArray(arr2)) {
+      return false;
+    }
+    return arr1?.some(item1 => arr2.includes(item1));
+  }
 
   const getAuthToken = async () => {
     let body = {
@@ -216,13 +248,14 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
     };
     init1();
   }, [databaseConnection]);
+
   return (
-    <div className={`${!isTokenFetched ? "cursorDisable" : ""}`}>
+    <div className={`${(!isTokenFetched || !hasExactMatch(createUserRoles, localStorage.getItem("roles"))) ? "cursorDisable" : ""}`}>
       <ToastContainer />
       <button
         type="button"
         class="btn btn-primary"
-        disabled={!isTokenFetched}
+        disabled={!isTokenFetched || !hasExactMatch(createUserRoles, localStorage.getItem("roles"))}
         onClick={() => initializeFileds()}
       >
         + Create user

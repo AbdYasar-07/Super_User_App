@@ -10,6 +10,8 @@ const Logout = () => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("auth_access_token");
         localStorage.removeItem("user_profile");
+        localStorage.removeItem("permissions");
+        localStorage.removeItem("roles");
       })
       .catch((error) => {
         console.error("Error while logging out ::", error);
