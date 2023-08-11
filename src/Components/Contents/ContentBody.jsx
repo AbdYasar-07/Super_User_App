@@ -131,12 +131,16 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
 
   useEffect(() => {
     const fetchPermissions = async () => {
+      const hasEffectRun = sessionStorage.getItem('hasEffectRun');
+      if (!hasEffectRun) {
       await getIdTokenClaims()
         .then(async (response) => {
           localStorage.setItem("permissions", JSON.stringify(response?.user_profile?.authorization?.permissions));
           localStorage.setItem("roles", JSON.stringify(response?.user_profile?.authorization?.roles));
         })
+        sessionStorage.setItem('hasEffectRun', 'true');
       }
+    };
     fetchPermissions();
   }, []);
 
