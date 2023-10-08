@@ -20,11 +20,9 @@ const Search = ({
   lastTrackofPage,
 }) => {
   const handleSearch = (value) => {
-    // console.log(data);
-    // // console.log("data", data);
-    // console.log("records", records);
     if (value) {
       setLoadSpinner(true);
+      // eslint-disable-next-line array-callback-return
       const searchedRecords = data?.filter((record) => {
         for (const key in record) {
           if (

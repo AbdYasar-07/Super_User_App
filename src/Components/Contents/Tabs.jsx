@@ -1,11 +1,11 @@
 import React from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function Tabs({ tabs }) {
   const { userId } = useParams();
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
-  const tabNavigation = (paths) => { 
+  const tabNavigation = (paths) => {
     navigate(`/users/${userId}/${paths.toLowerCase()}`);
   };
   return (

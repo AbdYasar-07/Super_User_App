@@ -26,7 +26,6 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   const [userModal, setUserModal] = useState(false);
   const [isModelView, setIsModelView] = useState(false);
   const [isDisable, setIsDisable] = useState(false);
-  const createUserRoles = ["s","Test Role"];
   const initializeFileds = () => {
     setIsDisable(false);
     setIsConnection(false);
@@ -49,37 +48,6 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
     }
   };
 
-
-  function hasAMatch(arr1, arr2) {
-    return arr1?.some(item1 => arr2?.some(item2 => item1 === item2));
-  }
-
-  function hasMatch(arr1, arr2) {
-    if (!Array.isArray(arr2)) return false;
-    for (const item1 of arr1) {
-      if (arr2.some(item2 => item1 === item2)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function hasExactMatch(arr1, storedArr2) {
-    let arr2 = [];
-    if (typeof storedArr2 === "string" && storedArr2.trim() !== "") {
-      try {
-        arr2 = JSON.parse(storedArr2);
-      } catch (error) {
-        // Handle the error or use a default value for arr2
-        console.error("Error parsing storedArr2:", error);
-      }
-    }
-    if (!Array.isArray(arr2)) {
-      return false;
-    }
-    return arr1?.some(item1 => arr2.includes(item1));
-  }
-
   const getAuthToken = async () => {
     let body = {
       client_id: process.env.REACT_APP_AUTH_MANAGEMENT_CLIENT_ID,
@@ -97,7 +65,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
         return managementToken;
       })
       .catch((error) => {
-        return "Error ::", error;
+        return `Error ::", ${error}`;
       });
   };
   const getDatabaseConnections = async () => {
@@ -165,13 +133,12 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
     }
   };
   const isemailvalidate = () => {
-    let emailValidation = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(
-      userEmail
-    );
+    let emailValidation =
+      /^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/.test(userEmail);
     !emailValidation ? setEmailValidation(true) : setEmailValidation(false);
     if (!userEmail.trim()) {
       setEmailReqdValidation(true);
-      // setValidation(true); 
+      // setValidation(true);
     }
   };
 
@@ -232,7 +199,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   const handleBlur = () => {
     if (!userName.trim()) {
       setUserNameValidation(true);
-      // setValidation(true); 
+      // setValidation(true);
     }
   };
   useEffect(() => {
@@ -240,6 +207,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
       getDatabaseConnections();
     };
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTokenFetched]);
 
   useEffect(() => {
@@ -247,15 +215,15 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
       isConnectionValidate();
     };
     init1();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [databaseConnection]);
-
   return (
-    <div className={`${(!isTokenFetched || !hasExactMatch(createUserRoles, localStorage.getItem("roles"))) ? "cursorDisable" : ""}`}>
+    <div className={`${!isTokenFetched ? "cursorDisable" : ""}`}>
       <ToastContainer />
       <button
         type="button"
         class="btn btn-primary"
-        disabled={!isTokenFetched || !hasExactMatch(createUserRoles, localStorage.getItem("roles"))}
+        disabled={!isTokenFetched}
         onClick={() => initializeFileds()}
       >
         + Create user
@@ -388,7 +356,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                             </option>
                           );
                         })}
-                      {listOfConnnection.length == 0 && (
+                      {listOfConnnection.length === 0 && (
                         <option value={""}>No data base found</option>
                       )}
                     </select>

@@ -1,20 +1,49 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from "react";
+import React, { useEffect } from "react";
 import "./Styles/Header.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import Login from "./Login";
 import Logout from "./Logout";
+import { useDispatch } from "react-redux";
+import { addUserInfo } from "../store/auth0Slice";
+import ToolTip from "../Utils/Tooltip";
 
 const Header = ({ user }) => {
-  const { isAuthenticated } = useAuth0();
+  const dispatch = useDispatch();
+  const { isAuthenticated, getAccessTokenSilently, getIdTokenClaims } =
+    useAuth0();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const loadAuth0Context = async () => {
+        const access_token = await getAccessTokenSilently();
+        const id_token = await getIdTokenClaims();
+        dispatch(
+          addUserInfo({
+            accessToken: access_token,
+            idToken: id_token,
+            permissions: user.user_profile.authorization?.permissions,
+            roles: user.user_profile.authorization?.roles,
+            groups: user.user_profile.authorization?.groups?.filter((group) =>
+              group.startsWith("SUA:")
+            ),
+          })
+        );
+      };
+
+      loadAuth0Context();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
   return (
     <header>
       <nav
-        class="d-block position-relative"
+        className="d-block position-relative"
         style={{ padding: "0", boxShadow: "5px 5px 5px #adadad !important" }}
       >
-        <div class="d-flex justify-content-between align-items-center ms-5">
+        <div className="d-flex justify-content-between align-items-center ms-5">
           <div>
             <img
               src="https://cdn.auth0.com/styleguide/latest/lib/logos/img/logo-blue.svg"
@@ -31,25 +60,14 @@ const Header = ({ user }) => {
               className="ms-3 me-3"
             />
           </div>
-          {/* <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button> */}
-          <div class="justify-content-end" id="navbarNav">
+          <div className="justify-content-end" id="navbarNav">
             <div style={{ position: "absolute", right: "8px", top: "41px" }}>
               {!isAuthenticated && <Login />}
               {isAuthenticated && <Logout />}
             </div>
             {isAuthenticated && (
               <div
-                class=""
+                className=""
                 style={{
                   position: "absolute",
                   right: "128px",
@@ -60,12 +78,18 @@ const Header = ({ user }) => {
                 <img
                   src={user?.picture}
                   alt="user profile"
-                  class="rounded-circle"
+                  className="rounded-circle"
                   width="50"
                   height="50"
                 />
               </div>
             )}
+            <div style={{ position: "relative", right: "461px", top: "8px" }}>
+              <ToolTip
+                label={"About"}
+                info={"SUPER USER PORTAL APP VERSION : 3.0"}
+              />
+            </div>
           </div>
         </div>
         <div style={{ marginRight: "10px" }}></div>

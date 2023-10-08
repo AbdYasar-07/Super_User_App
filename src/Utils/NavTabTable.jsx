@@ -150,7 +150,7 @@ const NavTabTable = ({
     }
 
     if (isUserAllRoles) {
-      setUserAllRoles(roles); 
+      setUserAllRoles(roles);
     }
   };
 
@@ -228,24 +228,27 @@ const NavTabTable = ({
         );
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdded, isDeleted]);
 
   useEffect(() => {
     if (loaction.pathname.endsWith("allroles")) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       scope = "All-Roles";
     }
+    // eslint-disable-next-line default-case
     switch (scope) {
       case "Group":
-        userGroups.length == 0 ? setTableValue(true) : setTableValue(false);
+        userGroups.length === 0 ? setTableValue(true) : setTableValue(false);
         break;
       case "All-Groups":
-        userAllGroups.length == 0 ? setTableValue(true) : setTableValue(false);
+        userAllGroups.length === 0 ? setTableValue(true) : setTableValue(false);
         break;
       case "Roles":
-        userRoles.length == 0 ? setTableValue(true) : setTableValue(false);
+        userRoles.length === 0 ? setTableValue(true) : setTableValue(false);
         break;
       case "All-Roles":
-        userAllRoles.length == 0 ? setTableValue(true) : setTableValue(false);
+        userAllRoles.length === 0 ? setTableValue(true) : setTableValue(false);
         break;
     }
   }, [userGroups, userAllGroups, userRoles, userAllRoles]);
@@ -368,7 +371,11 @@ const NavTabTable = ({
           </table>
         </div>
       )}
-      {!loadSpinner && tableValue && <p className="text-center fw-bold fs-6">No {scope.toLowerCase()} were found</p>}
+      {!loadSpinner && tableValue && (
+        <p className="text-center fw-bold fs-6">
+          No {scope.toLowerCase()} were found
+        </p>
+      )}
     </>
   );
 };
