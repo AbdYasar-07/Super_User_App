@@ -9,6 +9,10 @@ Project Dependencies
     5. npm install react-icons
     6. npm i @auth0/auth0-react
     7. npm i react-toastify
+    8. npm i react-bootstrap
+    9. npm install react-redux
+    10. npm install @reduxjs/toolkit
+    
 
 #####################################################################################
 
