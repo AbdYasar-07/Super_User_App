@@ -8,7 +8,11 @@ const Logout = () => {
   const dispatch = useDispatch();
 
   const onLogout = async () => {
-    logout()
+    logout({
+      logoutParams: {
+        returnTo: window.location.origin,
+      },
+    })
       .then(() => {
         dispatch(clearState());
         localStorage.removeItem("access_token");
