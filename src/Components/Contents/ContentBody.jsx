@@ -9,6 +9,8 @@ import AppSpinner from "../../Utils/AppSpinner";
 import { FaUser } from "react-icons/fa";
 import Search from "../../Utils/Search";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { addAuthorizationCode } from "../../store/auth0Slice";
 
 const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
   const [data, setData] = useState([]);
@@ -19,8 +21,12 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
   const [loadSpinner, setLoadSpinner] = useState(true);
   const [currentItems, setcurrentItems] = useState([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [authorizationAccessCode, setauthorizationAccessCode] = useState("");
   const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
-
+  const dispatch = useDispatch();
+  const auth_access_token = useSelector(
+    (state) => state.auth0Context.authorizationAccessCode
+  );
   const fetchAccessToken = async () => {
     await getAccessTokenSilently()
       .then(async (response) => {
@@ -84,11 +90,13 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
       authorizationResponse
         .then((tkn) => {
           localStorage.setItem("auth_access_token", tkn.access_token);
+          dispatch(addAuthorizationCode({ code: tkn.access_token }));
           authExtensionApi(
             "users",
             "GET",
             null,
-            localStorage.getItem("auth_access_token")
+            tkn.access_token
+            // localStorage.getItem("auth_access_token")
           );
         })
         .catch((error) => {
@@ -130,27 +138,6 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
   };
 
   useEffect(() => {
-    const fetchPermissions = async () => {
-      const hasEffectRun = sessionStorage.getItem("hasEffectRun");
-      console.log("has effect run :::", hasEffectRun);
-      if (hasEffectRun) {
-        await getIdTokenClaims().then(async (response) => {
-          localStorage.setItem(
-            "permissions",
-            JSON.stringify(response?.user_profile?.authorization?.permissions)
-          );
-          localStorage.setItem(
-            "roles",
-            JSON.stringify(response?.user_profile?.authorization?.roles)
-          );
-        });
-        sessionStorage.setItem("hasEffectRun", "true");
-      }
-    };
-    fetchPermissions();
-  }, []);
-
-  useEffect(() => {
     const fetchData = async () => {
       try {
         await fetchAccessToken().finally((response) => {});
@@ -166,7 +153,8 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
       "users",
       "GET",
       null,
-      localStorage.getItem("auth_access_token")
+      authorizationAccessCode
+      // localStorage.getItem("auth_access_token")
     );
     setLoadSpinner(true);
   }, [isUserAdded]);
@@ -184,7 +172,11 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
     const currentItem = data && data.slice(indexOfFirstItem, indexOfLastItem);
     setcurrentItems(currentItem);
   }, [isSearchActive, data, currentPage]);
-
+  useEffect(() => {
+    if (auth_access_token) {
+      setauthorizationAccessCode(auth_access_token);
+    }
+  }, [auth_access_token]);
   return (
     <div>
       {loadSpinner && <AppSpinner />}
@@ -227,21 +219,24 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
             </tbody>
           </table>
           {!loadSpinner &&
-            (!localStorage.getItem("auth_access_token") ||
-              data?.length === 0) &&
-            localStorage.getItem("auth_access_token") && (
+            // (!localStorage.getItem("auth_access_token") ||
+            (!authorizationAccessCode || data?.length === 0) &&
+            // localStorage.getItem("auth_access_token") && (
+            authorizationAccessCode && (
               <div>
                 <h6>
                   No user's found <FaUser style={{ marginBottom: "5px" }} />{" "}
                 </h6>
               </div>
             )}
-          {!loadSpinner &&
+          {loadSpinner &&
             (data?.length === 0 || data === undefined) &&
-            !localStorage.getItem("auth_access_token") && (
+            // !localStorage.getItem("auth_access_token") && (
+            !authorizationAccessCode && (
               <h6 className="mt-4">Login required</h6>
             )}
-          {!loadSpinner && !localStorage.getItem("auth_access_token") && (
+          {/* {!loadSpinner && !localStorage.getItem("auth_access_token") && ( */}
+          {loadSpinner && !authorizationAccessCode && (
             <>
               <h6>
                 The logged-in user does not have the permission to view list of
@@ -251,7 +246,8 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
           )}
         </div>
       )}
-      {!loadSpinner && localStorage.getItem("auth_access_token") && (
+      {/* {!loadSpinner && localStorage.getItem("auth_access_token") && ( */}
+      {!loadSpinner && authorizationAccessCode && (
         <div className="paginator container">
           <Pagination
             currentPage={currentPage}
