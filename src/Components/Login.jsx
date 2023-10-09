@@ -26,11 +26,11 @@ const Login = () => {
 
   return (
     <>
-      <div>
+      <div className="ms-2 me-3">
         <Button
           variant="primary"
-          style={{ padding: "10px", width: "92px" }}
-          size="sm"
+          // style={{ padding: "10px", width: "92px" }}
+          // size="sm"
           onClick={() => login()}
         >
           Login

@@ -229,18 +229,16 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
         + Create user
       </button>
       {isModelView && userModal && (
-        <div className="customModal transitionEffect">
-          <div className="col-3 m-auto">
+        <div className="customModal transitionEffect ">
+          <div className="col-3 m-auto bg-white p-2">
             <div class="modal-content container col-4">
-              <div class="modal-header">
+              <div class="modal-header  mb-3 pt-2">
                 <h1 class="modal-title fs-5" id="exampleModalLabel">
                   Create User <FaUser style={{ marginBottom: "4px" }} />
                 </h1>
                 <button
                   type="button"
                   class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
                   onClick={() => toggleButton()}
                 ></button>
               </div>
@@ -371,15 +369,14 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
               <div class="modal-footer">
                 <button
                   type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
+                  class="btn btn-secondary m-2 mt-3"
                   onClick={toggleButton}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  class="btn btn-primary"
+                  class="btn btn-primary m-2  mt-3"
                   onClick={() => getUserData()}
                   disabled={isDisable}
                 >

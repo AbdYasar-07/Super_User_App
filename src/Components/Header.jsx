@@ -60,19 +60,27 @@ const Header = ({ user }) => {
               className="ms-3 me-3"
             />
           </div>
-          <div className="justify-content-end" id="navbarNav">
-            <div style={{ position: "absolute", right: "8px", top: "41px" }}>
-              {!isAuthenticated && <Login />}
-              {isAuthenticated && <Logout />}
+          <div
+            className="justify-content-end d-flex align-items-center "
+            id="navbarNav"
+          >
+            <div
+              className="ms-2 me-3"
+              //  style={{ position: "relative", right: "461px", top: "8px" }}
+            >
+              <ToolTip
+                label={"About"}
+                info={"SUPER USER PORTAL APP VERSION : 3.0"}
+              />
             </div>
             {isAuthenticated && (
               <div
-                className=""
-                style={{
-                  position: "absolute",
-                  right: "128px",
-                  bottom: "18px",
-                }}
+                className="ms-2 me-3"
+                // style={{
+                //   position: "absolute",
+                //   right: "128px",
+                //   bottom: "18px",
+                // }}
               >
                 <span style={{ marginRight: "15px" }}>Hello, {user?.name}</span>
                 <img
@@ -84,11 +92,11 @@ const Header = ({ user }) => {
                 />
               </div>
             )}
-            <div style={{ position: "relative", right: "461px", top: "8px" }}>
-              <ToolTip
-                label={"About"}
-                info={"SUPER USER PORTAL APP VERSION : 3.0"}
-              />
+            <div
+            // style={{ position: "absolute", right: "8px", top: "41px" }}
+            >
+              {!isAuthenticated && <Login />}
+              {isAuthenticated && <Logout />}
             </div>
           </div>
         </div>
