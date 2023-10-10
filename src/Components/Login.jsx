@@ -26,7 +26,7 @@ const Login = () => {
 
   return (
     <>
-      <div className="ms-2 me-3">
+      <div className="ms-2 me-3 custombtnStyle">
         <Button
           variant="primary"
           // style={{ padding: "10px", width: "92px" }}

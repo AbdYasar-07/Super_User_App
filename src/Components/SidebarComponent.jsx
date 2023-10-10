@@ -40,11 +40,14 @@ const SidebarComponent = () => {
                 key={index + 1}
                 to={`${getPermissionLabel(essentialPermission).toLowerCase()}`}
                 className="links nav-link align-middle px-0"
-                style={{ padding: "10px", width: "150px" }}
+                style={{ width: "128px" ,padding:"8px 0"}}
                 aria-disabled={disableLink}
               >
                 {/* <i className="fs-4 bi-house"></i>{" "} */}
-                <span className="d-none d-sm-inline">
+                <span
+                  className="d-none d-sm-inline"
+                  style={{ fontSize: "14px" }}
+                >
                   {getPermissionLabel(essentialPermission)}
                 </span>
               </Link>
@@ -62,7 +65,7 @@ const SidebarComponent = () => {
             <div className="text-white min-vh-100">
               <a className="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none justi justify-content-center">
                 <span
-                  className="fs-5 d-none d-sm-inline "
+                  className="fs-6 d-none d-sm-inline "
                   style={{
                     marginTop: "20px",
                     color: "black",

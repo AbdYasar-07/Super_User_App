@@ -30,7 +30,7 @@ const Logout = () => {
   };
 
   return (
-    <div className="me-3">
+    <div className="me-3 custombtnStyle">
       <button className="btn btn-primary " onClick={() => onLogout()}>
         Logout
       </button>

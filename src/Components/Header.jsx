@@ -8,7 +8,7 @@ import Logout from "./Logout";
 import { useDispatch } from "react-redux";
 import { addUserInfo } from "../store/auth0Slice";
 import ToolTip from "../Utils/Tooltip";
-
+import concepcionLogo from "../asset/concepcionImg.png";
 const Header = ({ user }) => {
   const dispatch = useDispatch();
   const { isAuthenticated, getAccessTokenSilently, getIdTokenClaims } =
@@ -49,14 +49,15 @@ const Header = ({ user }) => {
               src="https://cdn.auth0.com/styleguide/latest/lib/logos/img/logo-blue.svg"
               alt="auth0"
               width="100"
-              height="100"
+              height="92"
               className="ms-3 me-5"
             />
             <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSSetZHth0LHil6EGxW5ngEMCLEzKEyWrlaA&usqp=CAU"
+              src={concepcionLogo}
+              // src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSSetZHth0LHil6EGxW5ngEMCLEzKEyWrlaA&usqp=CAU"
               alt="Conception"
-              width="120"
-              height="100"
+              width="100"
+              height="50"
               className="ms-3 me-3"
             />
           </div>
@@ -65,7 +66,7 @@ const Header = ({ user }) => {
             id="navbarNav"
           >
             <div
-              className="ms-2 me-3"
+              className="ms-2 me-3 custombtnStyle"
               //  style={{ position: "relative", right: "461px", top: "8px" }}
             >
               <ToolTip
