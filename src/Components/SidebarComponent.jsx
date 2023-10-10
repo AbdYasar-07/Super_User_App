@@ -3,16 +3,10 @@ import "./Styles/SidebarComponent.css";
 import Content from "./Contents/Content";
 import { FaUserAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 const SidebarComponent = () => {
   const userInfo = useSelector((state) => state.auth0Context);
-
-  useEffect(() => {
-    console.log("UserInfo ::", userInfo);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const getPermissionLabel = (permission) => {
     let colonIndex = permission.indexOf(":");
@@ -28,11 +22,6 @@ const SidebarComponent = () => {
     return permissions
       ?.filter((permission) => permission !== "SUA:Login")
       .map((essentialPermission, index) => {
-        let disableLink =
-          getPermissionLabel(essentialPermission) === "Permissions" ||
-          getPermissionLabel(essentialPermission) === "Groups" ||
-          getPermissionLabel(essentialPermission) === "Roles";
-
         return (
           <>
             <li className="nav-item mt-2 mb-4">
@@ -40,8 +29,7 @@ const SidebarComponent = () => {
                 key={index + 1}
                 to={`${getPermissionLabel(essentialPermission).toLowerCase()}`}
                 className="links nav-link align-middle px-0"
-                style={{ width: "128px" ,padding:"8px 0"}}
-                aria-disabled={disableLink}
+                style={{ width: "128px", padding: "8px 0" }}
               >
                 {/* <i className="fs-4 bi-house"></i>{" "} */}
                 <span

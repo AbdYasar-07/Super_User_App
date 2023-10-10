@@ -12,6 +12,7 @@ import AllGroups from "./Components/Users/AllGroups";
 import { useEffect, useState } from "react";
 import RolesOutlet from "./Components/Contents/RolesOutlet";
 import AllRoles from "./Components/Users/AllRoles";
+import WildCard from "./Utils/WildCard";
 
 function App() {
   const [isProfileRendered, setIsProfileRendered] = useState(false);
@@ -59,6 +60,7 @@ function App() {
               </Route>
             </Route>
           </Route>
+          <Route path="/*" element={<WildCard />} />
         </Routes>
       </BrowserRouter>
     </div>
