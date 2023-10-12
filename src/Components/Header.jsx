@@ -67,21 +67,21 @@ const Header = ({ user }) => {
           >
             <div
               className="ms-2 me-3 custombtnStyle"
-              //  style={{ position: "relative", right: "461px", top: "8px" }}
+            //  style={{ position: "relative", right: "461px", top: "8px" }}
             >
               <ToolTip
                 label={"About"}
-                info={"SUPER USER PORTAL APP VERSION : 3.0"}
+                info={"SUPER USER PORTAL APP VERSION : 3.1"}
               />
             </div>
             {isAuthenticated && (
               <div
                 className="ms-2 me-3"
-                // style={{
-                //   position: "absolute",
-                //   right: "128px",
-                //   bottom: "18px",
-                // }}
+              // style={{
+              //   position: "absolute",
+              //   right: "128px",
+              //   bottom: "18px",
+              // }}
               >
                 <span style={{ marginRight: "15px" }}>Hello, {user?.name}</span>
                 <img
