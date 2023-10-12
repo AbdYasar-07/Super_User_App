@@ -2,11 +2,15 @@
 import "./Styles/SidebarComponent.css";
 import Content from "./Contents/Content";
 import { FaUserAlt } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { Button } from "react-bootstrap";
 
 const SidebarComponent = () => {
   const userInfo = useSelector((state) => state.auth0Context);
+  const restrictedRoutes = ['permissions', 'groups', 'roles'];
+  const navigate = useNavigate();
 
   const getPermissionLabel = (permission) => {
     let colonIndex = permission.indexOf(":");
@@ -18,6 +22,24 @@ const SidebarComponent = () => {
     }
   };
 
+  const handleSidebarClick = (route) => {
+    if (restrictedRoutes.includes(route)) {
+      toast.error(`Access to this ${route.toUpperCase()} functionality is restricted`, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+      return;
+    }
+
+    navigate(`/${route}`);
+  }
+
   const showEssentialPermissions = (permissions) => {
     return permissions
       ?.filter((permission) => permission !== "SUA:Login")
@@ -25,11 +47,11 @@ const SidebarComponent = () => {
         return (
           <>
             <li className="nav-item mt-2 mb-4">
-              <Link
+              <Button
                 key={index + 1}
-                to={`${getPermissionLabel(essentialPermission).toLowerCase()}`}
                 className="links nav-link align-middle px-0"
                 style={{ width: "128px", padding: "8px 0" }}
+                onClick={() => handleSidebarClick(`${getPermissionLabel(essentialPermission).toLowerCase()}`)}
               >
                 {/* <i className="fs-4 bi-house"></i>{" "} */}
                 <span
@@ -38,7 +60,7 @@ const SidebarComponent = () => {
                 >
                   {getPermissionLabel(essentialPermission)}
                 </span>
-              </Link>
+              </Button>
             </li>
           </>
         );
