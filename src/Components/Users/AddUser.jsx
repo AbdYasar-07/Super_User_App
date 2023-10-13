@@ -4,15 +4,18 @@ import "../Styles/AddUser.css";
 import { FaUser } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useDispatch, useSelector } from "react-redux";
+import { addConceptionDatabase } from "../../store/auth0Slice";
 
 function AddUser({ setIsUserAdded, isTokenFetched }) {
+  const userInfo = useSelector((store) => store.auth0Context);
+  const dispatch = useDispatch();
   const [userEmail, setUserEmail] = useState("");
-  const [userName, setUsername] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
   const [listOfConnnection, setlistOfConnnection] = useState([]);
   const [databaseConnection, setDatabaseConnection] = useState("");
-  const [userNameValidation, setUserNameValidation] = useState(false);
+  // const [userNameValidation, setUserNameValidation] = useState(false);
   const [emailReqdValidation, setEmailReqdValidation] = useState(false);
   const [validation, setValidation] = useState(false);
   const [emailValidation, setEmailValidation] = useState(false);
@@ -31,7 +34,6 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
     setIsConnection(false);
     setUserModal(true);
     setValidation(false);
-    setUserNameValidation(false);
     setEmailReqdValidation(false);
     setEmailValidation(false);
     setPasswordValidation(false);
@@ -39,11 +41,10 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
     setRepeatPasswordValidation(false);
     setIsPasswordValue(false);
     setUserEmail("");
-    setUsername("");
     setUserPassword("");
     setDatabaseConnection("");
     setRepeatPassword("");
-    if (localStorage.getItem("access_token")?.length > 0) {
+    if (userInfo?.accessToken && userInfo?.accessToken?.length > 0) {
       setIsModelView(true);
     }
   };
@@ -69,9 +70,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
       });
   };
   const getDatabaseConnections = async () => {
-    // console.log(localStorage.getItem("access_token"));
-    // check whether the access_token is valid or not
-    if (localStorage.getItem("access_token")?.length > 0) {
+    if (userInfo?.accessToken && userInfo?.accessToken?.length > 0) {
       await getAuthToken()
         .then(async (managementToken) => {
           await Axios(
@@ -82,10 +81,12 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
           )
             .then((databaseNames) => {
               setlistOfConnnection(databaseNames);
+              setDatabaseConnection(filterDatabase('conception'));
+              dispatch(addConceptionDatabase({ conception: databaseNames.filter((db) => db.name === 'conception') }));
             })
             .catch((error) => {
               console.error("Error while fetching Auth0 Databases ::", error);
-            });
+            })
         })
         .catch((error) => {
           console.error("Error while fetching mangement token :::", error);
@@ -95,12 +96,11 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
 
   const createUser = async () => {
     // check whether the access_token is valid or not
-    if (localStorage.getItem("access_token")?.length > 0) {
+    if (userInfo?.accessToken && userInfo?.accessToken?.length > 0) {
       await getAuthToken().then(async (managementToken) => {
         let body = {
           email: userEmail,
-          name: userName,
-          connection: databaseConnection,
+          connection: userInfo.conceptionDatabase[0]?.name,
           password: userPassword,
         };
         await Axios(
@@ -118,7 +118,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
               setIsDisable(false);
               return;
             }
-            toast(`${addedUser.name} is added`, { type: "success" });
+            toast(`${addedUser.name} is added`, { type: "success", theme: "colored" });
             setUserModal(false);
             setIsUserAdded(true);
           })
@@ -152,12 +152,12 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
       ? setPasswordCapableValidation(true)
       : setPasswordCapableValidation(false);
   };
-  const isConnectionValidate = () => {
-    // console.log(databaseConnection);
-    databaseConnection.length === 0
-      ? setIsConnection(true)
-      : setIsConnection(false);
-  };
+  // const isConnectionValidate = () => {
+  //   console.log("db connection validate ****", databaseConnection);
+  //   databaseConnection.length === 1
+  //     ? setIsConnection(true)
+  //     : setIsConnection(false);
+  // };
 
   const comparePassword = () => {
     setRepeatPasswordValidation(true);
@@ -167,12 +167,11 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   };
 
   const getUserData = () => {
-    isConnectionValidate();
     setValidation(true);
-    setUserNameValidation(true);
     setEmailReqdValidation(true);
     setIsPasswordValue(true);
     setRepeatPasswordValidation(true);
+    console.log("DB Connection ***", userInfo.conceptionDatabase);
 
     if (
       !(
@@ -181,12 +180,11 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
         passwordCapableValidation &&
         emailValidation &&
         passwordValidation &&
-        databaseConnection.length !== 0
+        userInfo.conceptionDatabase.length !== 0
       ) &&
-      userName.length !== 0 &&
       userEmail.length !== 0 &&
       userPassword.length !== 0 &&
-      databaseConnection.length !== 0
+      userInfo.conceptionDatabase.length !== 0
     ) {
       createUser();
       setIsUserAdded(false);
@@ -196,34 +194,29 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   const toggleButton = () => {
     setUserModal(false);
   };
-  const handleBlur = () => {
-    if (!userName.trim()) {
-      setUserNameValidation(true);
-      // setValidation(true);
-    }
-  };
+
+  const filterDatabase = (filteredDbname) => {
+    const result = listOfConnnection.filter((db) => {
+      return db.name === filteredDbname;
+    })
+    return result;
+  }
+
   useEffect(() => {
     const init = () => {
       getDatabaseConnections();
     };
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isTokenFetched]);
+  }, [userInfo?.accessToken]);
 
-  useEffect(() => {
-    const init1 = () => {
-      isConnectionValidate();
-    };
-    init1();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [databaseConnection]);
   return (
-    <div className={`${!isTokenFetched ? "cursorDisable" : ""}`}>
+    <div className={`${!userInfo?.accessToken ? "cursorDisable" : ""}`}>
       <ToastContainer />
       <button
         type="button"
         class="btn btn-primary"
-        disabled={!isTokenFetched}
+        disabled={!userInfo?.accessToken}
         onClick={() => initializeFileds()}
       >
         + Create user
@@ -246,25 +239,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                 <form class="row g-2 needs-validation">
                   <div class="mb-3 text-start">
                     <label for="recipient-name" class="col-form-label">
-                      Name<span className="text-danger ps-1">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      class="form-control"
-                      id="userEmail"
-                      value={userName}
-                      onChange={(e) => setUsername(e.target.value)}
-                      onBlur={handleBlur}
-                    />
-                    {userNameValidation && !userName && (
-                      <p className="text-danger mt-1 mb-0">
-                        Name is required *
-                      </p>
-                    )}
-                  </div>
-                  <div class="mb-3 text-start">
-                    <label for="recipient-name" class="col-form-label">
-                      Email<span className="text-danger ps-1">*</span>
+                      Login (email address)<span className="text-danger ps-1">*</span>
                     </label>
                     <input
                       type="email"
@@ -340,25 +315,26 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                     </label>
                     <select
                       className="w-100 form-control"
-                      onChange={(e) => {
-                        setDatabaseConnection(e.target.value);
-                      }}
-                      onBlur={isConnectionValidate}
+                      // onChange={(e) => {
+                      //   setDatabaseConnection(e.target.value);
+                      // }}
+                      disabled={userInfo.conceptionDatabase?.length === 1 ? true : false}
+                    // onBlur={isConnectionValidate}
                     >
-                      <option value={""}> None </option>
-                      {listOfConnnection.length > 0 &&
+                      <option value={userInfo.conceptionDatabase}>Concepcion</option>
+                      {/* {listOfConnnection.length > 0 &&
                         listOfConnnection?.map((dataBase, index) => {
                           return (
                             <option value={dataBase.name} key={index}>
                               {dataBase.name}
                             </option>
                           );
-                        })}
+                        })} */}
                       {listOfConnnection.length === 0 && (
-                        <option value={""}>No data base found</option>
+                        <option value={""}>No database found</option>
                       )}
                     </select>
-                    {validation && isConnection && (
+                    {validation && isConnection && userInfo.conceptionDatabase.length !== 1 && (
                       <p className="text-start text-danger">
                         Connection is required
                       </p>
@@ -385,9 +361,10 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        </div >
+      )
+      }
+    </div >
   );
 }
 
