@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import ContentHeader from "../Contents/ContentHeader";
 import ContentBody from "../Contents/ContentBody";
 import AddUser from "../Users/AddUser";
+import ImportUserModal from "../../Utils/ImportUserModal";
 
 const ContentOutlet = () => {
   const [isUserAdded, setIsUserAdded] = useState(false);
   const [isTokenFetched, setIsTokenFteched] = useState(false);
-
+  const [isPasteModelShow, setIsPasteModelShow] = useState(false);
+  const [isPasteCancel, setIsPasteCancel] = useState(false);
   return (
     <div className="container">
       <ContentHeader
@@ -22,6 +24,15 @@ const ContentOutlet = () => {
           <AddUser
             setIsUserAdded={setIsUserAdded}
             isTokenFetched={isTokenFetched}
+            setIsPasteModelShow={setIsPasteModelShow}
+            isPasteCancel={isPasteCancel}
+            setIsPasteCancel={setIsPasteCancel}
+          />
+        </div>
+        <div>
+          <ImportUserModal
+            isPasteModelShow={isPasteModelShow}
+            setIsPasteCancel={setIsPasteCancel}
           />
         </div>
       </div>

@@ -7,7 +7,13 @@ import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
 import { addConceptionDatabase } from "../../store/auth0Slice";
 
-function AddUser({ setIsUserAdded, isTokenFetched }) {
+function AddUser({
+  setIsUserAdded,
+  isTokenFetched,
+  setIsPasteModelShow,
+  isPasteCancel,
+  setIsPasteCancel,
+}) {
   const userInfo = useSelector((store) => store.auth0Context);
   const dispatch = useDispatch();
   const [userEmail, setUserEmail] = useState("");
@@ -81,12 +87,18 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
           )
             .then((databaseNames) => {
               setlistOfConnnection(databaseNames);
-              setDatabaseConnection(filterDatabase('conception'));
-              dispatch(addConceptionDatabase({ conception: databaseNames.filter((db) => db.name === 'conception') }));
+              setDatabaseConnection(filterDatabase("conception"));
+              dispatch(
+                addConceptionDatabase({
+                  conception: databaseNames.filter(
+                    (db) => db.name === "conception"
+                  ),
+                })
+              );
             })
             .catch((error) => {
               console.error("Error while fetching Auth0 Databases ::", error);
-            })
+            });
         })
         .catch((error) => {
           console.error("Error while fetching mangement token :::", error);
@@ -118,7 +130,10 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
               setIsDisable(false);
               return;
             }
-            toast(`${addedUser.name} is added`, { type: "success", theme: "colored" });
+            toast(`${addedUser.name} is added`, {
+              type: "success",
+              theme: "colored",
+            });
             setUserModal(false);
             setIsUserAdded(true);
           })
@@ -198,9 +213,9 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   const filterDatabase = (filteredDbname) => {
     const result = listOfConnnection.filter((db) => {
       return db.name === filteredDbname;
-    })
+    });
     return result;
-  }
+  };
 
   useEffect(() => {
     const init = () => {
@@ -209,7 +224,14 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo?.accessToken]);
-
+  useEffect(() => {
+    if (isPasteCancel) {
+      setIsModelView(true);
+      setUserModal(true);
+      setIsPasteModelShow(false);
+      setIsPasteCancel(false);
+    }
+  }, [isPasteCancel]);
   return (
     <div className={`${!userInfo?.accessToken ? "cursorDisable" : ""}`}>
       <ToastContainer />
@@ -219,11 +241,11 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
         disabled={!userInfo?.accessToken}
         onClick={() => initializeFileds()}
       >
-        + Create user
+        + Create user'(s)
       </button>
       {isModelView && userModal && (
         <div className="customModal transitionEffect ">
-          <div className="col-3 m-auto bg-white p-2">
+          <div className="col-4 m-auto bg-white p-2">
             <div class="modal-content container col-4">
               <div class="modal-header  mb-3 pt-2">
                 <h1 class="modal-title fs-5" id="exampleModalLabel">
@@ -239,7 +261,8 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                 <form class="row g-2 needs-validation">
                   <div class="mb-3 text-start">
                     <label for="recipient-name" class="col-form-label">
-                      Login (email address)<span className="text-danger ps-1">*</span>
+                      Login (email address)
+                      <span className="text-danger ps-1">*</span>
                     </label>
                     <input
                       type="email"
@@ -318,10 +341,14 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                       // onChange={(e) => {
                       //   setDatabaseConnection(e.target.value);
                       // }}
-                      disabled={userInfo.conceptionDatabase?.length === 1 ? true : false}
-                    // onBlur={isConnectionValidate}
+                      disabled={
+                        userInfo.conceptionDatabase?.length === 1 ? true : false
+                      }
+                      // onBlur={isConnectionValidate}
                     >
-                      <option value={userInfo.conceptionDatabase}>Concepcion</option>
+                      <option value={userInfo.conceptionDatabase}>
+                        Concepcion
+                      </option>
                       {/* {listOfConnnection.length > 0 &&
                         listOfConnnection?.map((dataBase, index) => {
                           return (
@@ -334,11 +361,13 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                         <option value={""}>No database found</option>
                       )}
                     </select>
-                    {validation && isConnection && userInfo.conceptionDatabase.length !== 1 && (
-                      <p className="text-start text-danger">
-                        Connection is required
-                      </p>
-                    )}
+                    {validation &&
+                      isConnection &&
+                      userInfo.conceptionDatabase.length !== 1 && (
+                        <p className="text-start text-danger">
+                          Connection is required
+                        </p>
+                      )}
                   </div>
                 </form>
               </div>
@@ -358,13 +387,22 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                 >
                   Create
                 </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary m-2  mt-3"
+                  onClick={() => {
+                    setUserModal(false);
+                    setIsPasteModelShow(true);
+                  }}
+                >
+                  Create Users
+                </button>
               </div>
             </div>
           </div>
-        </div >
-      )
-      }
-    </div >
+        </div>
+      )}
+    </div>
   );
 }
 

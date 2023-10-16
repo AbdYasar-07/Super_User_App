@@ -14,6 +14,7 @@ import RolesOutlet from "./Components/Contents/RolesOutlet";
 import AllRoles from "./Components/Users/AllRoles";
 import WildCard from "./Utils/WildCard";
 
+
 function App() {
   const [isProfileRendered, setIsProfileRendered] = useState(false);
   const [loggedUserProfile, setLoggedUserProfile] = useState([]);
@@ -61,6 +62,7 @@ function App() {
             </Route>
           </Route>
           <Route path="/*" element={<WildCard />} />
+          
         </Routes>
       </BrowserRouter>
     </div>
