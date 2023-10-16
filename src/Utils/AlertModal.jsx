@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-
+import "../Components/Styles/AlertModal.css"
 const AlertModal = ({ title, body, buttonLabel }) => {
   const [show, setShow] = useState(false);
 
@@ -17,6 +17,7 @@ const AlertModal = ({ title, body, buttonLabel }) => {
   return (
     <>
       <Modal
+        className="alertModal"
         show={show}
         onHide={handleClose}
         backdrop="static"

@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
 import { addConceptionDatabase } from "../../store/auth0Slice";
+import PasswordValidation from "../../Utils/PasswordValidation";
 
 function AddUser({ setIsUserAdded, isTokenFetched }) {
   const userInfo = useSelector((store) => store.auth0Context);
@@ -145,7 +146,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
   const isPassWordValidate = () => {
     setIsPasswordValue(true);
     let passwordValidate =
-      /^(?=.*[!@#$%^&*(),.?":{}|<>])[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]{5,}$/.test(
+      /^(?=.*[!@#$%^&*(),.?":{}|<>])[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]{8,}$/.test(
         userPassword
       );
     !passwordValidate
@@ -222,9 +223,9 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
         + Create user
       </button>
       {isModelView && userModal && (
-        <div className="customModal transitionEffect ">
-          <div className="col-3 m-auto bg-white p-2">
-            <div class="modal-content container col-4">
+        <div className="customModal transitionEffect " style={{ zIndex: "1000" }}>
+          <div className="col-4 m-auto bg-white py-2 px-3">
+            <div class="modal-content container col-5 overflow-hidden">
               <div class="modal-header  mb-3 pt-2">
                 <h1 class="modal-title fs-5" id="exampleModalLabel">
                   Create User <FaUser style={{ marginBottom: "4px" }} />
@@ -244,6 +245,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                     <input
                       type="email"
                       class="form-control"
+                      style={{ padding: "12px", border: "solid 1px #adadad90" }}
                       id="userEmail"
                       value={userEmail}
                       onChange={(e) => setUserEmail(e.target.value)}
@@ -260,18 +262,12 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                       </p>
                     )}
                   </div>
+
                   <div class="mb-3 text-start">
                     <label for="recipient-name" class="col-form-label">
                       Password<span className="text-danger ps-1">*</span>
                     </label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      id="userPassword"
-                      value={userPassword}
-                      onChange={(e) => setUserPassword(e.target.value)}
-                      onBlur={isPassWordValidate}
-                    />
+                    <PasswordValidation password={userPassword} setUserPassword={setUserPassword} onBlurFunc={isPassWordValidate} />
                     {isPassWordValue && !userPassword && (
                       <p className="text-danger mt-1 mb-0">
                         Password is required
@@ -281,7 +277,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                       passwordCapableValidation &&
                       isPassWordValue && (
                         <p className="text-danger">
-                          Password should have atleast 5 characters and special
+                          Password should have atleast 8 characters and special
                           characters
                         </p>
                       )}
@@ -290,14 +286,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                     <label for="recipient-name" class="col-form-label">
                       Repeat Password<span className="text-danger ps-1">*</span>
                     </label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      id="repeatePassword"
-                      value={repeatPassword}
-                      onChange={(e) => setRepeatPassword(e.target.value)}
-                      onBlur={comparePassword}
-                    />
+                    <PasswordValidation password={repeatPassword} setUserPassword={setRepeatPassword} onBlurFunc={comparePassword} />
                     {repeatPasswordValidation && !repeatPassword && (
                       <p className="text-danger mt-1 mb-0">
                         Repeated Password is required
@@ -314,6 +303,7 @@ function AddUser({ setIsUserAdded, isTokenFetched }) {
                       Connection <span className="text-danger ms-2">*</span>
                     </label>
                     <select
+                      style={{ padding: "12px", border: "solid 1px #adadad90" }}
                       className="w-100 form-control"
                       // onChange={(e) => {
                       //   setDatabaseConnection(e.target.value);

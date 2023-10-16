@@ -12,6 +12,7 @@ Project Dependencies
     8. npm i react-bootstrap
     9. npm install react-redux
     10. npm install @reduxjs/toolkit
+    11. npm install primereact
     
 
 #####################################################################################
