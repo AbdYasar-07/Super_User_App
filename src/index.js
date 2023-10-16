@@ -5,6 +5,9 @@ import App from "./App";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle";
 import { Auth0Provider } from "@auth0/auth0-react";
+import { PrimeReactProvider } from 'primereact/api';
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const domain = process.env.REACT_APP_DOMAIN_ID;
@@ -20,10 +23,12 @@ root.render(
       redirect_uri: window.location.origin,
       ignoreCache: true,
       audience: apiAudience,
-      prompt:"login"
+      prompt: "login"
     }}
   >
-    <App />
+    <PrimeReactProvider>
+      <App />
+    </PrimeReactProvider>
   </Auth0Provider>
   // </React.StrictMode>
 );
