@@ -245,7 +245,10 @@ function AddUser({
         + Create user'(s)
       </button>
       {isModelView && userModal && (
-        <div className="customModal transitionEffect " style={{ zIndex: "1000" }}>
+        <div
+          className="customModal transitionEffect "
+          style={{ zIndex: "1000" }}
+        >
           <div className="col-4 m-auto bg-white py-2 px-3">
             <div class="modal-content container col-5 overflow-hidden">
               <div class="modal-header  mb-3 pt-2">
@@ -290,7 +293,11 @@ function AddUser({
                     <label for="recipient-name" class="col-form-label">
                       Password<span className="text-danger ps-1">*</span>
                     </label>
-                    <PasswordValidation password={userPassword} setUserPassword={setUserPassword} onBlurFunc={isPassWordValidate} />
+                    <PasswordValidation
+                      password={userPassword}
+                      setUserPassword={setUserPassword}
+                      onBlurFunc={isPassWordValidate}
+                    />
                     {isPassWordValue && !userPassword && (
                       <p className="text-danger mt-1 mb-0">
                         Password is required
@@ -309,7 +316,11 @@ function AddUser({
                     <label for="recipient-name" class="col-form-label">
                       Repeat Password<span className="text-danger ps-1">*</span>
                     </label>
-                    <PasswordValidation password={repeatPassword} setUserPassword={setRepeatPassword} onBlurFunc={comparePassword} />
+                    <PasswordValidation
+                      password={repeatPassword}
+                      setUserPassword={setRepeatPassword}
+                      onBlurFunc={comparePassword}
+                    />
                     {repeatPasswordValidation && !repeatPassword && (
                       <p className="text-danger mt-1 mb-0">
                         Repeated Password is required
