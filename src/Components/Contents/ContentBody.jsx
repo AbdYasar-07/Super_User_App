@@ -126,7 +126,6 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
       .then((data) => {
         setData(formData(data?.users));
         setAllRecords(formData(data?.users));
-        setLoadSpinner(false);
       })
       .catch((error) => {
         setLoadSpinner(false);
@@ -134,7 +133,10 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
           "Error while accessing authorization resource :::",
           error
         );
-      });
+      })
+      .finally((_) => {
+        setLoadSpinner(false);
+      })
   };
 
   useEffect(() => {

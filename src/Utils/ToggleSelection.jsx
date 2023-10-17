@@ -15,7 +15,7 @@ const ToggleSelection = () => {
     const options = ['Block User', 'Unblock User'];
     const userInfo = useSelector((store) => store.auth0Context);
     const renderedUser = useSelector((store) => store.auth0Context.renderingUser);
-    const [value, setValue] = useState(options[`${JSON.parse(renderedUser).blocked === true ? 1 : 0}`]);
+    const [value, setValue] = useState();
     const dispatch = useDispatch();
 
     useEffect(() => {
