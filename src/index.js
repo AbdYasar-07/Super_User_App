@@ -7,6 +7,8 @@ import "bootstrap/dist/js/bootstrap.bundle";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { PrimeReactProvider } from 'primereact/api';
 import "primereact/resources/themes/lara-light-indigo/theme.css";
+import { Provider } from "react-redux";
+import store from "./store/store";
 
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -27,7 +29,9 @@ root.render(
     }}
   >
     <PrimeReactProvider>
-      <App />
+      <Provider store={store}>
+        <App />
+      </Provider>
     </PrimeReactProvider>
   </Auth0Provider>
   // </React.StrictMode>

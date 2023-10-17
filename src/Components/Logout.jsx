@@ -24,9 +24,6 @@ const Logout = () => {
       .catch((error) => {
         console.error("Error while logging out ::", error);
       })
-      .finally(() => {
-        console.log("removed local storages..");
-      });
   };
 
   return (

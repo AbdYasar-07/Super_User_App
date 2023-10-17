@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import "../Components/Styles/AlertModal.css"
-const AlertModal = ({ title, body, buttonLabel }) => {
+
+const AlertModal = ({ title, body, buttonLabel, variant }) => {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -28,7 +29,7 @@ const AlertModal = ({ title, body, buttonLabel }) => {
         </Modal.Header>
         <Modal.Body>{body}</Modal.Body>
         <Modal.Footer>
-          <Button variant="dark" onClick={handleClose}>
+          <Button variant={variant} onClick={handleClose}>
             {buttonLabel}
           </Button>
         </Modal.Footer>

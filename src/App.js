@@ -13,15 +13,22 @@ import { useEffect, useState } from "react";
 import RolesOutlet from "./Components/Contents/RolesOutlet";
 import AllRoles from "./Components/Users/AllRoles";
 import WildCard from "./Utils/WildCard";
+import { useSelector } from "react-redux";
 
 
 function App() {
   const [isProfileRendered, setIsProfileRendered] = useState(false);
   const [loggedUserProfile, setLoggedUserProfile] = useState([]);
+  const currentSelectedUser = useSelector((store) => store?.auth0Context?.renderingUser);
   useEffect(() => {
-    setLoggedUserProfile(
-      JSON.stringify(JSON.parse(localStorage.getItem("user_profile")), null, 2)
-    );
+    let userProfile = null;
+
+    if (Object.keys(currentSelectedUser).length !== 0) {
+      userProfile = JSON.parse(currentSelectedUser);
+      setLoggedUserProfile(
+        JSON.stringify(userProfile, null, 2)
+      );
+    }
     setIsProfileRendered(false);
   }, [isProfileRendered]);
 
@@ -62,7 +69,7 @@ function App() {
             </Route>
           </Route>
           <Route path="/*" element={<WildCard />} />
-          
+
         </Routes>
       </BrowserRouter>
     </div>

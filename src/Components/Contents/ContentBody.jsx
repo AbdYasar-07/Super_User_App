@@ -17,7 +17,7 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
   const [allRecords, setAllRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const { getAccessTokenSilently, getIdTokenClaims } = useAuth0();
+  const { getAccessTokenSilently } = useAuth0();
   const [loadSpinner, setLoadSpinner] = useState(true);
   const [currentItems, setcurrentItems] = useState([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -140,7 +140,7 @@ const ContentBody = ({ isUserAdded, setIsTokenFteched }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchAccessToken().finally((response) => {});
+        await fetchAccessToken();
       } catch (error) {
         console.error("error ::", error);
       }

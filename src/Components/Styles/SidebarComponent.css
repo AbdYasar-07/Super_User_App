@@ -1,17 +1,24 @@
 .nav-container {
   position: relative;
-  padding-top: 20px; /* Adjust as needed for the header height */
-  border: 1px solid #444; /* Darker border color */
-  border-radius: 5px; /* Add border radius for enclosure effect */
+  padding-top: 20px;
+  /* Adjust as needed for the header height */
+  border: 1px solid #444;
+  /* Darker border color */
+  border-radius: 5px;
+  /* Add border radius for enclosure effect */
 }
 
 /* Add styles for the header text */
 .nav-header {
   position: absolute;
-  top: -10px; /* Adjust top position to move the header text slightly up */
-  left: 20px; /* Adjust left position as needed */
-  background-color: white; /* Match the background color of the container */
-  padding: 0 5px; /* Adjust padding as needed */
+  top: -10px;
+  /* Adjust top position to move the header text slightly up */
+  left: 20px;
+  /* Adjust left position as needed */
+  background-color: white;
+  /* Match the background color of the container */
+  padding: 0 5px;
+  /* Adjust padding as needed */
   font-weight: bold;
   color: black;
 }
@@ -26,9 +33,9 @@
 }
 
 .ripple:hover {
-  background: #47a7f5 radial-gradient(circle, transparent 1%, #47a7f5 1%)
-    center/15000%;
+  background: #47a7f5 radial-gradient(circle, transparent 1%, #47a7f5 1%) center/15000%;
 }
+
 .ripple:active {
   background-color: #6eb9f7;
   background-size: 100%;
@@ -37,7 +44,7 @@
 
 /* Button style */
 .links {
-  display: flex!important;
+  display: flex !important;
   justify-content: center;
   color: #ffff !important;
   margin: 5px;
@@ -50,7 +57,7 @@
   text-transform: uppercase;
   cursor: pointer;
   color: white;
-  background-color: #2196f3 !important;
+  background-color: #0d6efd !important;
   box-shadow: 5px 5px 5px white !important;
   outline: none;
   background-position: center;
