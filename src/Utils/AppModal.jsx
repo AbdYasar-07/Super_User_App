@@ -86,7 +86,6 @@ const AppModal = ({
     responses.forEach((response) => {
       map.set(response?.client_id, response?.name);
     });
-    // console.log(roles,"rrr");
     roles.map((role) => {
       role.applicationName = map.get(role.applicationId);
       return { ...role };
@@ -102,7 +101,6 @@ const AppModal = ({
       localStorage.getItem("auth_access_token")
     )
       .then(async (response) => {
-        console.log(response, "res");
         const allRoles = response.roles;
         await Axios(
           resource + `/users/${userId}/roles`,
@@ -119,7 +117,6 @@ const AppModal = ({
           await getManagementToken().then(async (tkn) => {
             await getClientInformation(tkn, appIds, null, remRoles).then(
               (response) => {
-                console.log("responsefinsl", response);
                 setCheckboxData(response);
                 setIsLoaded(true);
               }
@@ -196,6 +193,10 @@ const AppModal = ({
         console.error("Error while adding a user to role", error);
       });
   };
+
+  const handleCursorBehaviour = () => {
+    return selectedCheckboxes.length === 0 ? 'not-allowed' : 'pointer';
+  }
 
   const handleAdd = async () => {
     try {
@@ -334,6 +335,8 @@ const AppModal = ({
                         CANCEL
                       </button>
                       <button
+                        disabled={selectedCheckboxes.length === 0}
+                        style={{ pointerEvents: "auto", cursor: handleCursorBehaviour() }}
                         type="button"
                         class="btn btn-primary"
                         onClick={handleAdd}
@@ -347,7 +350,8 @@ const AppModal = ({
             </div>
           </div>
         </>
-      )}
+      )
+      }
     </>
   );
 };

@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import NavTabBody from "../../Utils/NavTabBody";
 import NavTabBodyButton from "../../Utils/NavTabBodyButton";
 import NavTabTable from "../../Utils/NavTabTable";
+import { useSelector } from "react-redux";
 
 const Groups = () => {
   const [isAdded, setIsAdded] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
-  const userName = localStorage.getItem("user_profile")
-    ? JSON.parse(localStorage.getItem("user_profile")).name
-    : "";
+  const currentSelectedUser = useSelector((store) => store.auth0Context.renderingUser);
+  const userName = JSON.parse(currentSelectedUser).name;
 
   useEffect(() => {
     setIsDeleted(false);

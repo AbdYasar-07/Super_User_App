@@ -7,7 +7,7 @@ const Axios = async (url, method = "get", data = null, token = null, isManagemen
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    if(isManagementApi){
+    if (isManagementApi) {
       headers["content-type"] = "application/json"
     }
 

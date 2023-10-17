@@ -124,9 +124,7 @@ function AddUser({
           true
         )
           .then((addedUser) => {
-            // console.log("added user", addedUser);
             if (addedUser.hasOwnProperty("response")) {
-              console.log(addedUser.response.data.message, "addedUser");
               toast(addedUser.response.data.message, { type: "error" });
               setIsDisable(false);
               return;
@@ -139,7 +137,6 @@ function AddUser({
             setIsUserAdded(true);
           })
           .catch((error) => {
-            console.log("error :::", JSON.stringify(error));
             if (JSON.stringify(error) !== "{}") {
               toast(error.response.data.message, { type: "error" });
               setIsDisable(false);
@@ -169,7 +166,6 @@ function AddUser({
       : setPasswordCapableValidation(false);
   };
   // const isConnectionValidate = () => {
-  //   console.log("db connection validate ****", databaseConnection);
   //   databaseConnection.length === 1
   //     ? setIsConnection(true)
   //     : setIsConnection(false);
@@ -187,7 +183,6 @@ function AddUser({
     setEmailReqdValidation(true);
     setIsPasswordValue(true);
     setRepeatPasswordValidation(true);
-    console.log("DB Connection ***", userInfo.conceptionDatabase);
 
     if (
       !(
@@ -345,7 +340,7 @@ function AddUser({
                       disabled={
                         userInfo.conceptionDatabase?.length === 1 ? true : false
                       }
-                      // onBlur={isConnectionValidate}
+                    // onBlur={isConnectionValidate}
                     >
                       <option value={userInfo.conceptionDatabase}>
                         Concepcion
