@@ -21,7 +21,7 @@ function AddUser({
   const [userPassword, setUserPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
   const [listOfConnnection, setlistOfConnnection] = useState([]);
-  const [databaseConnection, setDatabaseConnection] = useState("");
+  // const [databaseConnection, setDatabaseConnection] = useState("");
   // const [userNameValidation, setUserNameValidation] = useState(false);
   const [emailReqdValidation, setEmailReqdValidation] = useState(false);
   const [validation, setValidation] = useState(false);
@@ -49,7 +49,6 @@ function AddUser({
     setIsPasswordValue(false);
     setUserEmail("");
     setUserPassword("");
-    setDatabaseConnection("");
     setRepeatPassword("");
     if (userInfo?.accessToken && userInfo?.accessToken?.length > 0) {
       setIsModelView(true);
@@ -88,7 +87,7 @@ function AddUser({
           )
             .then((databaseNames) => {
               setlistOfConnnection(databaseNames);
-              setDatabaseConnection(filterDatabase("conception"));
+              // setDatabaseConnection(filterDatabase("conception"));
               dispatch(
                 addConceptionDatabase({
                   conception: databaseNames.filter(
@@ -206,12 +205,12 @@ function AddUser({
     setUserModal(false);
   };
 
-  const filterDatabase = (filteredDbname) => {
-    const result = listOfConnnection.filter((db) => {
-      return db.name === filteredDbname;
-    });
-    return result;
-  };
+  // const filterDatabase = (filteredDbname) => {
+  //   const result = listOfConnnection.filter((db) => {
+  //     return db.name === filteredDbname;
+  //   });
+  //   return result;
+  // };
 
   useEffect(() => {
     const init = () => {
@@ -227,6 +226,7 @@ function AddUser({
       setIsPasteModelShow(false);
       setIsPasteCancel(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPasteCancel]);
   return (
     <div className={`${!userInfo?.accessToken ? "cursorDisable" : ""}`}>

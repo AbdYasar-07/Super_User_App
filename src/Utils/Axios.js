@@ -20,7 +20,7 @@ const Axios = async (url, method = "get", data = null, token = null, isManagemen
 
     return response.data;
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return error;
   }
 };

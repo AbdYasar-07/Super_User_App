@@ -1,26 +1,23 @@
-import React, { useEffect, useRef, useState, useStyles } from "react";
+import React, { useState } from "react";
 import Modal from "react-bootstrap/Modal";
-import { BiPaste, BiXCircle, BiX } from "react-icons/bi";
+import { BiXCircle } from "react-icons/bi";
 import Box from "@mui/material/Box";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import {
   DataGrid,
-  GridToolbarColumnsButton,
   GridToolbarContainer,
   GridToolbarDensitySelector,
   GridToolbarFilterButton,
-  gridFilterModelSelector,
   useGridApiRef,
 } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
 import "../Components/Styles/TableData.css";
-import { Container } from "react-bootstrap";
 import { toast } from "react-toastify";
 
 const TableData = ({
   data,
-  tableHeader = "Imported User",
+  tableHeader = "USERS LIST",
   setTableData,
   setIsPasteCancel,
   setIsPasteModelShow,
@@ -30,12 +27,12 @@ const TableData = ({
   const gridApiRef = useGridApiRef();
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
-    { field: "UserEmail", headerName: "UserEmail", width: 190, editable: true },
-    { field: "Password", headerName: "Password", width: 190, editable: true },
+    { field: "UserEmail", headerName: "UserEmail", width: 250, editable: true },
+    { field: "Password", headerName: "Password", width: 250, editable: true },
     {
       field: "Connection",
       headerName: "Connection",
-      width: 190,
+      width: 250,
     },
   ];
   const [isActivateConfirmModal, setIsActivateConfirmModal] = useState(false);
@@ -60,12 +57,12 @@ const TableData = ({
         // setTableData([]);
         setTableData(getEditedValues());
         setIsPasteModelShow(false);
-        console.log(getEditedValues(), "imported data");
       } else {
-        console.log(getSelectedValue(), "imported data");
+        // console.log(getSelectedValue(), "imported data");
       }
       setIsTableShow(false);
       setIsActivateConfirmModal(false);
+      setSelectedRows([]);
     }
     if (id === "c1") {
       setTableData([]);
@@ -87,7 +84,7 @@ const TableData = ({
   };
   const getSelectedValue = () => {
     let fileredData = [];
-    console.log(selectedRows?.length, "length");
+    // console.log(selectedRows?.length, "length");
     selectedRows?.forEach((selectValueId) => {
       let foundedData = getEditedValues()?.find(
         (ele) => ele.id === selectValueId
@@ -106,7 +103,7 @@ const TableData = ({
     setConfirmationModalData({
       id: "m1",
       header: "Confirmation Import user",
-      content: "Are you sure want to import the user's",
+      content: `Are you sure want to import the ${(selectedRows.length > 1) ? 'users?' : 'user?'}`,
     });
     setIsActivateConfirmModal(true);
   };
@@ -135,7 +132,7 @@ const TableData = ({
                 <Col style={{ textAlign: "end" }}>
                   <BiXCircle
                     className="fs-2"
-                    style={{ opacity: "0.9", margin: "10px 0" }}
+                    style={{ opacity: "0.9", margin: "10px 0", cursor: "pointer" }}
                     onClick={() => {
                       setTableData([]);
                       setIsPasteCancel(true);
@@ -147,7 +144,7 @@ const TableData = ({
               {data.length !== 0 && (
                 <Box sx={{ height: 400, width: "100%" }}>
                   <DataGrid
-                    componentsProps={{ panel: { disablePortal: true } }}
+                    slotProps={{ panel: { disablePortal: true } }}
                     rows={data}
                     onRowSelectionModelChange={(newRowSelectionModel) => {
                       setSelectedRows(newRowSelectionModel);
@@ -183,7 +180,7 @@ const TableData = ({
                   setConfirmationModalData({
                     id: "c1",
                     header: "Cancel",
-                    content: "Are you sure want to cancel the process",
+                    content: "Are you sure want to cancel the process?",
                   });
                 }}
               >

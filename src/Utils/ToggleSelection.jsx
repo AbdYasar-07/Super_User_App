@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Axios from "../Utils/Axios";
 import { ToastContainer, toast } from 'react-toastify';
 import { renderingCurrentUser } from '../store/auth0Slice';
+import { useParams } from 'react-router';
 
 
 
@@ -13,7 +14,7 @@ const ToggleSelection = () => {
     const resource = process.env.REACT_APP_AUTH_MANAGEMENT_AUDIENCE;
     const resourceUrlForManagementToken = process.env.REACT_APP_MANAGEMENT_API;
     const options = ['Block User', 'Unblock User'];
-    const userInfo = useSelector((store) => store.auth0Context);
+    const { userId } = useParams();
     const renderedUser = useSelector((store) => store.auth0Context.renderingUser);
     const [value, setValue] = useState();
     const dispatch = useDispatch();
@@ -51,11 +52,11 @@ const ToggleSelection = () => {
     const handleToggleState = async (value) => {
         switch (value) {
             case "Block User":
-                await blockUserHelper(userInfo.idToken.sub, true);
+                await blockUserHelper(userId, true);
                 setValue(value);
                 break;
             case "Unblock User":
-                await blockUserHelper(userInfo.idToken.sub, false);
+                await blockUserHelper(userId, false);
                 setValue(value);
                 break;
             default:
@@ -70,20 +71,14 @@ const ToggleSelection = () => {
         await Axios(`${resource}users/${userId}`, 'PATCH', { "blocked": status }, access_token, true)
             .then((response) => {
                 dispatch(renderingCurrentUser({ currentUser: JSON.stringify(response) }));
-                toast.success(`User ${userInfo.idToken.email} has been ${status === true ? 'blocked' : 'unblocked'}`, { theme: "colored" });
+                toast.success(`User ${JSON.parse(renderedUser).email} has been ${status === true ? 'blocked' : 'unblocked'}`, { theme: "colored" });
             })
             .catch((error) => {
-                console.error("Error while updating user block status");
+                console.error("Error while updating user block status", error);
             })
     }
 
     const blockUserHelper = async (userId, status) => {
-
-        if (renderedUser.blocked === true) {
-            toast.warn(`User ${renderedUser.email} already blocked`, { theme: "colored" })
-            return;
-        }
-
         await getAuthToken().then(async (managementResponse) => {
             await blockUser(userId, managementResponse.access_token, status);
         })

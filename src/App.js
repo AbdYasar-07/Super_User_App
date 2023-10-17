@@ -30,6 +30,7 @@ function App() {
       );
     }
     setIsProfileRendered(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProfileRendered]);
 
   return (

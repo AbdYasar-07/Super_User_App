@@ -43,7 +43,6 @@ const ImportUserModal = ({
     }
   };
   const arrayValueConvert = (clipboardData) => {
-    console.log(clipboardData);
     const lines = clipboardData.trim().split("\r\n");
     const headers = lines[0].split("\t"); // Extract the headers
     const objects = [];
@@ -60,17 +59,14 @@ const ImportUserModal = ({
       }
 
       objects.push(object);
-      console.log(object);
     }
     if (!isValid(objects)) {
-      toast.info("check Header the header should not be changed");
-      console.log("check Header the header should not be changed");
+      toast.info("Invalid header received. Check copied header", { theme: "colored" });
       return;
     }
     setTableData(objects);
     setIsTableShow(true);
 
-    console.log("All header are corrrect");
   };
   const jsonTodataCoverter = (clipboardData) => {
     if (clipboardData) {
@@ -80,7 +76,7 @@ const ImportUserModal = ({
     let gridValues = [];
 
     jsonObject.forEach((object, index) => {
-      object["id"] = index;
+      object["id"] = index + 1;
       gridValues.push(object);
     });
 
@@ -93,8 +89,7 @@ const ImportUserModal = ({
     try {
       const clipboardData = await navigator.clipboard.readText();
       if (!clipboardData || clipboardData.length === "") {
-        console.log("empty data");
-        toast.info("Data is empty");
+        toast.info("Data is empty", { theme: "colored" });
         return;
       }
       if (isJson(clipboardData)) {
@@ -120,7 +115,7 @@ const ImportUserModal = ({
         <div className="text-end">
           <BiXCircle
             className="fs-1"
-            style={{ opacity: "0.5" }}
+            style={{ opacity: "0.5", cursor: "pointer" }}
             onClick={() => {
               setIsPasteCancel(true);
             }}

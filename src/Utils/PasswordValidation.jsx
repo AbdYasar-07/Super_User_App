@@ -5,7 +5,7 @@ import "../Components/Styles/PasswordValidation.css";
 const PasswordConfig = {
     minLength: 7,
     numberRegex: /\d/,
-    specialCharRegex: /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/,
+    specialCharRegex: /[`!@#$%^&*()_+\-=\\[\\]{};':"\\|,.<>\/?~]/,
     overallRegexPattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/
 }
 
@@ -26,13 +26,13 @@ const PasswordValidation = ({ password, setUserPassword, onBlurFunc }) => {
         </>
     );
 
-    const isNumberIncluded = (value) => {
-        return PasswordConfig.numberRegex.test(value);
-    };
+    // const isNumberIncluded = (value) => {
+    //     return PasswordConfig.numberRegex.test(value);
+    // };
 
-    const isSpecialCharIncluded = (value) => {
-        return PasswordConfig.specialCharRegex.test(value);
-    };
+    // const isSpecialCharIncluded = (value) => {
+    //     return PasswordConfig.specialCharRegex.test(value);
+    // };
 
     return (
         <div className="card flex justify-content-center">
