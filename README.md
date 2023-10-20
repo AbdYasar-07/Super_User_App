@@ -13,7 +13,8 @@ Project Dependencies
     9. npm install react-redux
     10. npm install @reduxjs/toolkit
     11. npm install primereact
-    
+    12. npm install sheetjs-style
+    13. npm install file-saver
 
 #####################################################################################
 

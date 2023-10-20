@@ -8,7 +8,8 @@ const initialState = {
   groups: [],
   authorizationAccessCode: "",
   conceptionDatabase: [],
-  renderingUser: {}
+  renderingUser: {},
+  importedUserLogs: []
 };
 
 const auth0Slice = createSlice({
@@ -31,6 +32,12 @@ const auth0Slice = createSlice({
     renderingCurrentUser(state, action) {
       state.renderingUser = action.payload.currentUser;
     },
+    addImportedUserLogs(state, action) {
+      state.importedUserLogs.push(action.payload.userLog);
+    },
+    clearImportedUser(state, action) {
+      state.importedUserLogs = [];
+    },
     clearState(state, action) {
       state.accessToken = "";
       state.idToken = "";
@@ -40,10 +47,11 @@ const auth0Slice = createSlice({
       state.authorizationAccessCode = "";
       state.conceptionDatabase = [];
       state.renderingUser = {};
+      state.importedUserLogs = [];
     },
   },
 });
 
-export const { addUserInfo, addAuthorizationCode, addConceptionDatabase, renderingCurrentUser, clearState } =
+export const { addUserInfo, addAuthorizationCode, addConceptionDatabase, renderingCurrentUser, addImportedUserLogs, clearImportedUser, clearState } =
   auth0Slice.actions;
 export default auth0Slice.reducer;

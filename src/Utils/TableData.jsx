@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import { BiXCircle } from "react-icons/bi";
 import Box from "@mui/material/Box";
@@ -14,6 +14,10 @@ import {
 import { Button } from "@mui/material";
 import "../Components/Styles/TableData.css";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import Axios from "../Utils/Axios";
+import { addImportedUserLogs, clearImportedUser } from "../store/auth0Slice";
+import ExportExcel from "./ExcelExport";
 
 const TableData = ({
   data,
@@ -24,24 +28,22 @@ const TableData = ({
   isTableShow,
   setIsTableShow,
 }) => {
+
   const gridApiRef = useGridApiRef();
+  const userInfo = useSelector((state) => state.auth0Context);
+  const dispatch = useDispatch();
   const columns = [
     { field: "id", headerName: "ID", width: 90 },
     { field: "UserEmail", headerName: "UserEmail", width: 250, editable: true },
     { field: "Password", headerName: "Password", width: 250, editable: true },
     {
-      field: "Connection",
-      headerName: "Connection",
-      width: 250,
+      field: "Connection", headerName: "Connection", width: 250,
     },
   ];
   const [isActivateConfirmModal, setIsActivateConfirmModal] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [confirmationModalData, setConfirmationModalData] = useState({
-    id: "",
-    header: "",
-    content: "",
-  });
+  const [confirmationModalData, setConfirmationModalData] = useState({ id: "", header: "", content: "", });
+
   const CustomToolbar = () => {
     return (
       <GridToolbarContainer>
@@ -51,18 +53,16 @@ const TableData = ({
     );
   };
 
-  const getImportedUsers = (id) => {
+  const getImportedUsers = async (id) => {
     if (id === "m1") {
-      if (getSelectedValue()?.length === 0) {
-        // setTableData([]);
-        setTableData(getEditedValues());
-        setIsPasteModelShow(false);
-      } else {
-        // console.log(getSelectedValue(), "imported data");
-      }
-      setIsTableShow(false);
-      setIsActivateConfirmModal(false);
-      setSelectedRows([]);
+      await createUsers(getSelectedValue())
+        .finally((_) => {
+          // toast(CustomToastWithLink, { theme: "light", autoClose: false }) -- inticating with excel export (logs)
+          toast(`Users has been imported to system.`, { theme: "colored", type: "info" })
+          setIsTableShow(false);
+          setIsActivateConfirmModal(false);
+          setSelectedRows([]);
+        })
     }
     if (id === "c1") {
       setTableData([]);
@@ -82,9 +82,9 @@ const TableData = ({
     }
     return editedValue;
   };
+
   const getSelectedValue = () => {
     let fileredData = [];
-    // console.log(selectedRows?.length, "length");
     selectedRows?.forEach((selectValueId) => {
       let foundedData = getEditedValues()?.find(
         (ele) => ele.id === selectValueId
@@ -95,9 +95,15 @@ const TableData = ({
     });
     return fileredData;
   };
+
   const onImport = () => {
     if (selectedRows?.length === 0) {
       toast.warn("Please select atleast one row", { theme: "colored" });
+      return;
+    }
+
+    if (selectedRows?.length === 20) {
+      toast.warn("Please import only 20 rows", { theme: "colored" });
       return;
     }
     setConfirmationModalData({
@@ -105,8 +111,90 @@ const TableData = ({
       header: "Confirmation Import user",
       content: `Are you sure want to import the ${(selectedRows.length > 1) ? 'users?' : 'user?'}`,
     });
+
     setIsActivateConfirmModal(true);
   };
+
+  const getAuthToken = async () => {
+    let body =
+    {
+      client_id: process.env.REACT_APP_AUTH_MANAGEMENT_CLIENT_ID,
+      client_secret: process.env.REACT_APP_AUTH_MANAGEMENT_CLIENT_SECRET,
+      audience: process.env.REACT_APP_AUTH_MANAGEMENT_AUDIENCE,
+      grant_type: process.env.REACT_APP_AUTH_GRANT_TYPE,
+    };
+
+    return await Axios(
+      "https://dev-34chvqyi4i2beker.jp.auth0.com/oauth/token",
+      "POST",
+      body,
+      null
+    )
+      .then(async (managementToken) => {
+        return managementToken;
+      })
+      .catch((error) => {
+        return `Error ::", ${error}`;
+      });
+  };
+
+  const CustomToastWithLink = () => {
+    return (
+      <div>
+        <ExportExcel excelData={userInfo.importedUserLogs} fileName={'Imported User'} />
+      </div>
+    );
+  }
+
+
+  const createUsers = async (usersList) => {
+
+    if (usersList.length === 0)
+      return;
+
+    let managementAccessToken = null;
+    await getAuthToken().then((managementResponse) => {
+      managementAccessToken = managementResponse?.access_token
+    });
+    usersList.forEach(async (user) => {
+      if (userInfo?.accessToken && userInfo?.accessToken?.length > 0 && managementAccessToken != null) {
+        await createUser(user, managementAccessToken);
+      };
+    })
+    dispatch(clearImportedUser());
+
+  };
+
+  const logCurrentUserObject = (user, status, response) => {
+    const logObject = { isAdded: status, message: response };
+    const data = { ...user, ...logObject };
+    dispatch(addImportedUserLogs({ userLog: data }))
+  }
+
+  const createUser = async (user, accessToken) => {
+    let body =
+    {
+      email: user?.UserEmail,
+      connection: user?.Connection,
+      password: user?.Password
+    };
+
+    await Axios("https://dev-34chvqyi4i2beker.jp.auth0.com/api/v2/users", "POST", JSON.stringify(body), accessToken, true)
+      .then((addedUser) => {
+        if (addedUser.hasOwnProperty("response")) {
+          logCurrentUserObject(user, false, JSON.stringify(addedUser?.response));
+          return;
+        }
+
+        logCurrentUserObject(user, true, JSON.stringify(addedUser))
+      })
+      .catch((error) => {
+        if (JSON.stringify(error) !== "{}") {
+          logCurrentUserObject(user, false, JSON.stringify(error))
+        }
+      })
+  };
+
   return (
     <>
       {isTableShow && (

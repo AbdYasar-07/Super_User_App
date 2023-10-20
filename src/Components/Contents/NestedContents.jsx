@@ -56,7 +56,7 @@ const NestedContent = ({ setIsProfileRendered, isProfileRendered }) => {
       <div
         className="d-flex align-items-center pt-2 pb-2 container profileHeader"
         style={{
-          backgroundColor: "rgb(204 204 204 / 18%)",
+          backgroundColor: "#e5e5e5",
           height: "200px !important",
         }}
       >
@@ -77,20 +77,26 @@ const NestedContent = ({ setIsProfileRendered, isProfileRendered }) => {
           </div>
         }
         {!loadSpinner &&
-          <div className="col-6 text-start">
-            <h2 className="fw-normal">{userProfile.name}</h2>
-            <h5 className="fw-light text-secondary">{userProfile.email}</h5>
-            {(userProfile.blocked === true) &&
-              <Button style={{ borderRadius: "15px", height: "30px" }} type="button" size="small" label="blocked" severity="danger"></Button>
+          <div className="col-6 text-start d-flex align-items-center justify-content-between" style={{ width: '82%' }}>
+            <div>
+              <h2 className="fw-normal">{userProfile.name}</h2>
+              <h5 className="fw-light text-secondary">{userProfile.email}</h5>
+              {(typeof userProfile.blocked === "boolean" || userProfile) &&
+                <Button style={{ borderRadius: "15px", height: "30px", margin: "10px" }} type="button" size="small" label={`user is ${userProfile.blocked === true ? "" : "un"}blocked`} severity={`${userProfile.blocked === true ? "danger" : "info"}`}></Button>
+              }
+              {(typeof userProfile.email_verified === "boolean") &&
+                <Button style={{ borderRadius: "15px", height: "30px", margin: "10px" }} type="button" size="small" label={`user is ${userProfile.email_verified === true ? "" : "un"}verified`} severity={userProfile.email_verified === true ? "info" : "danger"}></Button>
+              }
+            </div>
+            {!loadSpinner &&
+              <div className="d-flex flex-column align-items-center justify-content-center">
+                <ToggleSelection />
+              </div>
             }
           </div>
         }
-        {!loadSpinner &&
-          <div className="text-start">
-            <ToggleSelection />
-          </div>
-        }
       </div>
+
       {!loadSpinner &&
         <Tabs tabs={["Profile", "Groups", "Roles"]} />
       }

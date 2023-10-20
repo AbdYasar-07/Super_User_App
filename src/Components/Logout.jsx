@@ -14,12 +14,9 @@ const Logout = () => {
       },
     })
       .then(() => {
-        dispatch(clearState());
         localStorage.removeItem("access_token");
         localStorage.removeItem("auth_access_token");
-        localStorage.removeItem("user_profile");
-        localStorage.removeItem("permissions");
-        localStorage.removeItem("roles");
+        dispatch(clearState());
       })
       .catch((error) => {
         console.error("Error while logging out ::", error);
