@@ -15,8 +15,6 @@ function Tabs({ tabs }) {
     route = route.toLowerCase();
     switch (route) {
       case RouteEnum.GROUPS:
-        navigate(`/users/${userId}/${route.toLowerCase()}/show`);
-        break;
       case RouteEnum.ROLES:
         navigate(`/users/${userId}/${route.toLowerCase()}/show`);
         break;
