@@ -15,6 +15,7 @@ Project Dependencies
     11. npm install primereact
     12. npm install sheetjs-style
     13. npm install file-saver
+    14. npm install react-syntax-highlighter
 
 #####################################################################################
 

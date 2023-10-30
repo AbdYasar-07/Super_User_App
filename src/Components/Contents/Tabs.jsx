@@ -1,13 +1,34 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+const RouteEnum = {
+  GROUPS: "groups",
+  ROLES: "roles",
+  PROFILE: "profile"
+}
+
 function Tabs({ tabs }) {
   const { userId } = useParams();
   const navigate = useNavigate();
 
-  const tabNavigation = (paths) => {
-    navigate(`/users/${userId}/${paths.toLowerCase()}`);
+  const handleDefaultRoutes = (route) => {
+    route = route.toLowerCase();
+    switch (route) {
+      case RouteEnum.GROUPS:
+        navigate(`/users/${userId}/${route.toLowerCase()}/show`);
+        break;
+      case RouteEnum.ROLES:
+        navigate(`/users/${userId}/${route.toLowerCase()}/show`);
+        break;
+      default:
+        navigate(`/users/${userId}/${route.toLowerCase()}`);
+    }
+  }
+
+  const tabNavigation = (route) => {
+    handleDefaultRoutes(route);
   };
+
   return (
     <div className="d-flex container">
       <nav>
