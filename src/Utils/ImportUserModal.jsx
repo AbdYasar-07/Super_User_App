@@ -76,13 +76,17 @@ const ImportUserModal = ({
     let gridValues = [];
 
     jsonObject.forEach((object, index) => {
-      object["id"] = index + 1;
-      gridValues.push(object);
+      if (typeof object === "object") {
+        object["id"] = index + 1;
+        gridValues.push(object);
+      }
     });
 
     if (gridValues.length !== 0) {
       setTableData(gridValues);
       setIsTableShow(true);
+    } else {
+      toast.info("Invalid header received. Check copied header", { theme: "colored" });
     }
   };
   const getPastedValue = async () => {

@@ -7,49 +7,84 @@ import { useNavigate, useParams } from "react-router-dom";
 import ToggleSelection from "../../Utils/ToggleSelection";
 import AppSpinner from "../../Utils/AppSpinner";
 import { Button } from 'primereact/button';
-import { useDispatch, useSelector } from "react-redux";
-import { renderingCurrentUser } from "../../store/auth0Slice";
+import { useDispatch } from "react-redux";
+import { addUserInfo, renderingCurrentUser } from "../../store/auth0Slice";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const NestedContent = ({ setIsProfileRendered, isProfileRendered }) => {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated, getAccessTokenSilently, getIdTokenClaims, user } = useAuth0();
   const [userProfile, setUserProfile] = useState({});
   const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
   const [loadSpinner, setIsLoadSpinner] = useState(true);
-  const auth_access_code = useSelector((store) => store.auth0Context.authorizationAccessCode);
-  const renderedUser = useSelector((store) => store.auth0Context.renderingUser);
+  // const auth_access_code = useSelector((store) => store.auth0Context.authorizationAccessCode);
+  // const renderedUser = useSelector((store) => store.auth0Context.renderingUser);
   const dispatch = useDispatch();
 
   const getUserProfile = async (accessToken, userId) => {
-    await Axios(resource + `/users/${userId}`, "GET", null, accessToken)
-      .then((userProfile) => {
-        setUserProfile(userProfile);
-        dispatch(renderingCurrentUser({ currentUser: JSON.stringify(userProfile) }))
-        setIsProfileRendered(true);
-        setIsLoadSpinner(false);
-      })
-      .catch((error) => {
-        console.error("Error while fetching user information ::", error);
-      })
-      .then(() => {
-        navigate(`/users/${userId}/profile`);
-      })
+    if (accessToken && userId) {
+      await Axios(resource + `/users/${userId}`, "GET", null, accessToken)
+        .then((userProfile) => {
+          setUserProfile(userProfile);
+          dispatch(renderingCurrentUser({ currentUser: JSON.stringify(userProfile) }))
+          setIsProfileRendered(true);
+          setIsLoadSpinner(false);
+        })
+        .catch((error) => {
+          console.error("Error while fetching user information ::", error);
+        })
+        .then(() => {
+          navigate(`/users/${userId}/profile`);
+        })
+    }
   };
 
-  useEffect(() => {
-    const callUserProfile = async () => {
-      await getUserProfile(auth_access_code, userId);
-    };
-    callUserProfile();
-  }, [isProfileRendered]);
+  const loadUserProfile = async () => {
+    await getUserProfile(localStorage.getItem("auth_access_token"), userId);
+  }
+
+  const loadAuth0Context = async () => {
+    const access_token = await getAccessTokenSilently();
+    const id_token = await getIdTokenClaims();
+    dispatch(
+      addUserInfo({
+        accessToken: access_token,
+        idToken: id_token,
+        permissions: user.user_profile.authorization?.permissions,
+        roles: user.user_profile.authorization?.roles,
+        groups: user.user_profile.authorization?.groups?.filter((group) =>
+          group.startsWith("SUA:")
+        ),
+      })
+    );
+  }
+
+  // useEffect(() => {
+  //   const callUserProfile = async () => {
+  //     await getUserProfile(auth_access_code, userId);
+  //   };
+  //   callUserProfile();
+  // }, [isProfileRendered]);
+
+  // useEffect(() => {
+  //   const invoke = async () => {
+  //     await getUserProfile(auth_access_code, userId);
+  //   }
+  //   invoke();
+  // }, [renderedUser]);
+
 
   useEffect(() => {
-    const invoke = async () => {
-      await getUserProfile(auth_access_code, userId);
+    if (isAuthenticated) {
+      loadAuth0Context();
     }
-    invoke();
-  }, [renderedUser])
 
+  }, []);
+
+  useEffect(() => {
+    loadUserProfile();
+  }, [isAuthenticated])
 
   return (
     <>
