@@ -96,7 +96,7 @@ const SidebarComponent = () => {
               </ul>
             </div>
           </div>
-          <div className="col py-3">
+          <div className="col-10 py-3">
             <Content />
           </div>
         </div>
