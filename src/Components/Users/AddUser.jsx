@@ -14,6 +14,7 @@ function AddUser({
   setIsPasteModelShow,
   isPasteCancel,
   setIsPasteCancel,
+  buttonLabel,
 }) {
   const userInfo = useSelector((store) => store.auth0Context);
   const dispatch = useDispatch();
@@ -237,7 +238,7 @@ function AddUser({
         disabled={!userInfo?.accessToken}
         onClick={() => initializeFileds()}
       >
-        + Create user'(s)
+        + Create {buttonLabel}'(s)
       </button>
       {isModelView && userModal && (
         <div
@@ -248,7 +249,8 @@ function AddUser({
             <div class="modal-content container col-5 overflow-hidden">
               <div class="modal-header  mb-3 pt-2">
                 <h1 class="modal-title fs-5" id="exampleModalLabel">
-                  Create User <FaUser style={{ marginBottom: "4px" }} />
+                  Create {buttonLabel}{" "}
+                  <FaUser style={{ marginBottom: "4px" }} />
                 </h1>
                 <button
                   type="button"
@@ -340,7 +342,7 @@ function AddUser({
                       disabled={
                         userInfo.conceptionDatabase?.length === 1 ? true : false
                       }
-                    // onBlur={isConnectionValidate}
+                      // onBlur={isConnectionValidate}
                     >
                       <option value={userInfo.conceptionDatabase}>
                         Concepcion
@@ -391,7 +393,7 @@ function AddUser({
                     setIsPasteModelShow(true);
                   }}
                 >
-                  Create Users
+                  Create {buttonLabel}s
                 </button>
               </div>
             </div>

@@ -25,6 +25,7 @@ const ContentOutlet = () => {
         />
         <div className="position-absolute top-0 end-0 p-0 me-4">
           <AddUser
+            buttonLabel="User"
             setIsUserAdded={setIsUserAdded}
             isTokenFetched={isTokenFetched}
             setIsPasteModelShow={setIsPasteModelShow}

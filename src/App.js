@@ -14,20 +14,20 @@ import RolesOutlet from "./Components/Contents/RolesOutlet";
 import AllRoles from "./Components/Users/AllRoles";
 import WildCard from "./Utils/WildCard";
 import { useSelector } from "react-redux";
-
+import Member from "./Components/BPAdmin/Member/Member";
 
 function App() {
   const [isProfileRendered, setIsProfileRendered] = useState(false);
   const [loggedUserProfile, setLoggedUserProfile] = useState([]);
-  const currentSelectedUser = useSelector((store) => store?.auth0Context?.renderingUser);
+  const currentSelectedUser = useSelector(
+    (store) => store?.auth0Context?.renderingUser
+  );
   useEffect(() => {
     let userProfile = null;
 
     if (Object.keys(currentSelectedUser).length !== 0) {
       userProfile = JSON.parse(currentSelectedUser);
-      setLoggedUserProfile(
-        JSON.stringify(userProfile, null, 2)
-      );
+      setLoggedUserProfile(JSON.stringify(userProfile, null, 2));
     }
     setIsProfileRendered(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -68,9 +68,11 @@ function App() {
                 </Route>
               </Route>
             </Route>
+            <Route path="members" element={<Content />}>
+              <Route index element={<Member />}></Route>
+            </Route>
           </Route>
           <Route path="/*" element={<WildCard />} />
-
         </Routes>
       </BrowserRouter>
     </div>
