@@ -7,6 +7,7 @@ const initialState = {
   roles: [],
   groups: [],
   authorizationAccessCode: "",
+  managementAccessToken: "",
   conceptionDatabase: [],
   renderingUser: {},
   importedUserLogs: []
@@ -25,6 +26,9 @@ const auth0Slice = createSlice({
     },
     addAuthorizationCode(state, action) {
       state.authorizationAccessCode = action.payload.code;
+    },
+    addManagementAccessToken(state, action) {
+      state.managementAccessToken = action.payload.managementAccessToken;
     },
     addConceptionDatabase(state, action) {
       state.conceptionDatabase = action.payload.conception;
@@ -45,6 +49,7 @@ const auth0Slice = createSlice({
       state.roles = [];
       state.permissions = [];
       state.authorizationAccessCode = "";
+      state.managementAccessToken = "";
       state.conceptionDatabase = [];
       state.renderingUser = {};
       state.importedUserLogs = [];
@@ -52,6 +57,6 @@ const auth0Slice = createSlice({
   },
 });
 
-export const { addUserInfo, addAuthorizationCode, addConceptionDatabase, renderingCurrentUser, addImportedUserLogs, clearImportedUser, clearState } =
+export const { addUserInfo, addAuthorizationCode, addConceptionDatabase, renderingCurrentUser, addImportedUserLogs, clearImportedUser, addManagementAccessToken, clearState } =
   auth0Slice.actions;
 export default auth0Slice.reducer;

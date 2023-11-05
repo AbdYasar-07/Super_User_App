@@ -10,7 +10,7 @@ const RoleAssigned = () => {
   const currentSelectedUser = useSelector(
     (store) => store.auth0Context.renderingUser
   );
-  const userName = JSON.parse(currentSelectedUser).name;
+  const userName = JSON.parse(JSON.stringify(currentSelectedUser)).name;
 
   useEffect(() => {
     setIsDeleted(false);

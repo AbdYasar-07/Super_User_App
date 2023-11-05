@@ -2,7 +2,7 @@ import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import React from "react";
 
-const DataGridTable = ({ data, rowHeader, getCurrentData }) => {
+const DataGridTable = ({ data, rowHeader, getCurrentData, loading }) => {
   const alignHeader = (column) => {
     if (!column) return;
 
@@ -34,7 +34,8 @@ const DataGridTable = ({ data, rowHeader, getCurrentData }) => {
         paginator={data.length >= 10}
         rows={10}
         tableStyle={{ minWidth: "50rem" }}
-        emptyMessage="No customers found."
+        emptyMessage="No members found."
+        loading={loading}
       >
         {rowHeader?.map((colHeader) => {
           return (

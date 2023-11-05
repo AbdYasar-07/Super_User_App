@@ -6,10 +6,10 @@ import NavTabHeader from "../../../Utils/NavTabHeader";
 const MemberOutlet = (setIsProfileRendered) => {
   return (
     <div>
-      {/* <NestedContent
+      <NestedContent
         setIsProfileRendered={setIsProfileRendered}
         tabHeader={[]}
-      /> */}
+      />
       <NavTabHeader
         showTab={true}
         tabsHeaders={["Roles Assigned", "Roles Unassigned"]}
