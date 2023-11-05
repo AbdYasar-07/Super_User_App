@@ -4,6 +4,8 @@ import { useParams } from "react-router";
 import AppSpinner from "./AppSpinner";
 import { FaTimes } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
+import { error } from "jquery";
+import { toMapApplicationNames } from "../Components/BusinessLogics/Logics";
 
 const NavTabTable = ({
   showTable,
@@ -68,17 +70,19 @@ const NavTabTable = ({
       "GET",
       null,
       localStorage.getItem("auth_access_token")
-    ).then(async (roles) => {
-      let appIds = [];
-      roles.forEach((role) => appIds.push(role.applicationId));
-      await getManagementToken().then(async (tkn) => {
-        await getClientInformation(tkn, appIds, isUserAllRoles, roles).then(
-          () => {
-            setLoadSpinner(false);
+    )
+      .then(async (userRoles) => {
+        await getClientsInfo().then((clientsinfo) => {
+          if (toMapApplicationNames(userRoles, clientsinfo).length > 0) {
+            setUserRoles(toMapApplicationNames(userRoles, clientsinfo));
           }
-        );
+        });
+        setLoadSpinner(false);
+      })
+      .catch((error) => {
+        setLoadSpinner(false);
+        console.log(error);
       });
-    });
   };
 
   const getUserAllRoles = async (accessToken, userId) => {
@@ -87,17 +91,24 @@ const NavTabTable = ({
       "GET",
       null,
       accessToken
-    ).then(async (allRoles) => {
-      let appIds = [];
-      allRoles.forEach((role) => appIds.push(role.applicationId));
-      await getManagementToken().then(async (tkn) => {
-        await getClientInformation(tkn, appIds, isUserAllRoles, allRoles).then(
-          () => {
+    )
+      .then(async (allRoles) => {
+        await getClientsInfo()
+          .then((clientsinfo) => {
+            if (toMapApplicationNames(allRoles, clientsinfo).length > 0) {
+              setUserAllRoles(toMapApplicationNames(allRoles, clientsinfo));
+            }
             setLoadSpinner(false);
-          }
-        );
+          })
+          .catch((error) => {
+            console.log(error);
+            setLoadSpinner(false);
+          });
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoadSpinner(false);
       });
-    });
   };
 
   const getManagementToken = async () => {
@@ -117,41 +128,22 @@ const NavTabTable = ({
         console.error("error ::", error);
       });
   };
-
-  const getClientInformation = async (
-    managementToken,
-    appIds,
-    isUserAllRoles,
-    roles
-  ) => {
-    const clients = process.env.REACT_APP_AUTH_GET_CLIENT;
-    const promises = appIds.map((appId) => {
-      return Axios(
-        clients + `/${appId}?fields=client_id%2Cname`,
+  const getClientsInfo = async () => {
+    return await getManagementToken().then(async (tkn) => {
+      return await Axios(
+        process.env.REACT_APP_AUTH_GET_CLIENT_INFO,
         "GET",
         null,
-        managementToken,
-        false
-      );
+        tkn,
+        true
+      )
+        .then((response) => {
+          if (response && response?.clients?.length > 0) {
+            return response?.clients;
+          }
+        })
+        .catch((error) => console.log(error));
     });
-
-    const responses = await Promise.all(promises);
-    const map = new Map();
-    responses.forEach((response) => {
-      map.set(response?.client_id, response?.name);
-    });
-
-    roles.map((role) => {
-      role.applicationName = map.get(role.applicationId);
-      return { ...role };
-    });
-    if (!isUserAllRoles) {
-      setUserRoles(roles);
-    }
-
-    if (isUserAllRoles) {
-      setUserAllRoles(roles);
-    }
   };
 
   const remove = async (id, scope) => {

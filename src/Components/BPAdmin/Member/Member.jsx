@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import ContentHeader from "../../Contents/ContentHeader";
-import ContentBody from "../../Contents/ContentBody";
 import AddUser from "../../Users/AddUser";
-import ImportUserModal from "../../../Utils/ImportUserModal";
-import TableData from "../../../Utils/TableData";
 import MemberTable from "./MemberTable";
 import "../../Styles/Member.css";
+import ImportUserModal from "../../../Utils/ImportUserModal";
+import TableData from "../../../Utils/TableData";
 const Member = () => {
   const [isUserAdded, setIsUserAdded] = useState(false);
   const [isTokenFetched, setIsTokenFteched] = useState(false);
@@ -31,6 +30,24 @@ const Member = () => {
             isTokenFetched={isTokenFetched}
             setIsPasteModelShow={setIsPasteModelShow}
             isPasteCancel={isPasteCancel}
+            setIsPasteCancel={setIsPasteCancel}
+          />
+        </div>
+        <div>
+          <ImportUserModal
+            isPasteModelShow={isPasteModelShow}
+            setIsPasteCancel={setIsPasteCancel}
+            setTableData={setTableData}
+            setIsTableShow={setIsTableShow}
+          />
+        </div>
+        <div>
+          <TableData
+            data={tableData}
+            isTableShow={isTableShow}
+            setIsTableShow={setIsTableShow}
+            setTableData={setTableData}
+            setIsPasteModelShow={setIsPasteModelShow}
             setIsPasteCancel={setIsPasteCancel}
           />
         </div>

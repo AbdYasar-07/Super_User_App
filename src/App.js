@@ -15,6 +15,9 @@ import AllRoles from "./Components/Users/AllRoles";
 import WildCard from "./Utils/WildCard";
 import { useSelector } from "react-redux";
 import Member from "./Components/BPAdmin/Member/Member";
+import MemberOutlet from "./Components/BPAdmin/Member/MemberOutlet";
+import RoleUnassigned from "./Components/BPAdmin/Member/RoleUnassigned";
+import RoleAssigned from "./Components/BPAdmin/Member/RoleAssigned";
 
 function App() {
   const [isProfileRendered, setIsProfileRendered] = useState(false);
@@ -70,6 +73,18 @@ function App() {
             </Route>
             <Route path="members" element={<Content />}>
               <Route index element={<Member />}></Route>
+              <Route
+                path=":membersid"
+                element={
+                  <MemberOutlet setIsProfileRendered={setIsProfileRendered} />
+                }
+              >
+                <Route path="roles/assigned" element={<RoleAssigned />}></Route>
+                <Route
+                  path="roles/unassigned"
+                  element={<RoleUnassigned />}
+                ></Route>
+              </Route>
             </Route>
           </Route>
           <Route path="/*" element={<WildCard />} />

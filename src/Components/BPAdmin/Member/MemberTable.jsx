@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from "react";
 import Search from "../../../Utils/Search";
-import DataGridTable from "../../../Utils/DataTable";
+import { useNavigate } from "react-router-dom";
+import DataGridTable from "../../../Utils/DataGridTable";
 
 const MemberTable = () => {
   const [filterRecord, setFilteredRecord] = useState([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [loading, setLoad] = useState(false);
   const [memberData, setMemberData] = useState([]);
-
+  const navigate = useNavigate();
+  const getCurrentData = (currentData) => {
+    console.log("currentData", currentData);
+    navigate(`/members/${currentData.id}/roles/assigned`);
+  };
   useEffect(() => {
     setFilteredRecord(dummmyData);
     setMemberData(dummmyData);
   }, []);
+
   return (
     <>
       <div className="py-4">
@@ -33,8 +39,8 @@ const MemberTable = () => {
           "Connections",
           "BP",
         ]}
+        getCurrentData={getCurrentData}
       />
-      
     </>
   );
 };

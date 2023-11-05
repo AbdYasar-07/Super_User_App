@@ -2,7 +2,7 @@ import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import React from "react";
 
-const DataGridTable = ({ data, rowHeader }) => {
+const DataGridTable = ({ data, rowHeader, getCurrentData }) => {
   const alignHeader = (column) => {
     if (!column) return;
 
@@ -16,7 +16,11 @@ const DataGridTable = ({ data, rowHeader }) => {
 
   const handleClickOnName = (rowData) => {
     return (
-      <div className="text-primary" style={{ textDecoration: "underline" }}>
+      <div
+        className="text-primary"
+        style={{ textDecoration: "underline", cursor: "pointer" }}
+        onClick={() => getCurrentData(rowData)}
+      >
         {rowData[rowHeader[0]]}
       </div>
     );
@@ -42,7 +46,6 @@ const DataGridTable = ({ data, rowHeader }) => {
               style={{
                 width: "fit-content",
               }}
-              style={{ cursor: (colHeader === rowHeader[0] && "pointer") }}
               body={colHeader === rowHeader[0] && handleClickOnName}
             ></Column>
           );

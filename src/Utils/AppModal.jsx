@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Axios from "../Utils/Axios";
 import { useParams } from "react-router-dom";
-
+import {
+  roleFilter,
+  toMapApplicationNames,
+} from "../Components/BusinessLogics/Logics";
 const AppModal = ({
   buttonLabel,
   dialogBoxHeader,
@@ -11,7 +14,7 @@ const AppModal = ({
   setIsAdded,
   isAdded,
   isRoles,
-  isDeleted
+  isDeleted,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [checkboxData, setCheckboxData] = useState([]);
@@ -64,34 +67,23 @@ const AppModal = ({
       });
   };
 
-  const getClientInformation = async (
-    managementToken,
-    appIds,
-    isUserAllRoles,
-    roles
-  ) => {
-    const clients = process.env.REACT_APP_AUTH_GET_CLIENT;
-    const promises = appIds.map((appId) => {
-      return Axios(
-        clients + `/${appId}?fields=client_id%2Cname`,
+  const getClientsInfo = async () => {
+    return await getManagementToken().then(async (tkn) => {
+      return await Axios(
+        process.env.REACT_APP_AUTH_GET_CLIENT_INFO,
         "GET",
         null,
-        managementToken,
-        false
-      );
+        tkn,
+        true
+      )
+        .then((response) => {
+          if (response && response?.clients?.length > 0) {
+            return response?.clients;
+          }
+        })
+        .catch((error) => console.log(error));
     });
-
-    const responses = await Promise.all(promises);
-    const map = new Map();
-    responses.forEach((response) => {
-      map.set(response?.client_id, response?.name);
-    });
-    roles.map((role) => {
-      role.applicationName = map.get(role.applicationId);
-      return { ...role };
-    });
-    return roles;
-  }
+  };
 
   const fetchRoles = async () => {
     await Axios(
@@ -101,29 +93,34 @@ const AppModal = ({
       localStorage.getItem("auth_access_token")
     )
       .then(async (response) => {
+        //member start
+        if (response?.length > 0 && scopes) {
+          console.log(scopes, "scope");
+          console.log(roleFilter(response.roles, "PSP_BP"));
+        }
+        //memberend
         const allRoles = response.roles;
         await Axios(
           resource + `/users/${userId}/roles`,
           "GET",
           null,
           localStorage.getItem("auth_access_token")
-        ).then(async (response) => {
-          const remRoles = allRoles.filter(
-            (item) => !response.some((obj) => obj._id === item._id)
-          );
-
-          let appIds = [];
-          remRoles.forEach((role) => appIds.push(role.applicationId));
-          await getManagementToken().then(async (tkn) => {
-            await getClientInformation(tkn, appIds, null, remRoles).then(
-              (response) => {
-                setCheckboxData(response);
-                setIsLoaded(true);
-              }
+        )
+          .then(async (response) => {
+            const remRoles = allRoles.filter(
+              (item) => !response.some((obj) => obj._id === item._id)
             );
+            await getClientsInfo().then((clientsinfo) => {
+              if (toMapApplicationNames(remRoles, clientsinfo).length > 0) {
+                setCheckboxData(toMapApplicationNames(remRoles, clientsinfo));
+              }
+              setIsLoaded(true);
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+            setIsLoaded(false);
           });
-          // setCheckboxData(remRoles);
-        });
       })
       .catch((error) => {
         console.error(
@@ -131,11 +128,10 @@ const AppModal = ({
           error
         );
       })
-      .finally(() => { });
+      .finally(() => {});
   };
 
   useEffect(() => {
-
     if (!isRoles) fetchData();
     if (isRoles) fetchRoles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -195,8 +191,8 @@ const AppModal = ({
   };
 
   const handleCursorBehaviour = () => {
-    return selectedCheckboxes.length === 0 ? 'not-allowed' : 'pointer';
-  }
+    return selectedCheckboxes.length === 0 ? "not-allowed" : "pointer";
+  };
 
   const handleAdd = async () => {
     try {
@@ -229,7 +225,6 @@ const AppModal = ({
 
           <div
             class="modal fade"
-
             id="exampleModal"
             tabindex="-1"
             aria-labelledby="exampleModalLabel"
@@ -256,7 +251,15 @@ const AppModal = ({
                           {tableRow?.map((tableRow, index) => {
                             return (
                               <>
-                                <th key={index + 1} style={{ textAlign: "left", paddingLeft: "10px" }}>{tableRow}</th>
+                                <th
+                                  key={index + 1}
+                                  style={{
+                                    textAlign: "left",
+                                    paddingLeft: "10px",
+                                  }}
+                                >
+                                  {tableRow}
+                                </th>
                               </>
                             );
                           })}
@@ -302,18 +305,20 @@ const AppModal = ({
                                   {checkbox.description}
                                 </div>
                               </td>
-                              {checkbox.applicationName && <td>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "right",
-                                    textAlign: "left",
-                                    paddingLeft: "10px",
-                                  }}
-                                >
-                                  {checkbox.applicationName}
-                                </div>
-                              </td>}
+                              {checkbox.applicationName && (
+                                <td>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "right",
+                                      textAlign: "left",
+                                      paddingLeft: "10px",
+                                    }}
+                                  >
+                                    {checkbox.applicationName}
+                                  </div>
+                                </td>
+                              )}
                             </tr>
                           ))}
                       </tbody>
@@ -336,7 +341,10 @@ const AppModal = ({
                       </button>
                       <button
                         disabled={selectedCheckboxes.length === 0}
-                        style={{ pointerEvents: "auto", cursor: handleCursorBehaviour() }}
+                        style={{
+                          pointerEvents: "auto",
+                          cursor: handleCursorBehaviour(),
+                        }}
                         type="button"
                         class="btn btn-primary"
                         onClick={handleAdd}
@@ -350,8 +358,7 @@ const AppModal = ({
             </div>
           </div>
         </>
-      )
-      }
+      )}
     </>
   );
 };

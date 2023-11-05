@@ -6,15 +6,20 @@ import "../Styles/NestedContent.css";
 import { useNavigate, useParams } from "react-router-dom";
 import ToggleSelection from "../../Utils/ToggleSelection";
 import AppSpinner from "../../Utils/AppSpinner";
-import { Button } from 'primereact/button';
+import { Button } from "primereact/button";
 import { useDispatch } from "react-redux";
 import { addUserInfo, renderingCurrentUser } from "../../store/auth0Slice";
 import { useAuth0 } from "@auth0/auth0-react";
 
-const NestedContent = ({ setIsProfileRendered, isProfileRendered }) => {
+const NestedContent = ({
+  setIsProfileRendered,
+  isProfileRendered,
+  tabHeader,
+}) => {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated, getAccessTokenSilently, getIdTokenClaims, user } = useAuth0();
+  const { isAuthenticated, getAccessTokenSilently, getIdTokenClaims, user } =
+    useAuth0();
   const [userProfile, setUserProfile] = useState({});
   const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
   const [loadSpinner, setIsLoadSpinner] = useState(true);
@@ -27,7 +32,9 @@ const NestedContent = ({ setIsProfileRendered, isProfileRendered }) => {
       await Axios(resource + `/users/${userId}`, "GET", null, accessToken)
         .then((userProfile) => {
           setUserProfile(userProfile);
-          dispatch(renderingCurrentUser({ currentUser: JSON.stringify(userProfile) }))
+          dispatch(
+            renderingCurrentUser({ currentUser: JSON.stringify(userProfile) })
+          );
           setIsProfileRendered(true);
           setIsLoadSpinner(false);
         })
@@ -36,13 +43,13 @@ const NestedContent = ({ setIsProfileRendered, isProfileRendered }) => {
         })
         .then(() => {
           navigate(`/users/${userId}/profile`);
-        })
+        });
     }
   };
 
   const loadUserProfile = async () => {
     await getUserProfile(localStorage.getItem("auth_access_token"), userId);
-  }
+  };
 
   const loadAuth0Context = async () => {
     const access_token = await getAccessTokenSilently();
@@ -58,7 +65,7 @@ const NestedContent = ({ setIsProfileRendered, isProfileRendered }) => {
         ),
       })
     );
-  }
+  };
 
   // useEffect(() => {
   //   const callUserProfile = async () => {
@@ -74,17 +81,15 @@ const NestedContent = ({ setIsProfileRendered, isProfileRendered }) => {
   //   invoke();
   // }, [renderedUser]);
 
-
   useEffect(() => {
     if (isAuthenticated) {
       loadAuth0Context();
     }
-
   }, []);
 
   useEffect(() => {
     loadUserProfile();
-  }, [isAuthenticated])
+  }, [isAuthenticated]);
 
   return (
     <>
@@ -95,12 +100,12 @@ const NestedContent = ({ setIsProfileRendered, isProfileRendered }) => {
           height: "200px !important",
         }}
       >
-        {loadSpinner &&
+        {loadSpinner && (
           <div className="col-12">
             <AppSpinner />
           </div>
-        }
-        {!loadSpinner &&
+        )}
+        {!loadSpinner && (
           <div className="col-2">
             <img
               src={userProfile.picture}
@@ -110,31 +115,59 @@ const NestedContent = ({ setIsProfileRendered, isProfileRendered }) => {
               height="80"
             />
           </div>
-        }
-        {!loadSpinner &&
-          <div className="col-6 text-start d-flex align-items-center justify-content-between" style={{ width: '82%' }}>
+        )}
+        {!loadSpinner && (
+          <div
+            className="col-6 text-start d-flex align-items-center justify-content-between"
+            style={{ width: "82%" }}
+          >
             <div>
               <h2 className="fw-normal">{userProfile.name}</h2>
               <h5 className="fw-light text-secondary">{userProfile.email}</h5>
-              {(typeof userProfile.blocked === "boolean" || userProfile) &&
-                <Button style={{ borderRadius: "15px", height: "30px", margin: "10px" }} type="button" size="small" label={`user is ${userProfile.blocked === true ? "" : "un"}blocked`} severity={`${userProfile.blocked === true ? "danger" : "info"}`}></Button>
-              }
-              {(typeof userProfile.email_verified === "boolean") &&
-                <Button style={{ borderRadius: "15px", height: "30px", margin: "10px" }} type="button" size="small" label={`user is ${userProfile.email_verified === true ? "" : "un"}verified`} severity={userProfile.email_verified === true ? "info" : "danger"}></Button>
-              }
+              {(typeof userProfile.blocked === "boolean" || userProfile) && (
+                <Button
+                  style={{
+                    borderRadius: "15px",
+                    height: "30px",
+                    margin: "10px",
+                  }}
+                  type="button"
+                  size="small"
+                  label={`user is ${
+                    userProfile.blocked === true ? "" : "un"
+                  }blocked`}
+                  severity={`${
+                    userProfile.blocked === true ? "danger" : "info"
+                  }`}
+                ></Button>
+              )}
+              {typeof userProfile.email_verified === "boolean" && (
+                <Button
+                  style={{
+                    borderRadius: "15px",
+                    height: "30px",
+                    margin: "10px",
+                  }}
+                  type="button"
+                  size="small"
+                  label={`user is ${
+                    userProfile.email_verified === true ? "" : "un"
+                  }verified`}
+                  severity={
+                    userProfile.email_verified === true ? "info" : "danger"
+                  }
+                ></Button>
+              )}
             </div>
-            {!loadSpinner &&
+            {!loadSpinner && (
               <div className="d-flex flex-column align-items-center justify-content-center">
                 <ToggleSelection />
               </div>
-            }
+            )}
           </div>
-        }
+        )}
       </div>
-
-      {!loadSpinner &&
-        <Tabs tabs={["Profile", "Groups", "Roles"]} />
-      }
+      {!loadSpinner && tabHeader?.length !== 0 && <Tabs tabs={tabHeader} />}
     </>
   );
 };

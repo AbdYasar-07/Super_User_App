@@ -15,6 +15,14 @@ function NavTabHeader({ showTab, tabsHeaders }) {
         navigate("show");
         break;
       }
+      case "rolesassigned": {
+        navigate("roles/assigned");
+        break;
+      }
+      case "rolesunassigned": {
+        navigate("roles/unassigned");
+        break;
+      }
       default: {
         navigate(`${header.toLowerCase()}`);
       }
