@@ -3,7 +3,7 @@ import Search from "../../../Utils/Search";
 import { useNavigate } from "react-router-dom";
 import DataGridTable from "../../../Utils/DataGridTable";
 import Axios from "../../../Utils/Axios";
-import { addManagementAccessToken } from "../../../store/auth0Slice";
+import { addManagementAccessToken, renderingCurrentUser } from "../../../store/auth0Slice";
 import { useDispatch, useSelector } from "react-redux";
 import AppSpinner from "../../../Utils/AppSpinner";
 
@@ -12,6 +12,8 @@ const MemberTable = () => {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [loading, setLoad] = useState(false);
   const [memberData, setMemberData] = useState([]);
+  const [actualMembers, setActualMembers] = useState([]);
+
   const [serverPaginate, setServerPagnitae] = useState({
     start: 0,
     length: 0,
@@ -26,7 +28,10 @@ const MemberTable = () => {
   const endpoint = process.env.REACT_APP_MANAGEMENT_API;
 
   const getCurrentData = (currentData) => {
-    console.log("currentData", currentData);
+    const filteredRecord = actualMembers.filter((member) => {
+      return member.user_id === currentData.id;
+    })
+    dispatch(renderingCurrentUser({ currentUser: filteredRecord[0] }));
     navigate(`/members/${currentData.id}/roles/assigned`);
   };
 
@@ -66,6 +71,7 @@ const MemberTable = () => {
     });
 
     if (Array.isArray(filteredUsers)) {
+      setActualMembers(filteredUsers);
       const members = filteredUsers.map((filteredUser) => {
         return {
           id: filteredUser.user_id,

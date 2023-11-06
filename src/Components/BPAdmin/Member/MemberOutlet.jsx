@@ -1,21 +1,22 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-import NestedContent from "../../Contents/NestedContents";
 import NavTabHeader from "../../../Utils/NavTabHeader";
+import MemberHeader from "./MemberHeader";
+import { useSelector } from "react-redux";
 import MultiSelector from "../../../Utils/MultiSelector";
 import { Button } from "primereact/button";
 
-const MemberOutlet = (setIsProfileRendered) => {
+const MemberOutlet = () => {
+
+  const renderedUser = useSelector((store) => store?.auth0Context?.renderingUser);
+
   const [assignBpValue, setAssignBpValue] = useState([]);
   const assignBp = () => {
     console.log(assignBpValue, "assignBpValue");
   };
   return (
     <div>
-      <NestedContent
-        setIsProfileRendered={setIsProfileRendered}
-        tabHeader={[]}
-      />
+      <MemberHeader userProfile={renderedUser} />
       <div
         className="my-3 d-flex align-items-center"
         style={{ paddingLeft: "10px" }}

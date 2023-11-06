@@ -21,7 +21,7 @@ const NavTabTable = ({
   isRoles,
 }) => {
   const [userGroups, setUserGroups] = useState([]);
-  const { userId } = useParams();
+  const { userId, memberId } = useParams();
   const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
   const [loadSpinner, setLoadSpinner] = useState(false);
   const [userAllGroups, setUserAllGroups] = useState([]);
@@ -32,7 +32,7 @@ const NavTabTable = ({
   const [tableValue, setTableValue] = useState(false);
 
   const getUserGroups = async (accessToken, userId) => {
-    await Axios(resource + `/users/${userId}/groups`, "GET", null, accessToken)
+    await Axios(resource + `/users/${(userId) ? userId : memberId}/groups`, "GET", null, accessToken)
       .then((groups) => {
         setUserGroups(groups);
         setIsAdded(false);
@@ -47,7 +47,7 @@ const NavTabTable = ({
 
   const getUserAllGroups = async (accessToken, userId) => {
     await Axios(
-      resource + `/users/${userId}/groups/calculate`,
+      resource + `/users/${(userId) ? userId : memberId}/groups/calculate`,
       "GET",
       null,
       accessToken
@@ -64,17 +64,28 @@ const NavTabTable = ({
       .finally(() => setLoadSpinner(false));
   };
 
-  const fetchUserRoles = async () => {
-    await Axios(
-      resource + `/users/${userId}/roles`,
+  const fetchCurrentUserRoles = async () => {
+    return await Axios(
+      resource + `/users/${(userId) ? userId : memberId}/roles`,
       "GET",
       null,
       localStorage.getItem("auth_access_token")
     )
+  }
+
+  const fetchUserRoles = async () => {
+    await fetchCurrentUserRoles()
       .then(async (userRoles) => {
-        await getClientsInfo().then((clientsinfo) => {
-          if (toMapApplicationNames(userRoles, clientsinfo).length > 0) {
-            setUserRoles(toMapApplicationNames(userRoles, clientsinfo));
+        await getClientsInfo().then((clientsInfo) => {
+          if (toMapApplicationNames(userRoles, clientsInfo).length > 0) {
+            let roles = toMapApplicationNames(userRoles, clientsInfo);
+            if (memberId) {
+              const filteredRoles = roles.filter((role) => String(role.name).startsWith("PSP_BP"));
+              setUserRoles(filteredRoles);
+            }
+            else {
+              setUserRoles(roles);
+            }
           }
         });
         setLoadSpinner(false);
@@ -86,24 +97,36 @@ const NavTabTable = ({
   };
 
   const getUserAllRoles = async (accessToken, userId) => {
-    await Axios(
-      resource + `/users/${userId}/roles/calculate`,
-      "GET",
-      null,
-      accessToken
-    )
-      .then(async (allRoles) => {
-        await getClientsInfo()
-          .then((clientsinfo) => {
-            if (toMapApplicationNames(allRoles, clientsinfo).length > 0) {
-              setUserAllRoles(toMapApplicationNames(allRoles, clientsinfo));
-            }
-            setLoadSpinner(false);
-          })
-          .catch((error) => {
-            console.log(error);
-            setLoadSpinner(false);
-          });
+    var response = null;
+    if (memberId) {
+      response = await Axios(
+        resource + `/roles`,
+        "GET",
+        null,
+        localStorage.getItem("auth_access_token")
+      )
+    } else {
+      response = await Axios(
+        resource + `/users/${(userId) ? userId : memberId}/roles/calculate`,
+        "GET",
+        null,
+        accessToken
+      )
+    }
+    await getClientsInfo()
+      .then(async (clientsInfo) => {
+        if (memberId) {
+          let totalRoles = toMapApplicationNames(response.roles, clientsInfo);
+          let filteredAllRoles = totalRoles.filter((role) => String(role.name).startsWith("PSP_BP"));
+          const userRolesResponse = await fetchCurrentUserRoles();
+          const remRoles = filteredAllRoles.filter(
+            (item) => !userRolesResponse.filter((role) => String(role.name).startsWith("PSP_BP")).some((obj) => obj._id === item._id)
+          );
+          setUserAllRoles(remRoles);
+        } else {
+          setUserAllRoles(toMapApplicationNames(response, clientsInfo));
+        }
+        setLoadSpinner(false);
       })
       .catch((error) => {
         console.log(error);
@@ -128,6 +151,7 @@ const NavTabTable = ({
         console.error("error ::", error);
       });
   };
+
   const getClientsInfo = async () => {
     return await getManagementToken().then(async (tkn) => {
       return await Axios(
@@ -154,7 +178,7 @@ const NavTabTable = ({
         await Axios(
           resource + `/groups/${id}/members`,
           "DELETE",
-          [`${userId}`],
+          [`${(userId) ? userId : memberId}`],
           localStorage.getItem("auth_access_token")
         )
           .then((response) => {
@@ -170,7 +194,7 @@ const NavTabTable = ({
       }
       case "roles": {
         await Axios(
-          resource + `/users/${userId}/roles`,
+          resource + `/users/${(userId) ? userId : memberId}/roles`,
           "DELETE",
           [`${id}`],
           localStorage.getItem("auth_access_token")
@@ -199,14 +223,14 @@ const NavTabTable = ({
       const callUserGroups = async () => {
         await getUserGroups(
           localStorage.getItem("auth_access_token") || "",
-          userId
+          (userId) ? userId : memberId
         );
       };
 
       callUserGroups();
     }
     if (!isRoles && isUserAllGroups) {
-      getUserAllGroups(localStorage.getItem("auth_access_token") || "", userId);
+      getUserAllGroups(localStorage.getItem("auth_access_token") || "", (userId) ? userId : memberId);
     }
 
     if (isRoles) {
@@ -216,7 +240,7 @@ const NavTabTable = ({
       if (isUserAllRoles) {
         getUserAllRoles(
           localStorage.getItem("auth_access_token") || "",
-          userId
+          (userId) ? userId : memberId
         );
       }
     }
@@ -224,11 +248,14 @@ const NavTabTable = ({
   }, [isAdded, isDeleted]);
 
   useEffect(() => {
-    if (loaction.pathname.endsWith("allroles")) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (loaction.pathname.endsWith("allroles"))
       scope = "All-Roles";
-    }
-    // eslint-disable-next-line default-case
+    else if (loaction.pathname.endsWith("unassigned"))
+      scope = "Unassigned-Roles";
+    else if (loaction.pathname.endsWith("assigned"))
+      scope = "Assigned-Roles";
+
     switch (scope) {
       case "Group":
         userGroups.length === 0 ? setTableValue(true) : setTableValue(false);
@@ -237,11 +264,15 @@ const NavTabTable = ({
         userAllGroups.length === 0 ? setTableValue(true) : setTableValue(false);
         break;
       case "Roles":
+      case "Assigned-Roles":
         userRoles.length === 0 ? setTableValue(true) : setTableValue(false);
         break;
       case "All-Roles":
+      case "Unassigned-Roles":
         userAllRoles.length === 0 ? setTableValue(true) : setTableValue(false);
         break;
+      default:
+        console.log("None of the scope hasn't been matched");
     }
   }, [userGroups, userAllGroups, userRoles, userAllRoles]);
   return (
