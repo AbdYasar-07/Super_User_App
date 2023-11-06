@@ -17,13 +17,13 @@ const ToggleSelection = () => {
     const options = ['BLOCK USER', 'UNBLOCK USER'];
     const [blockLoader, setBlockLoader] = useState(false);
     const [verifyLoader, setVerifyLoader] = useState(false);
-    const { userId } = useParams();
+    const { userId, memberId } = useParams();
     const renderedUser = useSelector((store) => Object.keys(store?.auth0Context?.renderingUser).length > 0 ? store?.auth0Context?.renderingUser : null);
     const [value, setValue] = useState();
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (JSON.parse(renderedUser).blocked) {
+        if (JSON.parse(JSON.stringify(renderedUser)).blocked) {
             setValue(options[1]);
         } else {
             setValue(options[0]);
@@ -57,11 +57,17 @@ const ToggleSelection = () => {
         setBlockLoader(true);
         switch (value) {
             case "BLOCK USER":
-                await blockUserHelper(userId, true);
+                if (userId)
+                    await blockUserHelper(userId, true);
+                else if (memberId)
+                    await blockUserHelper(memberId, true);
                 setValue(options[1]);
                 break;
             case "UNBLOCK USER":
-                await blockUserHelper(userId, false);
+                if (userId)
+                    await blockUserHelper(userId, false);
+                else if (memberId)
+                    await blockUserHelper(memberId, false);
                 setValue(options[0]);
                 break;
             default:
@@ -85,13 +91,13 @@ const ToggleSelection = () => {
             .then((response) => {
                 let obj = Object.assign({}, response);
                 if (isForBlock && obj?.user_id) {
-                    toast.info(`User ${JSON.parse(renderedUser).email} has been ${body["blocked"] === true ? 'blocked' : 'unblocked'}`, { theme: "colored" });
+                    toast.info(`User ${JSON.parse(JSON.stringify(renderedUser)).email} has been ${body["blocked"] === true ? 'blocked' : 'unblocked'}`, { theme: "colored" });
                 } else if (!isForBlock && obj?.user_id) {
-                    toast.info(`User ${JSON.parse(renderedUser).email} has been verified sucessfully.`, { theme: "colored" });
+                    toast.info(`User ${JSON.parse(JSON.stringify(renderedUser)).email} has been verified sucessfully.`, { theme: "colored" });
                 } else if (obj?.message.includes("failed")) {
                     toast.error(`${obj?.response.data.message}`, { theme: "colored" });
                 }
-                dispatch(renderingCurrentUser({ currentUser: JSON.stringify(response) }));
+                dispatch(renderingCurrentUser({ currentUser: response }));
             })
             .catch((error) => {
                 console.error(`Error while updating user ${isForBlock === true ? "block" : "email verification"} status`, error);
@@ -126,7 +132,7 @@ const ToggleSelection = () => {
         setVerifyLoader(true);
         const url = `${resource}users/${userId}`;
         const method = 'PATCH';
-        const body = { "email": JSON.parse(renderedUser).email, "email_verified": true, connection: process.env.REACT_APP_CONCEPTION_DATABASE }
+        const body = { "email": JSON.parse(JSON.stringify(renderedUser)).email, "email_verified": true, connection: process.env.REACT_APP_CONCEPTION_DATABASE }
         await axiosCallOut(url, method, body, access_token, false);
     }
 
@@ -135,7 +141,7 @@ const ToggleSelection = () => {
     return (
         <>
             <ToastContainer />
-            <Button label="VERIFY EMAIL" size='small' style={{ width: "180px", margin: "10px", borderRadius: "13px", }} severity='primary' raised loading={verifyLoader} disabled={JSON.parse(renderedUser)?.email_verified} onClick={(e) => verifyUserEmailHelper(userId)} />
+            <Button label="VERIFY EMAIL" size='small' style={{ width: "180px", margin: "10px", borderRadius: "13px", }} severity='primary' raised loading={verifyLoader} disabled={JSON.parse(JSON.stringify(renderedUser))?.email_verified} onClick={(e) => verifyUserEmailHelper((userId) ? userId : memberId)} />
             <Button label={value} size='small' severity={blockButtonServeity()} style={{ width: "180px", margin: "10px", borderRadius: "13px" }} raised loading={blockLoader} onClick={(e) => handleToggleState(e.target.innerText)} />
 
             {/* <div className='selectToggle'>

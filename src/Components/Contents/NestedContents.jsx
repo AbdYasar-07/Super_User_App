@@ -7,7 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import ToggleSelection from "../../Utils/ToggleSelection";
 import AppSpinner from "../../Utils/AppSpinner";
 import { Button } from "primereact/button";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addUserInfo, renderingCurrentUser } from "../../store/auth0Slice";
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -24,7 +24,7 @@ const NestedContent = ({
   const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
   const [loadSpinner, setIsLoadSpinner] = useState(true);
   // const auth_access_code = useSelector((store) => store.auth0Context.authorizationAccessCode);
-  // const renderedUser = useSelector((store) => store.auth0Context.renderingUser);
+  const renderedUser = useSelector((store) => store.auth0Context.renderingUser);
   const dispatch = useDispatch();
 
   const getUserProfile = async (accessToken, userId) => {
@@ -33,7 +33,7 @@ const NestedContent = ({
         .then((userProfile) => {
           setUserProfile(userProfile);
           dispatch(
-            renderingCurrentUser({ currentUser: JSON.stringify(userProfile) })
+            renderingCurrentUser({ currentUser: userProfile })
           );
           setIsProfileRendered(true);
           setIsLoadSpinner(false);
@@ -67,20 +67,6 @@ const NestedContent = ({
     );
   };
 
-  // useEffect(() => {
-  //   const callUserProfile = async () => {
-  //     await getUserProfile(auth_access_code, userId);
-  //   };
-  //   callUserProfile();
-  // }, [isProfileRendered]);
-
-  // useEffect(() => {
-  //   const invoke = async () => {
-  //     await getUserProfile(auth_access_code, userId);
-  //   }
-  //   invoke();
-  // }, [renderedUser]);
-
   useEffect(() => {
     if (isAuthenticated) {
       loadAuth0Context();
@@ -90,6 +76,10 @@ const NestedContent = ({
   useEffect(() => {
     loadUserProfile();
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    setUserProfile(renderedUser);
+  }, [renderedUser])
 
   return (
     <>
@@ -133,12 +123,10 @@ const NestedContent = ({
                   }}
                   type="button"
                   size="small"
-                  label={`user is ${
-                    userProfile.blocked === true ? "" : "un"
-                  }blocked`}
-                  severity={`${
-                    userProfile.blocked === true ? "danger" : "info"
-                  }`}
+                  label={`user is ${userProfile.blocked === true ? "" : "un"
+                    }blocked`}
+                  severity={`${userProfile.blocked === true ? "danger" : "info"
+                    }`}
                 ></Button>
               )}
               {typeof userProfile.email_verified === "boolean" && (
@@ -150,9 +138,8 @@ const NestedContent = ({
                   }}
                   type="button"
                   size="small"
-                  label={`user is ${
-                    userProfile.email_verified === true ? "" : "un"
-                  }verified`}
+                  label={`user is ${userProfile.email_verified === true ? "" : "un"
+                    }verified`}
                   severity={
                     userProfile.email_verified === true ? "info" : "danger"
                   }

@@ -29,7 +29,7 @@ function App() {
     let userProfile = null;
 
     if (Object.keys(currentSelectedUser).length !== 0) {
-      userProfile = JSON.parse(currentSelectedUser);
+      userProfile = JSON.parse(JSON.stringify(currentSelectedUser));
       setLoggedUserProfile(JSON.stringify(userProfile, null, 2));
     }
     setIsProfileRendered(false);
@@ -74,7 +74,7 @@ function App() {
             <Route path="members" element={<Content />}>
               <Route index element={<Member />}></Route>
               <Route
-                path=":membersid"
+                path=":memberId"
                 element={
                   <MemberOutlet setIsProfileRendered={setIsProfileRendered} />
                 }

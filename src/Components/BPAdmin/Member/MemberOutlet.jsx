@@ -1,15 +1,16 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import NestedContent from "../../Contents/NestedContents";
 import NavTabHeader from "../../../Utils/NavTabHeader";
+import MemberHeader from "./MemberHeader";
+import { useSelector } from "react-redux";
 
-const MemberOutlet = (setIsProfileRendered) => {
+const MemberOutlet = () => {
+
+  const renderedUser = useSelector((store) => store?.auth0Context?.renderingUser);
+
   return (
     <div>
-      <NestedContent
-        setIsProfileRendered={setIsProfileRendered}
-        tabHeader={[]}
-      />
+      <MemberHeader userProfile={renderedUser} />
       <NavTabHeader
         showTab={true}
         tabsHeaders={["Roles Assigned", "Roles Unassigned"]}
