@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import NavTabBody from "../../../Utils/NavTabBody";
 import NavTabBodyButton from "../../../Utils/NavTabBodyButton";
 import NavTabTable from "../../../Utils/NavTabTable";
+import MultiSelector from "../../../Utils/MultiSelector";
 
 const RoleAssigned = () => {
   const [isAdded, setIsAdded] = useState(false);
@@ -55,3 +56,26 @@ const RoleAssigned = () => {
 };
 
 export default RoleAssigned;
+
+const data = [
+  {
+    BPcode: "978456123124545",
+    BPname: "ygvegv",
+  },
+  {
+    BPcode: "787856123124545",
+    BPname: "yfygv",
+  },
+  {
+    BPcode: "798456123124545",
+    BPname: "gvefygv",
+  },
+  {
+    BPcode: "908456123124545",
+    BPname: "fygv",
+  },
+  {
+    BPcode: "008456123124545",
+    BPname: "gv",
+  },
+];
