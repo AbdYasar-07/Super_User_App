@@ -5,8 +5,12 @@ import { FaUser } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
-import { addConceptionDatabase } from "../../store/auth0Slice";
+import {
+  addConceptionDatabase,
+  renderingCurrentUser,
+} from "../../store/auth0Slice";
 import PasswordValidation from "../../Utils/PasswordValidation";
+import { useNavigate } from "react-router-dom";
 
 function AddUser({
   setIsUserAdded,
@@ -18,6 +22,7 @@ function AddUser({
 }) {
   const userInfo = useSelector((store) => store.auth0Context);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
@@ -129,6 +134,9 @@ function AddUser({
               setIsDisable(false);
               return;
             }
+            console.log(addedUser, "new adduser");
+            dispatch(renderingCurrentUser({ currentUser: addedUser }));
+            navigate(`/members/${addedUser?.user_id}/roles/assigned`);
             toast(`${addedUser.name} is added`, {
               type: "success",
               theme: "colored",
