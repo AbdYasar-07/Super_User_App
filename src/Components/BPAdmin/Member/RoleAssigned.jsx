@@ -32,7 +32,7 @@ const RoleAssigned = () => {
             isAdded={isAdded}
             setIsAdded={setIsAdded}
             isRoles={true}
-            scopes={"roleF"}
+            scopes={"role"}
             dialogBoxHeader={`Add ${userName} to one or more roles`}
             isDeleted={isDeleted}
           />

@@ -1,19 +1,38 @@
-import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Outlet, useParams } from "react-router-dom";
 import NavTabHeader from "../../../Utils/NavTabHeader";
 import MemberHeader from "./MemberHeader";
 import { useSelector } from "react-redux";
 import MultiSelector from "../../../Utils/MultiSelector";
 import { Button } from "primereact/button";
+import Axios from "../../../Utils/Axios";
 
 const MemberOutlet = () => {
-
+  const { memberId } = useParams();
+  const [userBps, setUserBps] = useState([]);
   const renderedUser = useSelector((store) => store?.auth0Context?.renderingUser);
+  const resource = process.env.REACT_APP_AUTH_MANAGEMENT_AUDIENCE;
 
-  const [assignBpValue, setAssignBpValue] = useState([]);
-  const assignBp = () => {
-    console.log(assignBpValue, "assignBpValue");
+  useEffect(() => {
+    getGroupsInSystem();
+  }, [])
+
+  const assignBps = () => {
+
+
+
   };
+
+  const getGroupsInSystem = async () => {
+
+    const url = `${resource}groups`;
+    const response = await Axios(url, 'GET', null, localStorage.getItem("auth_access_token"), false);
+    console.log("response ***", response);
+
+
+
+  };
+
   return (
     <div>
       <MemberHeader userProfile={renderedUser} />
@@ -23,17 +42,17 @@ const MemberOutlet = () => {
       >
         <MultiSelector
           options={data}
-          placeholderValue="selecte assign"
+          placeholderValue="Assign to BPs"
           propertyName="BPname"
           customizeTemplate={customizeTemplate}
-          getSelectedValue={setAssignBpValue}
+          getSelectedValue={setUserBps}
         />
-        {assignBpValue?.length > 0 && (
+        {userBps?.length > 0 && (
           <Button
             className="rounded ms-3"
             style={{ background: "#0d6efd" }}
             type="button"
-            onClick={assignBp}
+            onClick={assignBps}
           >
             + Assign
           </Button>
