@@ -32,7 +32,12 @@ const NavTabTable = ({
   const [tableValue, setTableValue] = useState(false);
 
   const getUserGroups = async (accessToken, userId) => {
-    await Axios(resource + `/users/${(userId) ? userId : memberId}/groups`, "GET", null, accessToken)
+    await Axios(
+      resource + `/users/${userId ? userId : memberId}/groups`,
+      "GET",
+      null,
+      accessToken
+    )
       .then((groups) => {
         setUserGroups(groups);
         setIsAdded(false);
@@ -47,7 +52,7 @@ const NavTabTable = ({
 
   const getUserAllGroups = async (accessToken, userId) => {
     await Axios(
-      resource + `/users/${(userId) ? userId : memberId}/groups/calculate`,
+      resource + `/users/${userId ? userId : memberId}/groups/calculate`,
       "GET",
       null,
       accessToken
@@ -66,12 +71,12 @@ const NavTabTable = ({
 
   const fetchCurrentUserRoles = async () => {
     return await Axios(
-      resource + `/users/${(userId) ? userId : memberId}/roles`,
+      resource + `/users/${userId ? userId : memberId}/roles`,
       "GET",
       null,
       localStorage.getItem("auth_access_token")
-    )
-  }
+    );
+  };
 
   const fetchUserRoles = async () => {
     await fetchCurrentUserRoles()
@@ -80,10 +85,11 @@ const NavTabTable = ({
           if (toMapApplicationNames(userRoles, clientsInfo).length > 0) {
             let roles = toMapApplicationNames(userRoles, clientsInfo);
             if (memberId) {
-              const filteredRoles = roles.filter((role) => String(role.name).startsWith("PSP_BP"));
+              const filteredRoles = roles.filter((role) =>
+                String(role.name).startsWith("PSP_BP")
+              );
               setUserRoles(filteredRoles);
-            }
-            else {
+            } else {
               setUserRoles(roles);
             }
           }
@@ -104,23 +110,28 @@ const NavTabTable = ({
         "GET",
         null,
         localStorage.getItem("auth_access_token")
-      )
+      );
     } else {
       response = await Axios(
-        resource + `/users/${(userId) ? userId : memberId}/roles/calculate`,
+        resource + `/users/${userId ? userId : memberId}/roles/calculate`,
         "GET",
         null,
         accessToken
-      )
+      );
     }
     await getClientsInfo()
       .then(async (clientsInfo) => {
         if (memberId) {
           let totalRoles = toMapApplicationNames(response.roles, clientsInfo);
-          let filteredAllRoles = totalRoles.filter((role) => String(role.name).startsWith("PSP_BP"));
+          let filteredAllRoles = totalRoles.filter((role) =>
+            String(role.name).startsWith("PSP_BP")
+          );
           const userRolesResponse = await fetchCurrentUserRoles();
           const remRoles = filteredAllRoles.filter(
-            (item) => !userRolesResponse.filter((role) => String(role.name).startsWith("PSP_BP")).some((obj) => obj._id === item._id)
+            (item) =>
+              !userRolesResponse
+                .filter((role) => String(role.name).startsWith("PSP_BP"))
+                .some((obj) => obj._id === item._id)
           );
           setUserAllRoles(remRoles);
         } else {
@@ -178,7 +189,7 @@ const NavTabTable = ({
         await Axios(
           resource + `/groups/${id}/members`,
           "DELETE",
-          [`${(userId) ? userId : memberId}`],
+          [`${userId ? userId : memberId}`],
           localStorage.getItem("auth_access_token")
         )
           .then((response) => {
@@ -192,9 +203,10 @@ const NavTabTable = ({
           });
         break;
       }
+      case "assigned-roles":
       case "roles": {
         await Axios(
-          resource + `/users/${(userId) ? userId : memberId}/roles`,
+          resource + `/users/${userId ? userId : memberId}/roles`,
           "DELETE",
           [`${id}`],
           localStorage.getItem("auth_access_token")
@@ -223,14 +235,17 @@ const NavTabTable = ({
       const callUserGroups = async () => {
         await getUserGroups(
           localStorage.getItem("auth_access_token") || "",
-          (userId) ? userId : memberId
+          userId ? userId : memberId
         );
       };
 
       callUserGroups();
     }
     if (!isRoles && isUserAllGroups) {
-      getUserAllGroups(localStorage.getItem("auth_access_token") || "", (userId) ? userId : memberId);
+      getUserAllGroups(
+        localStorage.getItem("auth_access_token") || "",
+        userId ? userId : memberId
+      );
     }
 
     if (isRoles) {
@@ -240,7 +255,7 @@ const NavTabTable = ({
       if (isUserAllRoles) {
         getUserAllRoles(
           localStorage.getItem("auth_access_token") || "",
-          (userId) ? userId : memberId
+          userId ? userId : memberId
         );
       }
     }
@@ -249,12 +264,10 @@ const NavTabTable = ({
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    if (loaction.pathname.endsWith("allroles"))
-      scope = "All-Roles";
+    if (loaction.pathname.endsWith("allroles")) scope = "All-Roles";
     else if (loaction.pathname.endsWith("unassigned"))
       scope = "Unassigned-Roles";
-    else if (loaction.pathname.endsWith("assigned"))
-      scope = "Assigned-Roles";
+    else if (loaction.pathname.endsWith("assigned")) scope = "Assigned-Roles";
 
     switch (scope) {
       case "Group":

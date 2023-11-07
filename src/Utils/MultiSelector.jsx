@@ -14,7 +14,9 @@ const MultiSelector = ({
   return (
     <div className="card flex justify-content-center col-lg-3">
       <MultiSelect
+        selectionLimit={1}
         value={selectedValue}
+        filter
         options={options}
         onChange={(e) => {
           setSelectedValue(e.value);
