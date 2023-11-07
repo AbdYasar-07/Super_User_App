@@ -65,14 +65,24 @@ const MemberTable = () => {
     if (users.length === 0)
       return;
 
-    const filteredUsers = users.filter((user) => {
+    // criteria 1 : filter for Conception database
+    const filteredByConceptionDatabase = users.filter((user) => {
       if (hasSingleIdentityWithConnectionName(user, databaseName))
         return user;
     });
 
+    // criteria 2 : filter for BP_
+    const filteredUsers = filteredByConceptionDatabase.filter(user => user?.app_metadata?.authorization?.groups?.some(group => group.startsWith("BP_")));
+
     if (Array.isArray(filteredUsers)) {
       setActualMembers(filteredUsers);
       const members = filteredUsers.map((filteredUser) => {
+        let indexOfBpGroup = -1;
+        filteredUser?.app_metadata?.authorization?.groups?.forEach((group, index) => {
+          if (String(group).startsWith("BP_")) {
+            indexOfBpGroup = index;
+          }
+        });
         return {
           id: filteredUser.user_id,
           Name: filteredUser.name,
@@ -80,7 +90,7 @@ const MemberTable = () => {
           LastLogin: formatTimestamp(filteredUser.last_login),
           Logins: filteredUser.logins_count,
           Connections: filteredUser.identities[filteredUser.identities.length - 1].connection,
-          BP: "-",
+          BP: filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup],
         };
       })
 

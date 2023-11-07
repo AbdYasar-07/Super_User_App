@@ -16,10 +16,12 @@ const Logout = () => {
       .then(() => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("auth_access_token");
-        dispatch(clearState());
       })
       .catch((error) => {
         console.error("Error while logging out ::", error);
+      })
+      .finally(() => {
+        dispatch(clearState());
       })
   };
 

@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MultiSelect } from "primereact/multiselect";
-import { Button } from "primereact/button";
 import "../Components/Styles/MultiSelector.css";
 const MultiSelector = ({
   options,
@@ -8,15 +7,25 @@ const MultiSelector = ({
   propertyName,
   customizeTemplate,
   getSelectedValue,
+  filterByFields,
+  isAdded
 }) => {
   const [selectedValue, setSelectedValue] = useState(null);
+
+  useEffect(() => {
+    if (isAdded) {
+      setSelectedValue(null);
+    }
+  }, [isAdded]);
 
   return (
     <div className="card flex justify-content-center col-lg-3">
       <MultiSelect
         selectionLimit={1}
+        showSelectAll={false}
         value={selectedValue}
         filter
+        filterBy={filterByFields}
         options={options}
         onChange={(e) => {
           setSelectedValue(e.value);

@@ -7,6 +7,7 @@ import "bootstrap/dist/js/bootstrap.bundle";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { PrimeReactProvider } from 'primereact/api';
 import "primereact/resources/themes/lara-light-indigo/theme.css";
+import 'primeicons/primeicons.css';
 import { Provider } from "react-redux";
 import store from "./store/store";
 

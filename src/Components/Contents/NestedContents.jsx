@@ -60,9 +60,7 @@ const NestedContent = ({
         idToken: id_token,
         permissions: user.user_profile.authorization?.permissions,
         roles: user.user_profile.authorization?.roles,
-        groups: user.user_profile.authorization?.groups?.filter((group) =>
-          group.startsWith("SUA:")
-        ),
+        groups: user.user_profile.authorization?.groups
       })
     );
   };

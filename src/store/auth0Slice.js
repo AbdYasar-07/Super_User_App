@@ -10,7 +10,8 @@ const initialState = {
   managementAccessToken: "",
   conceptionDatabase: [],
   renderingUser: {},
-  importedUserLogs: []
+  importedUserLogs: [],
+  addedBusinessPartner: {} // to show the member info with respective BP to the rendering users on the list
 };
 
 const auth0Slice = createSlice({
@@ -39,6 +40,9 @@ const auth0Slice = createSlice({
     addImportedUserLogs(state, action) {
       state.importedUserLogs.push(action.payload.userLog);
     },
+    addBP(state, action) {
+      state.addedBusinessPartner = action.payload.addedBusinessPartner;
+    },
     clearImportedUser(state, action) {
       state.importedUserLogs = [];
     },
@@ -57,6 +61,6 @@ const auth0Slice = createSlice({
   },
 });
 
-export const { addUserInfo, addAuthorizationCode, addConceptionDatabase, renderingCurrentUser, addImportedUserLogs, clearImportedUser, addManagementAccessToken, clearState } =
+export const { addUserInfo, addAuthorizationCode, addConceptionDatabase, renderingCurrentUser, addImportedUserLogs, clearImportedUser, addManagementAccessToken, addBP, clearState } =
   auth0Slice.actions;
 export default auth0Slice.reducer;

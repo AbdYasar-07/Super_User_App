@@ -1,9 +1,50 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../../Styles/NestedContent.css";
 import ToggleSelection from "../../../Utils/ToggleSelection";
 import { Button } from "primereact/button";
+import { useParams } from "react-router-dom";
+import Axios from "../../../Utils/Axios";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 const MemberHeader = ({ userProfile }) => {
+
+    const { memberId } = useParams();
+    const [assignedBP, setAssignedBP] = useState({});
+    const auth0Context = useSelector((store) => store?.auth0Context);
+    const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
+
+    useEffect(() => {
+        getGroupsForRenderedUser();
+    }, []);
+
+    useEffect(() => {
+        getGroupsForRenderedUser();
+    }, [auth0Context.addedBusinessPartner])
+
+    const getGroupsForRenderedUser = async () => {
+        let url = `${resource}/users/${memberId}/groups`;
+        const response = await Axios(url, 'GET', null, localStorage.getItem("auth_access_token"), false);
+        if (!axios.isAxiosError(response)) {
+            filterGroupsByName(response, "BP_");
+        } else {
+            toast.error("Error while retriving BP", { theme: "colored" });
+            console.error("Error ***", response);
+        }
+    };
+
+    const filterGroupsByName = (response, nameStartsWith) => {
+        if (Array.isArray(response) && Array(response).length > 0) {
+            const result = response.filter((group) => String(group.name).startsWith(nameStartsWith));
+            if (result.length > 0)
+                setAssignedBP(result[0]);
+            else
+                setAssignedBP("");
+        }
+    }
+
+
     return (
         <>
             <div
@@ -67,6 +108,19 @@ const MemberHeader = ({ userProfile }) => {
                     </div>
                 </div>
             </div>
+            {
+                typeof assignedBP === "object" && Object.keys(assignedBP).length > 0 &&
+                < div >
+                    <Button
+                        style={{
+                            display: "flex",
+                            paddingLeft: "10px",
+                            padding: "10px",
+                        }}
+                        type="button" label={`Member of ${assignedBP.name} (${assignedBP.description})`} icon="pi pi-user" severity="secondary"></Button>
+                </ div>
+            }
+            <ToastContainer />
         </>
     );
 }

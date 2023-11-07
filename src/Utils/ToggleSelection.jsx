@@ -23,7 +23,7 @@ const ToggleSelection = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (JSON.parse(JSON.stringify(renderedUser)).blocked) {
+        if (JSON.parse(JSON.stringify(renderedUser))?.blocked) {
             setValue(options[1]);
         } else {
             setValue(options[0]);
