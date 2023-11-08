@@ -10,6 +10,7 @@ import AddUser from "../../Users/AddUser";
 import ImportUserModal from "../../../Utils/ImportUserModal";
 import TableData from "../../../Utils/TableData";
 import BPtabel from "./BPtabel";
+import AppSpinner from "../../../Utils/AppSpinner";
 const BP = () => {
   const dispatch = useDispatch();
   const { getAccessTokenSilently } = useAuth0();
@@ -20,7 +21,7 @@ const BP = () => {
   const [isPasteCancel, setIsPasteCancel] = useState(false);
   const [isTableShow, setIsTableShow] = useState(false);
   const [tableData, setTableData] = useState([]);
-
+  const [loading, setIsLoading] = useState(false);
   const fetchAccessToken = async () => {
     await getAccessTokenSilently()
       .then(async (response) => {
@@ -32,6 +33,7 @@ const BP = () => {
       .catch((error) => {
         toast("Login required", { type: "error", position: "top-center" });
         console.error("Error while fetching token", error);
+        setIsLoading(false);
       });
   };
   const fetchAuthorizationToken = async () => {
@@ -55,9 +57,11 @@ const BP = () => {
         .then((tkn) => {
           localStorage.setItem("auth_access_token", tkn.access_token);
           dispatch(addAuthorizationCode({ code: tkn.access_token }));
+          setIsLoading(false);
         })
         .catch((error) => {
           console.error("Error while fetching authorization token ::", error);
+          setIsLoading(false);
         });
     }
   };
@@ -68,49 +72,56 @@ const BP = () => {
       !localStorage.getItem("auth_access_token")
     ) {
       fetchAccessToken();
+      setIsLoading(true);
     }
   }, []);
   return (
-    <div className="container">
-      <ContentHeader
-        title="Business Partners"
-        description="Open a BP to amend their details or manage its assigned Members"
-        customStyle={""}
-      />
-      <div className="position-relative">
-        <div>
-          <BPtabel/>
-        </div>
-        <div className="position-absolute end-0 p-0 me-4 customizePosition">
-          <AddUser
-            buttonLabel="BP"
-            setIsUserAdded={setIsUserAdded}
-            isTokenFetched={isTokenFetched}
-            setIsPasteModelShow={setIsPasteModelShow}
-            isPasteCancel={isPasteCancel}
-            setIsPasteCancel={setIsPasteCancel}
+    <>
+      {loading ? (
+        <AppSpinner />
+      ) : (
+        <div className="container">
+          <ContentHeader
+            title="Business Partners"
+            description="Open a BP to amend their details or manage its assigned Members"
+            customStyle={""}
           />
+          <div className="position-relative">
+            <div>
+              <BPtabel />
+            </div>
+            <div className="position-absolute end-0 p-0 me-4 customizePosition">
+              <AddUser
+                buttonLabel="BP"
+                setIsUserAdded={setIsUserAdded}
+                isTokenFetched={isTokenFetched}
+                setIsPasteModelShow={setIsPasteModelShow}
+                isPasteCancel={isPasteCancel}
+                setIsPasteCancel={setIsPasteCancel}
+              />
+            </div>
+            <div>
+              <ImportUserModal
+                isPasteModelShow={isPasteModelShow}
+                setIsPasteCancel={setIsPasteCancel}
+                setTableData={setTableData}
+                setIsTableShow={setIsTableShow}
+              />
+            </div>
+            <div>
+              <TableData
+                data={tableData}
+                isTableShow={isTableShow}
+                setIsTableShow={setIsTableShow}
+                setTableData={setTableData}
+                setIsPasteModelShow={setIsPasteModelShow}
+                setIsPasteCancel={setIsPasteCancel}
+              />
+            </div>
+          </div>
         </div>
-        <div>
-          <ImportUserModal
-            isPasteModelShow={isPasteModelShow}
-            setIsPasteCancel={setIsPasteCancel}
-            setTableData={setTableData}
-            setIsTableShow={setIsTableShow}
-          />
-        </div>
-        <div>
-          <TableData
-            data={tableData}
-            isTableShow={isTableShow}
-            setIsTableShow={setIsTableShow}
-            setTableData={setTableData}
-            setIsPasteModelShow={setIsPasteModelShow}
-            setIsPasteCancel={setIsPasteCancel}
-          />
-        </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 
