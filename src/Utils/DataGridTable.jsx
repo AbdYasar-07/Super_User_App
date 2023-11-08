@@ -1,8 +1,18 @@
+import axios from "axios";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import React from "react";
+import React, { useEffect } from "react";
+import { BiPencil, BiTrash, BiUserPlus, BiX } from "react-icons/bi";
+import { useNavigate } from "react-router-dom";
 
-const DataGridTable = ({ data, rowHeader, getCurrentData, loading }) => {
+const DataGridTable = ({
+  data,
+  rowHeader,
+  getCurrentData,
+  loading,
+  action,
+}) => {
+  const navigate = useNavigate();
   const alignHeader = (column) => {
     if (!column) return;
 
@@ -18,10 +28,41 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading }) => {
     return (
       <div
         className="text-primary"
-        style={{ textDecoration: "underline", cursor: "pointer" }}
+        style={{ cursor: "pointer" }}
         onClick={() => getCurrentData(rowData)}
       >
         {rowData[rowHeader[0]]}
+      </div>
+    );
+  };
+  const handelAction = (rowData) => {
+    return (
+      <div className="d-flex align-items-center">
+        <BiUserPlus
+          style={{
+            fontSize: "24px",
+            color: "#363535",
+            width: "30px",
+            height: "30px",
+            padding: "4px",
+            borderRadius: "3px",
+          }}
+          title="Add member"
+          className="mx-1 fw-light"
+          onClick={() => navigate("/members")}
+        />
+        <BiPencil
+          style={{
+            fontSize: "24px",
+            color: "#363535",
+            width: "30px",
+            height: "30px",
+            padding: "4px",
+            borderRadius: "3px",
+          }}
+          title="Edit BP"
+          className="mx-1"
+        />
       </div>
     );
   };
@@ -38,16 +79,25 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading }) => {
         loading={loading}
       >
         {rowHeader?.map((colHeader) => {
+          console.log(colHeader, "colHeader");
           return (
             <Column
               field={alignHeader(colHeader)}
               header={colHeader}
-              filter
-              sortable
+              filter={!(colHeader === "Action")}
+              sortable={!(colHeader === "Action")}
               style={{
                 width: "fit-content",
               }}
-              body={colHeader === rowHeader[0] && handleClickOnName}
+              body={
+                action
+                  ? colHeader === rowHeader[0]
+                    ? handleClickOnName
+                    : colHeader === "Action"
+                    ? handelAction
+                    : ""
+                  : colHeader === rowHeader[0] && handleClickOnName
+              }
             ></Column>
           );
         })}

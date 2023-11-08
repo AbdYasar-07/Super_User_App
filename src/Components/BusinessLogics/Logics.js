@@ -4,7 +4,12 @@ export const roleFilter = (data, condition) => {
   }
   return data;
 };
-
+export const groupFilter = (data, condition) => {
+  if (data?.length > 0) {
+    data = data?.filter((ele) => ele?.name?.includes(condition));
+  }
+  return data;
+};
 export const toMapApplicationNames = (data, clientsinfo) => {
   data?.forEach((ele, index) => {
     let foundedValue = clientsinfo?.find(

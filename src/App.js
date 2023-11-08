@@ -18,6 +18,7 @@ import Member from "./Components/BPAdmin/Member/Member";
 import MemberOutlet from "./Components/BPAdmin/Member/MemberOutlet";
 import RoleUnassigned from "./Components/BPAdmin/Member/RoleUnassigned";
 import RoleAssigned from "./Components/BPAdmin/Member/RoleAssigned";
+import BP from "./Components/BPAdmin/BP/BP";
 
 function App() {
   const [isProfileRendered, setIsProfileRendered] = useState(false);
@@ -85,6 +86,9 @@ function App() {
                   element={<RoleUnassigned />}
                 ></Route>
               </Route>
+            </Route>
+            <Route path="bp" element={<Content />}>
+              <Route index element={<BP />}></Route>
             </Route>
           </Route>
           <Route path="/*" element={<WildCard />} />

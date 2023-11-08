@@ -1,12 +1,14 @@
 import axios from "axios";
 
-const Axios = async (url, method = "get", data = null, token = null, isManagementApi) => {
+const Axios = async (url, method = "get", data = null, token = null, isManagementApi,IsOSC) => {
   try {
     const headers = {};
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
-
+    if(IsOSC){
+      headers["OSvC-CREST-Application-Context"]="Fetch";
+    }
     if (isManagementApi) {
       headers["content-type"] = "application/json"
     }
