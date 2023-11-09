@@ -1,8 +1,7 @@
-import axios from "axios";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import React, { useEffect } from "react";
-import { BiPencil, BiTrash, BiUserPlus, BiX } from "react-icons/bi";
+import React from "react";
+import { BiPencil, BiUserPlus } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 
 const DataGridTable = ({
@@ -16,7 +15,7 @@ const DataGridTable = ({
   const alignHeader = (column) => {
     if (!column) return;
 
-    if (column.split(" ").length > 0) {
+    if (column && column.split(" ").length >= 2) {
       column = String(column).replaceAll(" ", "");
       return column;
     }
@@ -46,6 +45,7 @@ const DataGridTable = ({
             height: "30px",
             padding: "4px",
             borderRadius: "3px",
+            cursor: "pointer"
           }}
           title="Add member"
           className="mx-1 fw-light"
@@ -59,6 +59,7 @@ const DataGridTable = ({
             height: "30px",
             padding: "4px",
             borderRadius: "3px",
+            cursor: "pointer"
           }}
           title="Edit BP"
           className="mx-1"
@@ -79,7 +80,6 @@ const DataGridTable = ({
         loading={loading}
       >
         {rowHeader?.map((colHeader) => {
-          console.log(colHeader, "colHeader");
           return (
             <Column
               field={alignHeader(colHeader)}
@@ -94,8 +94,8 @@ const DataGridTable = ({
                   ? colHeader === rowHeader[0]
                     ? handleClickOnName
                     : colHeader === "Action"
-                    ? handelAction
-                    : ""
+                      ? handelAction
+                      : ""
                   : colHeader === rowHeader[0] && handleClickOnName
               }
             ></Column>

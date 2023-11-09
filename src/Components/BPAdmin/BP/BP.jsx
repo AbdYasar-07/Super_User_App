@@ -5,23 +5,23 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { addAuthorizationCode } from "../../../store/auth0Slice";
 import ContentHeader from "../../Contents/ContentHeader";
-import MemberTable from "../Member/MemberTable";
-import AddUser from "../../Users/AddUser";
 import ImportUserModal from "../../../Utils/ImportUserModal";
 import TableData from "../../../Utils/TableData";
 import BPtabel from "./BPtabel";
 import AppSpinner from "../../../Utils/AppSpinner";
+import axios from "axios";
+import AddBP from "./AddBP";
+
 const BP = () => {
+
   const dispatch = useDispatch();
   const { getAccessTokenSilently } = useAuth0();
-
-  const [isUserAdded, setIsUserAdded] = useState(false);
-  const [isTokenFetched, setIsTokenFteched] = useState(false);
   const [isPasteModelShow, setIsPasteModelShow] = useState(false);
   const [isPasteCancel, setIsPasteCancel] = useState(false);
   const [isTableShow, setIsTableShow] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [loading, setIsLoading] = useState(false);
+
   const fetchAccessToken = async () => {
     await getAccessTokenSilently()
       .then(async (response) => {
@@ -47,34 +47,24 @@ const BP = () => {
       localStorage.getItem("access_token") &&
       localStorage.getItem("access_token").toString().length > 0
     ) {
-      const authorizationResponse = Axios(
-        "https://dev-34chvqyi4i2beker.jp.auth0.com/oauth/token",
-        "POST",
-        body,
-        null
-      );
-      authorizationResponse
-        .then((tkn) => {
-          localStorage.setItem("auth_access_token", tkn.access_token);
-          dispatch(addAuthorizationCode({ code: tkn.access_token }));
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error while fetching authorization token ::", error);
-          setIsLoading(false);
-        });
+      const authorizationResponse = await Axios("https://dev-34chvqyi4i2beker.jp.auth0.com/oauth/token", "POST", body, null);
+      if (!axios.isAxiosError(authorizationResponse)) {
+        localStorage.setItem("auth_access_token", authorizationResponse.access_token);
+        dispatch(addAuthorizationCode({ code: authorizationResponse.access_token }));
+      } else {
+        console.error("Error while fetching authorization token ::", authorizationResponse);
+      }
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (
-      !localStorage.getItem("access_token") &&
-      !localStorage.getItem("auth_access_token")
-    ) {
+    if (!localStorage.getItem("access_token") && !localStorage.getItem("auth_access_token")) {
       fetchAccessToken();
       setIsLoading(true);
     }
   }, []);
+
   return (
     <>
       {loading ? (
@@ -91,14 +81,7 @@ const BP = () => {
               <BPtabel />
             </div>
             <div className="position-absolute end-0 p-0 me-4 customizePosition">
-              <AddUser
-                buttonLabel="BP"
-                setIsUserAdded={setIsUserAdded}
-                isTokenFetched={isTokenFetched}
-                setIsPasteModelShow={setIsPasteModelShow}
-                isPasteCancel={isPasteCancel}
-                setIsPasteCancel={setIsPasteCancel}
-              />
+              <AddBP />
             </div>
             <div>
               <ImportUserModal
