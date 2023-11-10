@@ -35,6 +35,7 @@ const ContentOutlet = () => {
         </div>
         <div>
           <ImportUserModal
+            action="Add_User"
             isPasteModelShow={isPasteModelShow}
             setIsPasteCancel={setIsPasteCancel}
             setTableData={setTableData}
@@ -43,6 +44,7 @@ const ContentOutlet = () => {
         </div>
         <div>
           <TableData
+            columnType={"user"}
             data={tableData}
             isTableShow={isTableShow}
             setIsTableShow={setIsTableShow}

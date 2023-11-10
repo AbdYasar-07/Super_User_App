@@ -20,6 +20,7 @@ import { addImportedUserLogs, clearImportedUser } from "../store/auth0Slice";
 import ExportExcel from "./ExcelExport";
 
 const TableData = ({
+  columnType,
   data,
   tableHeader = "USERS LIST",
   setTableData,
@@ -28,21 +29,36 @@ const TableData = ({
   isTableShow,
   setIsTableShow,
 }) => {
-
   const gridApiRef = useGridApiRef();
   const userInfo = useSelector((state) => state.auth0Context);
   const dispatch = useDispatch();
-  const columns = [
+  const userColumns = [
     { field: "id", headerName: "ID", width: 90 },
     { field: "UserEmail", headerName: "UserEmail", width: 250, editable: true },
     { field: "Password", headerName: "Password", width: 250, editable: true },
     {
-      field: "Connection", headerName: "Connection", width: 250,
+      field: "Connection",
+      headerName: "Connection",
+      width: 250,
+    },
+  ];
+  const bpColumns = [
+    { field: "id", headerName: "SNO", width: 90 },
+    { field: "bPID", headerName: "BPID", width: 250, editable: true },
+    { field: "bPName", headerName: "BPName", width: 250, editable: true },
+    {
+      field: "system",
+      headerName: "System",
+      width: 250,
     },
   ];
   const [isActivateConfirmModal, setIsActivateConfirmModal] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [confirmationModalData, setConfirmationModalData] = useState({ id: "", header: "", content: "", });
+  const [confirmationModalData, setConfirmationModalData] = useState({
+    id: "",
+    header: "",
+    content: "",
+  });
 
   const CustomToolbar = () => {
     return (
@@ -55,18 +71,27 @@ const TableData = ({
 
   const getImportedUsers = async (id) => {
     if (id === "m1") {
-      await createUsers(getSelectedValue())
-        .finally((_) => {
-          // toast(CustomToastWithLink, { theme: "light", autoClose: false }) -- inticating with excel export (logs)
-          toast(`Users has been imported to system.`, { theme: "colored", type: "info" })
-          setIsTableShow(false);
-          setIsActivateConfirmModal(false);
-          setSelectedRows([]);
-        })
+      await createUsers(getSelectedValue()).finally((_) => {
+        // toast(CustomToastWithLink, { theme: "light", autoClose: false }) -- inticating with excel export (logs)
+        toast(`Users has been imported to system.`, {
+          theme: "colored",
+          type: "info",
+        });
+        setIsTableShow(false);
+        setIsActivateConfirmModal(false);
+        setSelectedRows([]);
+      });
     }
     if (id === "c1") {
       setTableData([]);
       setIsActivateConfirmModal(false);
+    }
+    if (id === "bp") {
+      if (isBPidisValid(getSelectedValue())) {
+        console.log(getSelectedValue());
+      } else {
+        console.log("Validation failed");
+      }
     }
   };
 
@@ -82,7 +107,27 @@ const TableData = ({
     }
     return editedValue;
   };
+  const isBPidisValid = (data) => {
+    let isValidId = true;
+    if (data?.length === 0) {
+      return;
+    }
+    data.forEach((ele) => {
+      ele?.bPID?.split("")?.forEach((splitedEle) => {
+        if (typeof parseInt(splitedEle) !== "number") {
+          isValidId = false;
+        }
+      });
+      if (
+        ele?.bPID?.split("")?.length !== 10 &&
+        (ele?.system !== "PROD" || ele?.system !== "TEST")
+      ) {
+        isValidId = false;
+      }
+    });
 
+    return isValidId;
+  };
   const getSelectedValue = () => {
     let fileredData = [];
     selectedRows?.forEach((selectValueId) => {
@@ -106,18 +151,29 @@ const TableData = ({
       toast.warn("Please import only 20 rows", { theme: "colored" });
       return;
     }
-    setConfirmationModalData({
-      id: "m1",
-      header: "Confirmation Import user",
-      content: `Are you sure want to import the ${(selectedRows.length > 1) ? 'users?' : 'user?'}`,
-    });
-
+    if (columnType === "user") {
+      setConfirmationModalData({
+        id: "m1",
+        header: "Confirmation Import user",
+        content: `Are you sure want to import the ${
+          selectedRows.length > 1 ? "users?" : "user?"
+        }`,
+      });
+    }
+    if (columnType === "bpColumn") {
+      setConfirmationModalData({
+        id: "bp",
+        header: "Confirmation Import Bp user",
+        content: `Are you sure want to import the ${
+          selectedRows.length > 1 ? "Bp users?" : "Bp user?"
+        }`,
+      });
+    }
     setIsActivateConfirmModal(true);
   };
 
   const getAuthToken = async () => {
-    let body =
-    {
+    let body = {
       client_id: process.env.REACT_APP_AUTH_MANAGEMENT_CLIENT_ID,
       client_secret: process.env.REACT_APP_AUTH_MANAGEMENT_CLIENT_SECRET,
       audience: process.env.REACT_APP_AUTH_MANAGEMENT_AUDIENCE,
@@ -141,58 +197,70 @@ const TableData = ({
   const CustomToastWithLink = () => {
     return (
       <div>
-        <ExportExcel excelData={userInfo.importedUserLogs} fileName={'Imported User'} />
+        <ExportExcel
+          excelData={userInfo.importedUserLogs}
+          fileName={"Imported User"}
+        />
       </div>
     );
-  }
-
+  };
 
   const createUsers = async (usersList) => {
-
-    if (usersList.length === 0)
-      return;
+    if (usersList.length === 0) return;
 
     let managementAccessToken = null;
     await getAuthToken().then((managementResponse) => {
-      managementAccessToken = managementResponse?.access_token
+      managementAccessToken = managementResponse?.access_token;
     });
     usersList.forEach(async (user) => {
-      if (userInfo?.accessToken && userInfo?.accessToken?.length > 0 && managementAccessToken != null) {
+      if (
+        userInfo?.accessToken &&
+        userInfo?.accessToken?.length > 0 &&
+        managementAccessToken != null
+      ) {
         await createUser(user, managementAccessToken);
-      };
-    })
+      }
+    });
     dispatch(clearImportedUser());
-
   };
 
   const logCurrentUserObject = (user, status, response) => {
     const logObject = { isAdded: status, message: response };
     const data = { ...user, ...logObject };
-    dispatch(addImportedUserLogs({ userLog: data }))
-  }
+    dispatch(addImportedUserLogs({ userLog: data }));
+  };
 
   const createUser = async (user, accessToken) => {
-    let body =
-    {
+    let body = {
       email: user?.UserEmail,
       connection: user?.Connection,
-      password: user?.Password
+      password: user?.Password,
     };
 
-    await Axios("https://dev-34chvqyi4i2beker.jp.auth0.com/api/v2/users", "POST", JSON.stringify(body), accessToken, true)
+    await Axios(
+      "https://dev-34chvqyi4i2beker.jp.auth0.com/api/v2/users",
+      "POST",
+      JSON.stringify(body),
+      accessToken,
+      true
+    )
       .then((addedUser) => {
         if (addedUser.hasOwnProperty("response")) {
-          logCurrentUserObject(user, false, JSON.stringify(addedUser?.response));
+          logCurrentUserObject(
+            user,
+            false,
+            JSON.stringify(addedUser?.response)
+          );
           return;
         }
 
-        logCurrentUserObject(user, true, JSON.stringify(addedUser))
+        logCurrentUserObject(user, true, JSON.stringify(addedUser));
       })
       .catch((error) => {
         if (JSON.stringify(error) !== "{}") {
-          logCurrentUserObject(user, false, JSON.stringify(error))
+          logCurrentUserObject(user, false, JSON.stringify(error));
         }
-      })
+      });
   };
 
   return (
@@ -220,7 +288,11 @@ const TableData = ({
                 <Col style={{ textAlign: "end" }}>
                   <BiXCircle
                     className="fs-2"
-                    style={{ opacity: "0.9", margin: "10px 0", cursor: "pointer" }}
+                    style={{
+                      opacity: "0.9",
+                      margin: "10px 0",
+                      cursor: "pointer",
+                    }}
                     onClick={() => {
                       setTableData([]);
                       setIsPasteCancel(true);
@@ -240,7 +312,7 @@ const TableData = ({
                     onStateChange={() => {
                       // getEditedValues();
                     }}
-                    columns={columns}
+                    columns={columnType === "user" ? userColumns : bpColumns}
                     apiRef={gridApiRef}
                     initialState={{
                       pagination: {
@@ -290,7 +362,7 @@ const TableData = ({
                   onImport();
                 }}
               >
-                Import User
+                Import {columnType === "user" ? "USER" : "BP's"}
               </Button>
             </Modal.Footer>
           </Modal>
