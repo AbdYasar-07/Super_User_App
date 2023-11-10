@@ -111,7 +111,7 @@ const BPDetail = () => {
         };
         const response = await Axios(url, 'PUT', body, localStorage.getItem("auth_access_token"), false, false);
         if (!axios.isAxiosError(response)) {
-            console.log("response ***", response);
+            // console.log("response ***", response);
             return response;
         } else {
             console.error("Error while updating current group ::", response?.cause?.message);

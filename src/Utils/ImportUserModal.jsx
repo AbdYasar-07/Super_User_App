@@ -61,7 +61,7 @@ const ImportUserModal = ({
   };
   const isBpIdIsValid = (data) => {
     let isValidId = true;
-
+    let system = ["prod", "test"];
     if (data?.length === 0) {
       return;
     }
@@ -71,10 +71,11 @@ const ImportUserModal = ({
           isValidId = false;
         }
       });
-      if (
-        ele?.bPID?.split("")?.length !== 10 &&
-        (ele?.system !== "PROD" || ele?.system !== "TEST")
-      ) {
+      if (ele?.bPID?.split("")?.length !== 10) {
+        isValidId = false;
+      }
+      console.log(ele?.system?.toLowerCase());
+      if (!system?.includes(ele?.system?.toLowerCase())) {
         isValidId = false;
       }
     });
@@ -130,10 +131,12 @@ const ImportUserModal = ({
       if (isBpIdIsValid(objects) && objects.length !== 0) {
         setTableData(objects);
         setIsTableShow(true);
+        return;
       } else {
         toast.info("Invalid Data", {
           theme: "colored",
         });
+        return;
       }
     }
     setTableData(objects);

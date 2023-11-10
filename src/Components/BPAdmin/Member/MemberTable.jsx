@@ -199,8 +199,6 @@ const MemberTable = () => {
     <>
       <div className="py-4">
         <Search
-          isomit={true}
-          omitKey={"id"}
           records={memberData}
           setRecords={setFilteredRecord}
           isSearchActived={setIsSearchActive}

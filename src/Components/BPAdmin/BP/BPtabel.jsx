@@ -96,8 +96,6 @@ const BPtabel = () => {
     <>
       <div className="py-4">
         <Search
-          isomit={true}
-          omitKey="id"
           records={bpData}
           setRecords={setFilteredRecord}
           isSearchActived={setIsSearchActive}
