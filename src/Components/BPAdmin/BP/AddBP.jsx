@@ -115,16 +115,17 @@ export default function AddBP() {
         setBpName("");
         setBpIdMessage("");
         setBpNameMessage("");
-        setIsValidBpId(true);
-        setIsValidBpName(true);
+        setIsValidBpId(false);
+        setIsValidBpName(false);
         setVisible(false);
         setLoading(false);
     }
 
     const footerContent = (
         <div>
-            <Button label="Cancel" icon="pi pi-times" onClick={() => resetForm()} className="p-button-text" style={{ borderRadius: "7px" }} />
-            <Button label="Add BP" loading={loading} icon="pi pi-plus" onClick={() => onFormSubmit()} autoFocus style={{ borderRadius: "7px" }} disabled={!isValidBpId || !isValidBpName} />
+            <Button label="Cancel" icon="pi pi-times" onClick={() => resetForm()} className="p-button-text" style={{ borderRadius: "7px", marginLeft: "5px" }} />
+            <Button label="Add BP" loading={loading} icon="pi pi-plus" onClick={() => onFormSubmit()} autoFocus style={{ borderRadius: "7px", marginLeft: "5px" }} disabled={!isValidBpId || !isValidBpName} />
+            <Button label="Add BP's" autoFocus style={{ borderRadius: "7px", marginLeft: "5px" }} disabled={true} />
         </div>
     );
 
