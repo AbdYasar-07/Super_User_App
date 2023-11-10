@@ -134,7 +134,6 @@ function AddUser({
               setIsDisable(false);
               return;
             }
-            console.log(addedUser, "new adduser");
             dispatch(renderingCurrentUser({ currentUser: addedUser }));
             navigate(`/members/${addedUser?.user_id}/roles/assigned`);
             toast(`${addedUser.name} is added`, {

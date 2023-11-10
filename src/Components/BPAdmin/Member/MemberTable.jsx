@@ -3,7 +3,10 @@ import Search from "../../../Utils/Search";
 import { useNavigate } from "react-router-dom";
 import DataGridTable from "../../../Utils/DataGridTable";
 import Axios from "../../../Utils/Axios";
-import { addManagementAccessToken, renderingCurrentUser } from "../../../store/auth0Slice";
+import {
+  addManagementAccessToken,
+  renderingCurrentUser,
+} from "../../../store/auth0Slice";
 import { useDispatch, useSelector } from "react-redux";
 import AppSpinner from "../../../Utils/AppSpinner";
 
@@ -19,18 +22,18 @@ const MemberTable = () => {
     length: 0,
     total: -1,
     processedRecords: 0,
-    users: []
+    users: [],
   });
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const auth0Context = useSelector((state => state.auth0Context));
+  const auth0Context = useSelector((state) => state.auth0Context);
   const resource = process.env.REACT_APP_AUTH_MANAGEMENT_AUDIENCE;
   const endpoint = process.env.REACT_APP_MANAGEMENT_API;
 
   const getCurrentData = (currentData) => {
     const filteredRecord = actualMembers.filter((member) => {
       return member.user_id === currentData.id;
-    })
+    });
     dispatch(renderingCurrentUser({ currentUser: filteredRecord[0] }));
     navigate(`/members/${currentData.id}/roles/assigned`);
   };
@@ -38,7 +41,6 @@ const MemberTable = () => {
   useEffect(() => {
     getMembersList();
   }, []);
-
 
   const fetchManagementToken = async () => {
     const body = {
@@ -48,7 +50,11 @@ const MemberTable = () => {
       audience: process.env.REACT_APP_AUDIENCE,
     };
     return await Axios(endpoint, "POST", body, null, true).then((response) => {
-      dispatch(addManagementAccessToken({ managementAccessToken: response.access_token }));
+      dispatch(
+        addManagementAccessToken({
+          managementAccessToken: response.access_token,
+        })
+      );
       return response;
     });
   };
@@ -56,48 +62,58 @@ const MemberTable = () => {
   const getMembersList = async () => {
     setLoad(true);
     const managementResponse = await fetchManagementToken();
-    let response = await fetchAuth0Users(100, "conception", managementResponse.access_token, serverPaginate);
+    let response = await fetchAuth0Users(
+      100,
+      "conception",
+      managementResponse.access_token,
+      serverPaginate
+    );
     filterUsersByDatabase(response.users, "conception");
     setLoad(false);
   };
 
   const filterUsersByDatabase = (users, databaseName) => {
-    if (users.length === 0)
-      return;
+    if (users.length === 0) return;
 
     // criteria 1 : filter for Conception database
     const filteredByConceptionDatabase = users.filter((user) => {
-      if (hasSingleIdentityWithConnectionName(user, databaseName))
-        return user;
+      if (hasSingleIdentityWithConnectionName(user, databaseName)) return user;
     });
 
     // criteria 2 : filter for BP_
-    const filteredUsers = filteredByConceptionDatabase.filter(user => user?.app_metadata?.authorization?.groups?.some(group => group.startsWith("BP_")));
+    const filteredUsers = filteredByConceptionDatabase.filter((user) =>
+      user?.app_metadata?.authorization?.groups?.some((group) =>
+        group.startsWith("BP_")
+      )
+    );
 
     if (Array.isArray(filteredUsers)) {
       setActualMembers(filteredUsers);
       const members = filteredUsers.map((filteredUser) => {
         let indexOfBpGroup = -1;
-        filteredUser?.app_metadata?.authorization?.groups?.forEach((group, index) => {
-          if (String(group).startsWith("BP_")) {
-            indexOfBpGroup = index;
+        filteredUser?.app_metadata?.authorization?.groups?.forEach(
+          (group, index) => {
+            if (String(group).startsWith("BP_")) {
+              indexOfBpGroup = index;
+            }
           }
-        });
+        );
         return {
           id: filteredUser.user_id,
           Name: filteredUser.name,
           Email: filteredUser.email,
           LastLogin: formatTimestamp(filteredUser.last_login),
           Logins: filteredUser.logins_count,
-          Connections: filteredUser.identities[filteredUser.identities.length - 1].connection,
+          Connections:
+            filteredUser.identities[filteredUser.identities.length - 1]
+              .connection,
           BP: filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup],
         };
-      })
+      });
 
       setFilteredRecord(members);
       setMemberData(members);
     }
-
   };
 
   function hasSingleIdentityWithConnectionName(user, connectionName) {
@@ -145,29 +161,46 @@ const MemberTable = () => {
    * @description : It is an recursive function so pass the argument properly
    * @author Abdul Yashar
    */
-  const fetchAuth0Users = async (perPage, database, managementAccessToken, serverPaginate) => {
+  const fetchAuth0Users = async (
+    perPage,
+    database,
+    managementAccessToken,
+    serverPaginate
+  ) => {
     if (serverPaginate.processedRecords === serverPaginate.total) {
       return serverPaginate;
     }
 
     let url = `${resource}users?per_page=${perPage}&include_totals=true&connection=${database}&search_engine=v3&page=${serverPaginate.start}`;
-    const response = await Axios(url, 'get', null, managementAccessToken, false);
+    const response = await Axios(
+      url,
+      "get",
+      null,
+      managementAccessToken,
+      false
+    );
     const updatedServerPaginate = {
       start: serverPaginate.start + 1,
       length: response.length,
       total: response.total,
       processedRecords: serverPaginate.processedRecords + response.length,
-      users: [...serverPaginate?.users, ...response?.users]
-    }
+      users: [...serverPaginate?.users, ...response?.users],
+    };
     setServerPagnitae(updatedServerPaginate);
-    return await fetchAuth0Users(perPage, database, managementAccessToken, updatedServerPaginate);
-  }
-
+    return await fetchAuth0Users(
+      perPage,
+      database,
+      managementAccessToken,
+      updatedServerPaginate
+    );
+  };
 
   return (
     <>
       <div className="py-4">
         <Search
+          isomit={true}
+          omitKey={"id"}
           records={memberData}
           setRecords={setFilteredRecord}
           isSearchActived={setIsSearchActive}
@@ -175,8 +208,7 @@ const MemberTable = () => {
           data={memberData}
         />
       </div>
-      {
-        !loading &&
+      {!loading && (
         <DataGridTable
           data={filterRecord}
           rowHeader={[
@@ -190,11 +222,8 @@ const MemberTable = () => {
           getCurrentData={getCurrentData}
           loading={loading}
         />
-      }
-      {
-        loading && <AppSpinner />
-      }
-
+      )}
+      {loading && <AppSpinner />}
     </>
   );
 };

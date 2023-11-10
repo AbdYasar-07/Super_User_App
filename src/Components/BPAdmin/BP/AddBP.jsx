@@ -104,7 +104,6 @@ export default function AddBP({
       false
     );
     if (!axios.isAxiosError(response)) {
-      console.log("response ***", response);
       return response;
     } else {
       setLoading(false);

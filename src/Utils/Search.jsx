@@ -5,6 +5,7 @@ import { FaSearch } from "react-icons/fa";
  *
  * @param {[]} setRecords - to store the filtered records from the given data
  * @param {[]} records - pass the data where you want to filter from basically the context of the data
+ * @param {string} omitKey - pass the key for which the value needs to be removed in a filter
  * @param {boolean} setLoadSpinner - In case of heavy data volume you can pass the spinner for the component to load while searching records for
  * @description - This will check for the records irrespective of the all keys. will return the matched records
  * @returns list of searched records in the form of array of objects || will retrun an empty list or collection []
@@ -18,6 +19,8 @@ const Search = ({
   data,
   isSearchActived,
   lastTrackofPage,
+  isomit = null,
+  omitKey = null,
 }) => {
   const handleSearch = (value) => {
     if (value) {
