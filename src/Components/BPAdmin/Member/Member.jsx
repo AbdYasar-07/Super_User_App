@@ -32,7 +32,7 @@ const Member = () => {
       toast("Login required", { type: "error", position: "top-center" });
       console.error("Error ::", token_response);
     }
-  }
+  };
   const fetchAuthorizationToken = async () => {
     const body = {
       grant_type: process.env.REACT_APP_AUTH_GRANT_TYPE,
@@ -44,7 +44,12 @@ const Member = () => {
       localStorage.getItem("access_token") &&
       localStorage.getItem("access_token").toString().length > 0
     ) {
-      const authorizationResponse = await Axios("https://dev-34chvqyi4i2beker.jp.auth0.com/oauth/token", "POST", body, null);
+      const authorizationResponse = await Axios(
+        "https://dev-34chvqyi4i2beker.jp.auth0.com/oauth/token",
+        "POST",
+        body,
+        null
+      );
       return authorizationResponse;
     }
   };
@@ -57,7 +62,6 @@ const Member = () => {
       fetchAccessToken();
     }
   }, []);
-
 
   return (
     <div className="container">
@@ -82,6 +86,7 @@ const Member = () => {
         </div>
         <div>
           <ImportUserModal
+            action="Add_User"
             isPasteModelShow={isPasteModelShow}
             setIsPasteCancel={setIsPasteCancel}
             setTableData={setTableData}
@@ -90,6 +95,7 @@ const Member = () => {
         </div>
         <div>
           <TableData
+            columnType={"user"}
             data={tableData}
             isTableShow={isTableShow}
             setIsTableShow={setIsTableShow}

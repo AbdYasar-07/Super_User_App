@@ -11,9 +11,7 @@ import BPtabel from "./BPtabel";
 import AppSpinner from "../../../Utils/AppSpinner";
 import axios from "axios";
 import AddBP from "./AddBP";
-
 const BP = () => {
-
   const dispatch = useDispatch();
   const { getAccessTokenSilently } = useAuth0();
   const [isPasteModelShow, setIsPasteModelShow] = useState(false);
@@ -47,19 +45,35 @@ const BP = () => {
       localStorage.getItem("access_token") &&
       localStorage.getItem("access_token").toString().length > 0
     ) {
-      const authorizationResponse = await Axios("https://dev-34chvqyi4i2beker.jp.auth0.com/oauth/token", "POST", body, null);
+      const authorizationResponse = await Axios(
+        "https://dev-34chvqyi4i2beker.jp.auth0.com/oauth/token",
+        "POST",
+        body,
+        null
+      );
       if (!axios.isAxiosError(authorizationResponse)) {
-        localStorage.setItem("auth_access_token", authorizationResponse.access_token);
-        dispatch(addAuthorizationCode({ code: authorizationResponse.access_token }));
+        localStorage.setItem(
+          "auth_access_token",
+          authorizationResponse.access_token
+        );
+        dispatch(
+          addAuthorizationCode({ code: authorizationResponse.access_token })
+        );
       } else {
-        console.error("Error while fetching authorization token ::", authorizationResponse);
+        console.error(
+          "Error while fetching authorization token ::",
+          authorizationResponse
+        );
       }
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!localStorage.getItem("access_token") && !localStorage.getItem("auth_access_token")) {
+    if (
+      !localStorage.getItem("access_token") &&
+      !localStorage.getItem("auth_access_token")
+    ) {
       fetchAccessToken();
       setIsLoading(true);
     }
@@ -81,10 +95,15 @@ const BP = () => {
               <BPtabel />
             </div>
             <div className="position-absolute end-0 p-0 me-4 customizePosition">
-              <AddBP />
+              <AddBP
+                setIsPasteModelShow={setIsPasteModelShow}
+                isPasteCancel={isPasteCancel}
+                setIsPasteCancel={setIsPasteCancel}
+              />
             </div>
             <div>
               <ImportUserModal
+                action="Add_BP"
                 isPasteModelShow={isPasteModelShow}
                 setIsPasteCancel={setIsPasteCancel}
                 setTableData={setTableData}
@@ -93,6 +112,8 @@ const BP = () => {
             </div>
             <div>
               <TableData
+                tableHeader="Import BP's"
+                columnType={"bpColumn"}
                 data={tableData}
                 isTableShow={isTableShow}
                 setIsTableShow={setIsTableShow}
