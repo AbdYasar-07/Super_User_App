@@ -85,12 +85,16 @@ const TableData = ({
     if (id === "c1") {
       setTableData([]);
       setIsActivateConfirmModal(false);
+      setSelectedRows([]);
     }
     if (id === "bp") {
-      if (isBPidisValid(getSelectedValue())) {
+      if (isBpIdIsValid(getSelectedValue())) {
+        //isBpIdIsValid case change
         console.log(getSelectedValue());
       } else {
-        console.log("Validation failed");
+        toast.info("BP_ID is not valid. Length should be 10", {
+          theme: "colored",
+        });
       }
     }
   };
@@ -107,7 +111,7 @@ const TableData = ({
     }
     return editedValue;
   };
-  const isBPidisValid = (data) => {
+  const isBpIdIsValid = (data) => {
     let isValidId = true;
     if (data?.length === 0) {
       return;
@@ -118,10 +122,7 @@ const TableData = ({
           isValidId = false;
         }
       });
-      if (
-        ele?.bPID?.split("")?.length !== 10 &&
-        (ele?.system !== "PROD" || ele?.system !== "TEST")
-      ) {
+      if (ele?.bPID?.split("")?.length !== 10) {
         isValidId = false;
       }
     });
@@ -296,6 +297,7 @@ const TableData = ({
                     onClick={() => {
                       setTableData([]);
                       setIsPasteCancel(true);
+                      setSelectedRows([]);
                     }}
                   />
                 </Col>

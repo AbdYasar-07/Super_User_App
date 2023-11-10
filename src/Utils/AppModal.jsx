@@ -33,7 +33,7 @@ const AppModal = ({
       );
       const total_groups = await total_groups_response.groups;
       await Axios(
-        resource + `/users/${(userId) ? userId : memberId}/groups`,
+        resource + `/users/${userId ? userId : memberId}/groups`,
         "GET",
         null,
         localStorage.getItem("auth_access_token")
@@ -93,15 +93,9 @@ const AppModal = ({
       localStorage.getItem("auth_access_token")
     )
       .then(async (response) => {
-        //member start
-        if (response?.length > 0 && scopes) {
-          console.log(scopes, "scope");
-          console.log(roleFilter(response.roles, "PSP_BP"));
-        }
-        //memberend
         const allRoles = response.roles;
         await Axios(
-          resource + `/users/${(userId) ? userId : memberId}/roles`,
+          resource + `/users/${userId ? userId : memberId}/roles`,
           "GET",
           null,
           localStorage.getItem("auth_access_token")
@@ -114,7 +108,9 @@ const AppModal = ({
               if (toMapApplicationNames(remRoles, clientsinfo).length > 0) {
                 if (memberId) {
                   let totalRoles = toMapApplicationNames(remRoles, clientsinfo);
-                  let memberRoles = totalRoles.filter((role) => String(role.name).startsWith("PSP_BP"));
+                  let memberRoles = totalRoles.filter((role) =>
+                    String(role.name).startsWith("PSP_BP")
+                  );
                   setCheckboxData(memberRoles);
                 } else {
                   setCheckboxData(toMapApplicationNames(remRoles, clientsinfo));
@@ -134,7 +130,7 @@ const AppModal = ({
           error
         );
       })
-      .finally(() => { });
+      .finally(() => {});
   };
 
   useEffect(() => {
@@ -166,7 +162,7 @@ const AppModal = ({
 
   const addUserToGroups = async () => {
     await Axios(
-      resource + `/users/${(userId) ? userId : memberId}/groups`,
+      resource + `/users/${userId ? userId : memberId}/groups`,
       "PATCH",
       selectedCheckboxes,
       localStorage.getItem("auth_access_token")
@@ -182,7 +178,7 @@ const AppModal = ({
 
   const addUserToRoles = async () => {
     await Axios(
-      resource + `/users/${(userId) ? userId : memberId}/roles`,
+      resource + `/users/${userId ? userId : memberId}/roles`,
       "PATCH",
       selectedCheckboxes,
       localStorage.getItem("auth_access_token")

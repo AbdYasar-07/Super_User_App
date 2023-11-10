@@ -23,7 +23,13 @@ const BPtabel = () => {
 
   const fetchAllGroups = async () => {
     try {
-      const total_groups_response = await Axios(resource + "/groups", "GET", null, localStorage.getItem("auth_access_token"), false);
+      const total_groups_response = await Axios(
+        resource + "/groups",
+        "GET",
+        null,
+        localStorage.getItem("auth_access_token"),
+        false
+      );
       const total_groups = await total_groups_response.groups;
       if (total_groups?.length > 0) {
         await bindGroupData(groupFilter(total_groups, "BP_"));
@@ -64,13 +70,15 @@ const BPtabel = () => {
     if (Array.isArray(bpCodes) && bpCodes.length > 0) {
       const bpIdPromises = bpCodes.map(async (bpCode) => {
         const result = await getOSCIDByBPCode(bpCode);
-        const idx = total_groups.findIndex((group) => String(group.Name).substring(3) === bpCode)
-        total_groups[idx]['OSCID'] = (result && result?.rows?.length > 0) ? result?.rows[0][0] : "-";
-
+        const idx = total_groups.findIndex(
+          (group) => String(group.Name).substring(3) === bpCode
+        );
+        total_groups[idx]["OSCID"] =
+          result && result?.rows?.length > 0 ? result?.rows[0][0] : "-";
       });
       await Promise.all(bpIdPromises);
     }
-  }
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -82,12 +90,14 @@ const BPtabel = () => {
       setLoading(true);
       fetchAllGroups();
     }
-  }, [auth0Context?.refreshUnRelatedComponent?.render])
+  }, [auth0Context?.refreshUnRelatedComponent?.render]);
 
   return (
     <>
       <div className="py-4">
         <Search
+          isomit={true}
+          omitKey="id"
           records={bpData}
           setRecords={setFilteredRecord}
           isSearchActived={setIsSearchActive}

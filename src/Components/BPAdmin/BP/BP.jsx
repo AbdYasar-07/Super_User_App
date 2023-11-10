@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import Axios from "../../../Utils/Axios";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { addAuthorizationCode } from "../../../store/auth0Slice";
 import ContentHeader from "../../Contents/ContentHeader";
@@ -81,6 +81,7 @@ const BP = () => {
 
   return (
     <>
+      <ToastContainer />
       {loading ? (
         <AppSpinner />
       ) : (
