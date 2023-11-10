@@ -5,6 +5,7 @@ import AppSpinner from "../../../Utils/AppSpinner";
 import Axios from "../../../Utils/Axios";
 import { getOSCIDByBPCode, groupFilter } from "../../BusinessLogics/Logics";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const BPtabel = () => {
   const [loading, setLoading] = useState(false);
@@ -13,9 +14,11 @@ const BPtabel = () => {
   const [filterRecord, setFilteredRecord] = useState([]);
   const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
   const auth0Context = useSelector((store) => store?.auth0Context);
+  const navigate = useNavigate();
 
   const getCurrentData = (data) => {
     console.log("data", data);
+    navigate(`/bp/${data.id}`);
   };
 
   const fetchAllGroups = async () => {
