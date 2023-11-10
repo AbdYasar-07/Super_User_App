@@ -181,16 +181,20 @@ const BPDetail = () => {
                     }
                     <Button size='small' icon={`pi pi-${icon}`} onClick={(e) => handleEditClick()} style={{ borderRadius: "15px", border: "none", background: "black", marginLeft: "20px" }} />
                 </div>
-                <div>
-                    <div className="d-flex flex-column align-items-center">
-                        <label htmlFor="system">SYSTEM</label>
-                        <div>
-                            <RadioButton inputId="PROD" name="PROD" value='PROD' />
-                            <label htmlFor="PROD" className="ml-2">PROD</label>
+                <div style={{ marginBottom: "50px", padding: "10px" }}>
+                    <div className="d-flex justify-content-end" style={{ width: "250px" }}>
+                        <div style={{ marginRight: "25px" }}>
+                            <label htmlFor="system" style={{ fontSize: "20px", fontWeight: "bolder" }}>SYSTEM</label>
                         </div>
-                        <div>
-                            <RadioButton inputId="TEST" name="TEST" value='TEST' />
-                            <label htmlFor="TEST" className="ml-2">TEST</label>
+                        <div className='d-flex flex-column' >
+                            <div className='d-flex'>
+                                <RadioButton inputId="PROD" name="PROD" value='PROD' />
+                                <label htmlFor="PROD" style={{ marginLeft: "10px", fontWeight: "bolder", fontSize: "17px" }} className="ml-2">PROD</label>
+                            </div>
+                            <div className='d-flex' style={{ marginTop: "5px" }}>
+                                <RadioButton inputId="TEST" name="TEST" value='TEST' />
+                                <label htmlFor="TEST" style={{ marginLeft: "10px", fontWeight: "bolder", fontSize: "17px" }} className="ml-2">TEST</label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -200,7 +204,7 @@ const BPDetail = () => {
                     </div>
                 </div>
             </div>
-            <AppSpinner />
+            {/* <AppSpinner /> */}
             <ToastContainer />
         </>
     )

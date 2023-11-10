@@ -12,7 +12,6 @@ const ImportUserModal = ({
   setIsTableShow,
 }) => {
   const isValid = (values) => {
-    debugger;
     let isCorrect = false;
     let failedHeaders = [];
     if (values) {
@@ -96,7 +95,6 @@ const ImportUserModal = ({
     }
   };
   const arrayValueConvert = (clipboardData) => {
-    debugger;
     const lines = clipboardData.trim().split("\r\n");
     const headers = lines[0].split("\t"); // Extract the headers
     const objects = [];
