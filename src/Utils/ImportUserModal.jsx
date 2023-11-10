@@ -74,7 +74,7 @@ const ImportUserModal = ({
       if (ele?.bPID?.split("")?.length !== 10) {
         isValidId = false;
       }
-      console.log(ele?.system?.toLowerCase());
+
       if (!system?.includes(ele?.system?.toLowerCase())) {
         isValidId = false;
       }

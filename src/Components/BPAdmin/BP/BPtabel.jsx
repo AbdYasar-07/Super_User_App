@@ -17,7 +17,6 @@ const BPtabel = () => {
   const navigate = useNavigate();
 
   const getCurrentData = (data) => {
-    console.log("data", data);
     navigate(`/bp/${data.id}`);
   };
 
