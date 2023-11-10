@@ -12,7 +12,9 @@ const ImportUserModal = ({
   setIsTableShow,
 }) => {
   const isValid = (values) => {
+    debugger;
     let isCorrect = false;
+    let failedHeaders = [];
     if (values) {
       values.forEach((value) => {
         let keyValues = Object?.keys(value);
@@ -24,14 +26,22 @@ const ImportUserModal = ({
           keyValues.includes("id")
         ) {
           isCorrect = true;
+        } else {
+          failedHeaders.push(false);
         }
       });
     }
+    if (failedHeaders?.length !== 0) {
+      isCorrect = false;
+    }
+    console.log(failedHeaders, "failedHeaders");
     return isCorrect;
   };
   const isBPidisValid = (data) => {
     let isValidId = true;
     let header = false;
+    let failedHeaders = [];
+
     if (data?.length === 0) {
       return;
     }
@@ -45,11 +55,15 @@ const ImportUserModal = ({
         data.includes("id")
       ) {
         header = true;
+      } else {
+        failedHeaders.push(false);
       }
     });
-
+    if (failedHeaders?.length !== 0) {
+      header = false;
+    }
     data.forEach((ele) => {
-      console.log(ele);
+      // console.log(ele);
 
       ele?.bPID?.split("")?.forEach((splitedEle) => {
         if (typeof parseInt(splitedEle) !== "number") {
@@ -60,7 +74,7 @@ const ImportUserModal = ({
         ele?.bPID?.split("")?.length !== 10 &&
         (ele?.system !== "PROD" || ele?.system !== "TEST")
       ) {
-        console.log(ele?.bPID?.split("")?.length, "length");
+        // console.log(ele?.bPID?.split("")?.length, "length");
         isValidId = false;
       }
     });
@@ -82,6 +96,7 @@ const ImportUserModal = ({
     }
   };
   const arrayValueConvert = (clipboardData) => {
+    debugger;
     const lines = clipboardData.trim().split("\r\n");
     const headers = lines[0].split("\t"); // Extract the headers
     const objects = [];
@@ -99,8 +114,8 @@ const ImportUserModal = ({
 
       objects.push(object);
     }
-
     if (action === "Add_User") {
+      console.log(isValid(objects), "SDsdsdd");
       if (!isValid(objects)) {
         toast.info("Invalid header received. Check copied header", {
           theme: "colored",
@@ -125,8 +140,8 @@ const ImportUserModal = ({
         });
       }
     }
-    // setTableData(objects);
-    // setIsTableShow(true);
+    setTableData(objects);
+    setIsTableShow(true);
   };
   const jsonTodataCoverter = (clipboardData) => {
     if (clipboardData) {
@@ -142,7 +157,7 @@ const ImportUserModal = ({
       }
     });
     if (action === "Add_User") {
-      if (gridValues.length !== 0) {
+      if (gridValues.length !== 0 && isValid(gridValues)) {
         setTableData(gridValues);
         setIsTableShow(true);
       } else {
