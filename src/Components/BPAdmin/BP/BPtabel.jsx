@@ -3,7 +3,7 @@ import Search from "../../../Utils/Search";
 import DataGridTable from "../../../Utils/DataGridTable";
 import AppSpinner from "../../../Utils/AppSpinner";
 import Axios from "../../../Utils/Axios";
-import { getOSCIDByBPCode, groupFilter } from "../../BusinessLogics/Logics";
+import { getOSCStoreIDByBPCode, getShopifyCompaniesId, groupFilter } from "../../BusinessLogics/Logics";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -43,21 +43,21 @@ const BPtabel = () => {
     total_groups = total_groups.map((_grp) => {
       return {
         id: _grp?._id,
-        Name: _grp?.name,
-        Description: _grp?.description,
+        BPID: _grp?.name?.substring(3),
+        BPName: _grp?.description,
         Members: _grp?.members?.length,
-        ShopifyID: "",
-        OSCID: "",
+        IsInShopify: "",
+        IsInOSC: "",
       };
     });
 
     const bpCodes = total_groups.map((group) => {
-      return String(group.Name).substring(3);
+      return String(group.BPID);
     });
 
-    // call for osc
-    await accessOSC(bpCodes, total_groups);
-    // call for shopify
+    await accessOSC(bpCodes, total_groups); // call for osc
+    const nodes = await accessShopify(bpCodes); // call for shopify
+    patchTotalGroupsForShopifyResponse(bpCodes, nodes, total_groups);
 
     if (total_groups?.length > 0) {
       setFilteredRecord(total_groups);
@@ -65,15 +65,33 @@ const BPtabel = () => {
     }
   };
 
+  const patchTotalGroupsForShopifyResponse = (bpCodes, nodes, total_groups) => {
+    bpCodes.map((bpCode) => {
+      const filteredNode = nodes.find((node) => node?.node?.externalId === bpCode);
+      const businessPartnerIdx = total_groups.findIndex((group) => String(group.BPID) === bpCode);
+      total_groups[businessPartnerIdx]['IsInShopify'] = filteredNode?.node?.externalId && filteredNode?.node?.externalId.length > 0 ? "Yes" : "No";
+    });
+  }
+
+  const accessShopify = async (bpCodes) => {
+    if (Array.isArray(bpCodes) && bpCodes.length > 0) {
+      const result = await getShopifyCompaniesId();
+      if (result['data'] && result['data']['companies'] && result['data']['companies']['edges'] && Array.isArray(result['data']['companies']['edges'])) {
+        return result['data']['companies']['edges'];
+      }
+    }
+  }
+
   const accessOSC = async (bpCodes, total_groups) => {
     if (Array.isArray(bpCodes) && bpCodes.length > 0) {
       const bpIdPromises = bpCodes.map(async (bpCode) => {
-        const result = await getOSCIDByBPCode(bpCode);
+        const result = await getOSCStoreIDByBPCode(bpCode);
         const idx = total_groups.findIndex(
-          (group) => String(group.Name).substring(3) === bpCode
+          (group) => String(group.BPID) === bpCode
         );
-        total_groups[idx]["OSCID"] =
-          result && result?.rows?.length > 0 ? result?.rows[0][0] : "-";
+        // value = result?.rows[0][0] = true;
+        total_groups[idx]["IsInOSC"] =
+          result && result?.rows?.length > 0 ? "Yes" : "No";
       });
       await Promise.all(bpIdPromises);
     }
@@ -106,16 +124,17 @@ const BPtabel = () => {
         <DataGridTable
           data={filterRecord}
           rowHeader={[
-            "Name",
-            "Description",
+            "BP ID",
+            "BP Name",
             "Members",
-            "Shopify ID",
-            "OSC ID",
+            "Is In Shopify",
+            "Is In OSC",
             "Action",
           ]}
           getCurrentData={getCurrentData}
           loading={loading}
           action={true}
+          emptyMessage={"No Business Partners Found."}
         />
       )}
       {loading && <AppSpinner />}

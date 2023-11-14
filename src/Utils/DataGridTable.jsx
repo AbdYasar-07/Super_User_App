@@ -1,6 +1,6 @@
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import React from "react";
+import React, { useEffect } from "react";
 import { BiPencil, BiUserPlus } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +10,13 @@ const DataGridTable = ({
   getCurrentData,
   loading,
   action,
+  emptyMessage
 }) => {
+
+  useEffect(() => {
+    console.log("data", data);
+  }, []);
+
   const navigate = useNavigate();
   const alignHeader = (column) => {
     if (!column) return;
@@ -30,7 +36,7 @@ const DataGridTable = ({
         style={{ cursor: "pointer" }}
         onClick={() => getCurrentData(rowData)}
       >
-        {rowData[rowHeader[0]]}
+        {rowData[alignHeader(rowHeader[0])]}
       </div>
     );
   };
@@ -76,7 +82,7 @@ const DataGridTable = ({
         paginator={data.length >= 10}
         rows={10}
         tableStyle={{ minWidth: "50rem" }}
-        emptyMessage="No members found."
+        emptyMessage={emptyMessage}
         loading={loading}
       >
         {rowHeader?.map((colHeader) => {

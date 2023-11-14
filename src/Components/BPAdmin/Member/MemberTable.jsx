@@ -9,6 +9,7 @@ import {
 } from "../../../store/auth0Slice";
 import { useDispatch, useSelector } from "react-redux";
 import AppSpinner from "../../../Utils/AppSpinner";
+import { getAllSystemGroupsFromAuth0 } from "../../BusinessLogics/Logics";
 
 const MemberTable = () => {
   const [filterRecord, setFilteredRecord] = useState([]);
@@ -16,6 +17,7 @@ const MemberTable = () => {
   const [loading, setLoad] = useState(false);
   const [memberData, setMemberData] = useState([]);
   const [actualMembers, setActualMembers] = useState([]);
+  const [allGroups, setAllGroups] = useState([]);
 
   const [serverPaginate, setServerPagnitae] = useState({
     start: 0,
@@ -29,6 +31,7 @@ const MemberTable = () => {
   const auth0Context = useSelector((state) => state.auth0Context);
   const resource = process.env.REACT_APP_AUTH_MANAGEMENT_AUDIENCE;
   const endpoint = process.env.REACT_APP_MANAGEMENT_API;
+  const authorizationExtUrl = process.env.REACT_APP_AUTH_EXT_RESOURCE;
 
   const getCurrentData = (currentData) => {
     const filteredRecord = actualMembers.filter((member) => {
@@ -68,11 +71,30 @@ const MemberTable = () => {
       managementResponse.access_token,
       serverPaginate
     );
-    filterUsersByDatabase(response.users, "conception");
+    const groupsResponse = await getAllAuth0Groups(response);
+    if (Array.isArray(response.users) && Array.isArray(groupsResponse)) {
+      filterUsersByDatabase(response.users, "conception", groupsResponse);
+      setAllGroups(groupsResponse);
+    }
     setLoad(false);
   };
 
-  const filterUsersByDatabase = (users, databaseName) => {
+  const getAllAuth0Groups = async () => {
+    let url = `${authorizationExtUrl}/groups`;
+    const response = await getAllSystemGroupsFromAuth0(url, localStorage.getItem("auth_access_token"));
+    if (response) {
+      const filteredResponse = response?.groups?.filter((group) => String(group?.name).includes("BP_")).map((group) => {
+        return {
+          groupId: group?._id,
+          groupName: group?.name,
+          groupDescription: group?.description
+        };
+      });
+      return filteredResponse;
+    }
+  }
+
+  const filterUsersByDatabase = (users, databaseName, groupsResponse) => {
     if (users.length === 0) return;
 
     // criteria 1 : filter for Conception database
@@ -104,10 +126,8 @@ const MemberTable = () => {
           Email: filteredUser.email,
           LastLogin: formatTimestamp(filteredUser.last_login),
           Logins: filteredUser.logins_count,
-          Connections:
-            filteredUser.identities[filteredUser.identities.length - 1]
-              .connection,
-          BP: filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup],
+          BPID: filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup],
+          BPName: groupsResponse?.filter((group) => group?.groupName === filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup])[0]?.groupDescription
         };
       });
 
@@ -214,11 +234,12 @@ const MemberTable = () => {
             "Email",
             "Last Login",
             "Logins",
-            "Connections",
-            "BP",
+            "BP ID",
+            "BP Name"
           ]}
           getCurrentData={getCurrentData}
           loading={loading}
+          emptyMessage={"No Members Found."}
         />
       )}
       {loading && <AppSpinner />}

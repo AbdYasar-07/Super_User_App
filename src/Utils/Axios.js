@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const Axios = async (url, method = "get", data = null, token = null, isManagementApi, isOSC = null) => {
+const Axios = async (url, method = "get", data = null, token = null, isManagementApi, isOSC = null, isShopify = null) => {
   try {
     const headers = {};
     if (token) {
@@ -13,6 +13,9 @@ const Axios = async (url, method = "get", data = null, token = null, isManagemen
     }
     if (isManagementApi) {
       headers["content-type"] = "application/json"
+    }
+    if (isShopify) {
+      headers['X-Shopify-Access-Token'] = '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';
     }
 
     const response = await axios.request({
