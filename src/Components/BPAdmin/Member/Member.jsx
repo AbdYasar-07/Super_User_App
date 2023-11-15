@@ -61,7 +61,16 @@ const Member = () => {
     ) {
       fetchAccessToken();
     }
+    // checkUserExistsInShopify("abdulyasarsua@gmail.com");
+    // let user = {
+    //   name: "abdulyasarsua@gmail.com",
+    //   nickname: "abdulyasarsua",
+    //   email: "abdulyasarsua@gmail.com",
+    //   verifiedEmail: true
+    // };
+    // createUserInShopifySystem(user);
   }, []);
+
 
   return (
     <div className="container">

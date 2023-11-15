@@ -5,6 +5,7 @@ import DataGridTable from "../../../Utils/DataGridTable";
 import Axios from "../../../Utils/Axios";
 import {
   addManagementAccessToken,
+  renderComponent,
   renderingCurrentUser,
 } from "../../../store/auth0Slice";
 import { useDispatch, useSelector } from "react-redux";
@@ -42,8 +43,17 @@ const MemberTable = () => {
   };
 
   useEffect(() => {
-    getMembersList();
+    if (auth0Context?.refreshUnRelatedComponent?.target === "") {
+      getMembersList(true);
+    }
   }, []);
+
+  useEffect(() => {
+    if (auth0Context?.refreshUnRelatedComponent?.target === "MEMBER") {
+      getMembersList(false);
+      dispatch(renderComponent({ cmpName: "" }));
+    }
+  }, [auth0Context?.refreshUnRelatedComponent?.render])
 
   const fetchManagementToken = async () => {
     const body = {
@@ -62,18 +72,21 @@ const MemberTable = () => {
     });
   };
 
-  const getMembersList = async () => {
+  const getMembersList = async (isBpFirst) => {
     setLoad(true);
-    const managementResponse = await fetchManagementToken();
+    let managementResponse = null;
+    if (!auth0Context?.managementAccessToken && auth0Context?.managementAccessToken?.length === 0) {
+      managementResponse = await fetchManagementToken();
+    }
     let response = await fetchAuth0Users(
       100,
       "conception",
-      managementResponse.access_token,
+      (managementResponse?.access_token) ? managementResponse?.access_token : auth0Context?.managementAccessToken,
       serverPaginate
     );
     const groupsResponse = await getAllAuth0Groups(response);
     if (Array.isArray(response.users) && Array.isArray(groupsResponse)) {
-      filterUsersByDatabase(response.users, "conception", groupsResponse);
+      filterUsersByDatabase(response.users, "conception", groupsResponse, isBpFirst);
       setAllGroups(groupsResponse);
     }
     setLoad(false);
@@ -94,7 +107,15 @@ const MemberTable = () => {
     }
   }
 
-  const filterUsersByDatabase = (users, databaseName, groupsResponse) => {
+  const filterUsersBy = (bpFirst, filteredUsers, filteredUsersNotInBp) => {
+    if (bpFirst) {
+      return [...filteredUsers, ...filteredUsersNotInBp];
+    } else {
+      return [...filteredUsersNotInBp, ...filteredUsers];
+    }
+  }
+
+  const filterUsersByDatabase = (users, databaseName, groupsResponse, isBpFirst) => {
     if (users.length === 0) return;
 
     // criteria 1 : filter for Conception database
@@ -109,9 +130,18 @@ const MemberTable = () => {
       )
     );
 
-    if (Array.isArray(filteredUsers)) {
-      setActualMembers(filteredUsers);
-      const members = filteredUsers.map((filteredUser) => {
+    // criteria 3 : filter for non BP_ 
+    const filteredUsersNotInBp = filteredByConceptionDatabase.filter((user) =>
+      !user?.app_metadata?.authorization?.groups?.some((group) =>
+        group.startsWith("BP_")
+      )
+    );
+
+    let clubedUsers = filterUsersBy(isBpFirst, filteredUsers, filteredUsersNotInBp);
+
+    if (Array.isArray(clubedUsers)) {
+      setActualMembers(clubedUsers);
+      const members = clubedUsers.map((filteredUser) => {
         let indexOfBpGroup = -1;
         filteredUser?.app_metadata?.authorization?.groups?.forEach(
           (group, index) => {
@@ -126,8 +156,8 @@ const MemberTable = () => {
           Email: filteredUser.email,
           LastLogin: formatTimestamp(filteredUser.last_login),
           Logins: filteredUser.logins_count,
-          BPID: filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup],
-          BPName: groupsResponse?.filter((group) => group?.groupName === filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup])[0]?.groupDescription
+          BPID: (filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup] && filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup].substring(3).length == 10) ? filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup].substring(3) : "Unassigned",
+          BPName: (groupsResponse?.filter((group) => group?.groupName === filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup])[0]) ? groupsResponse?.filter((group) => group?.groupName === filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup])[0]?.groupDescription : "-"
         };
       });
 
@@ -181,32 +211,27 @@ const MemberTable = () => {
    * @description : It is an recursive function so pass the argument properly
    * @author Abdul Yashar
    */
-  const fetchAuth0Users = async (
-    perPage,
-    database,
-    managementAccessToken,
-    serverPaginate
-  ) => {
+  const fetchAuth0Users = async (perPage, database, managementAccessToken, serverPaginate) => {
     if (serverPaginate.processedRecords === serverPaginate.total) {
       return serverPaginate;
     }
 
     let url = `${resource}users?per_page=${perPage}&include_totals=true&connection=${database}&search_engine=v3&page=${serverPaginate.start}`;
-    const response = await Axios(
-      url,
-      "get",
-      null,
-      managementAccessToken,
-      false
-    );
-    const updatedServerPaginate = {
+
+    const response = await Axios(url, "get", null, managementAccessToken, false);
+
+    const updatedServerPaginate =
+    {
       start: serverPaginate.start + 1,
       length: response.length,
       total: response.total,
       processedRecords: serverPaginate.processedRecords + response.length,
       users: [...serverPaginate?.users, ...response?.users],
     };
+
     setServerPagnitae(updatedServerPaginate);
+
+    // recursive call
     return await fetchAuth0Users(
       perPage,
       database,

@@ -4,8 +4,9 @@ import DataGridTable from "../../../Utils/DataGridTable";
 import AppSpinner from "../../../Utils/AppSpinner";
 import Axios from "../../../Utils/Axios";
 import { getOSCStoreIDByBPCode, getShopifyCompaniesId, groupFilter } from "../../BusinessLogics/Logics";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { renderComponent } from "../../../store/auth0Slice";
 
 const BPtabel = () => {
   const [loading, setLoading] = useState(false);
@@ -15,6 +16,7 @@ const BPtabel = () => {
   const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
   const auth0Context = useSelector((store) => store?.auth0Context);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const getCurrentData = (data) => {
     navigate(`/bp/${data.id}`);
@@ -106,6 +108,7 @@ const BPtabel = () => {
     if (auth0Context?.refreshUnRelatedComponent?.target === "BPTABLE") {
       setLoading(true);
       fetchAllGroups();
+      dispatch(renderComponent({ cmpName: "" }));
     }
   }, [auth0Context?.refreshUnRelatedComponent?.render]);
 

@@ -59,7 +59,7 @@ export const getAllSystemGroupsFromAuth0 = async (url, accessToken) => {
     return null;
   }
 
-}
+};
 export const getShopifyCompaniesId = async () => {
   let data = JSON.stringify({
     query: `query GetThat {
@@ -83,5 +83,54 @@ export const getShopifyCompaniesId = async () => {
     console.error("Error while getting shopify company inforamtion :::", response?.cause?.message);
     return null;
   }
-
-}
+};
+export const createUserInShopifySystem = async (user) => {
+  let data = JSON.stringify({
+    "customer": {
+      "first_name": user.name,
+      "last_name": user.nickname,
+      "email": user.email,
+      "verified_email": true
+    }
+  });
+  let url = `https://phoenix-ph.myshopify.com/admin/api/2023-07/customers.json`;
+  const response = await Axios(url, 'POST', data, null, true, false, true);
+  if (!axios.isAxiosError(response)) {
+    console.log("User creation in shopify response :::", response);
+    return response;
+  } else {
+    console.log("response?.cause", response?.response);
+    console.error("Error while creating an user in shopify :::", response?.cause?.message);
+    return null;
+  }
+};
+export const updateUserInShopify = async (user, shopifyCustomerId) => {
+  let body = {
+    "customer": {
+      "first_name": user.name,
+      "last_name": user.nickname,
+      "email": user.email,
+      "verified_email": user?.verifiedEmail
+    }
+  };
+  let url = `https://phoenix-ph.myshopify.com/admin/api/2023-07/customers/${shopifyCustomerId}.json`;
+  const response = await Axios(url, 'PUT', body, null, true, false, true);
+  if (!axios.isAxiosError(response)) {
+    console.log("Updated user response from shopify :::", response);
+    return response;
+  } else {
+    console.error("Error while updating user in shopify :::", response?.cause?.message);
+    return null;
+  }
+};
+export const checkUserExistsInShopify = async (userEmail) => {
+  let url = `https://phoenix-ph.myshopify.com/admin/api/2023-07/customers/search.json?query=email:${userEmail}`;
+  const response = await Axios(url, 'GET', null, null, true, false, true);
+  if (!axios.isAxiosError(response)) {
+    console.log("checking user response from shopify :::", response);
+    return response.customers[0] ? response.customers[0]?.id : false;
+  } else {
+    console.error("Error while checking user in shopify :::", response?.cause?.message);
+    return null;
+  }
+};

@@ -2,22 +2,15 @@ import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import React, { useEffect } from "react";
 import { BiPencil, BiUserPlus } from "react-icons/bi";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { renderComponent } from "../store/auth0Slice";
 
-const DataGridTable = ({
-  data,
-  rowHeader,
-  getCurrentData,
-  loading,
-  action,
-  emptyMessage
-}) => {
-
-  useEffect(() => {
-    console.log("data", data);
-  }, []);
+const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, emptyMessage }) => {
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const alignHeader = (column) => {
     if (!column) return;
 
@@ -40,6 +33,12 @@ const DataGridTable = ({
       </div>
     );
   };
+
+  const handleActionClick = () => {
+    dispatch(renderComponent({ cmpName: "MEMBER" }));
+    navigate("/members");
+  };
+
   const handelAction = (rowData) => {
     return (
       <div className="d-flex align-items-center">
@@ -55,7 +54,7 @@ const DataGridTable = ({
           }}
           title="Add member"
           className="mx-1 fw-light"
-          onClick={() => navigate("/members")}
+          onClick={() => handleActionClick()}
         />
         <BiPencil
           style={{
