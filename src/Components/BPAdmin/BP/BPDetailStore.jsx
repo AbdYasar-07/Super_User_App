@@ -2,9 +2,9 @@ import React from 'react'
 
 const BPDetailStore = () => {
     return (
-        <div style={{ marginTop: "70px", position: "relative", right: "500px" }}>
+        <div >
             <div>
-                <h5>Store details goes here...</h5>
+                <h5 className='mt-3 text-start fw-light' style={{ color: "rgb(114, 114, 114)" }}>Store details goes here...</h5>
             </div>
         </div>
     )

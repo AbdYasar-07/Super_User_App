@@ -169,7 +169,6 @@ const BPDetailMembers = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "end",
-            
           }}
         >
           {/*  mt-3" ; */}
@@ -183,15 +182,13 @@ const BPDetailMembers = () => {
             <Button
               style={{
                 borderRadius: "7px",
-                marginRight:"30px"
+                marginRight: "30px",
               }}
               label="Create Member"
             ></Button>
           )}
         </div>
-        <div style={{ position: "relative", left: "467px !important" }}>
-          {loading && <AppSpinner />}
-        </div>
+        <div className="text-center">{loading && <AppSpinner />}</div>
         {!loading && (
           <div>
             <p
