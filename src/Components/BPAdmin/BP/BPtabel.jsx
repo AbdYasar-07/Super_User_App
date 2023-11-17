@@ -19,7 +19,7 @@ const BPtabel = () => {
   const dispatch = useDispatch();
 
   const getCurrentData = (data) => {
-    navigate(`/bp/${data.id}`);
+    navigate(`/bp/${data.id}/tabs`);
   };
 
   const fetchAllGroups = async () => {

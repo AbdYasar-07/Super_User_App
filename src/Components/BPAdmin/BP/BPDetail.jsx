@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Outlet, useNavigate, useParams } from 'react-router-dom'
 import Axios from '../../../Utils/Axios';
 import axios from 'axios';
 import AppSpinner from '../../../Utils/AppSpinner';
@@ -20,6 +20,7 @@ const BPDetail = () => {
     const [bpDescription, setBpDescription] = useState();
     const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
     const ref = useRef(null);
+    const navigate = useNavigate();
 
 
     const getBPInfo = async (bpId) => {
@@ -133,7 +134,7 @@ const BPDetail = () => {
 
 
     useEffect(() => {
-        getBP()
+        getBP();
     }, [])
 
 
@@ -206,6 +207,7 @@ const BPDetail = () => {
             </div>
             {/* <AppSpinner /> */}
             <ToastContainer />
+            <Outlet />
         </>
     )
 }

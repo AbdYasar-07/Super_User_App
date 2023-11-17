@@ -20,6 +20,11 @@ import RoleUnassigned from "./Components/BPAdmin/Member/RoleUnassigned";
 import RoleAssigned from "./Components/BPAdmin/Member/RoleAssigned";
 import BP from "./Components/BPAdmin/BP/BP";
 import BPDetail from "./Components/BPAdmin/BP/BPDetail";
+import BPDetailOutlet from "./Components/BPAdmin/BP/BPDetailOutlet";
+import BPDetailMembers from "./Components/BPAdmin/BP/BPDetailMembers";
+import BPDetailService from "./Components/BPAdmin/BP/BPDetailService";
+import BPDetailStore from "./Components/BPAdmin/BP/BPDetailStore";
+import BPDetailComs from "./Components/BPAdmin/BP/BPDetailComs";
 
 function App() {
   const [isProfileRendered, setIsProfileRendered] = useState(false);
@@ -90,7 +95,14 @@ function App() {
             </Route>
             <Route path="bp" element={<Content />}>
               <Route index element={<BP />}></Route>
-              <Route path=":bpId" element={<BPDetail />}></Route>
+              <Route path=":bpId" element={<BPDetail />}>
+                <Route path="tabs" element={<BPDetailOutlet />}>
+                  <Route path="members" element={<BPDetailMembers />}></Route>
+                  <Route path="store" element={<BPDetailStore />}></Route>
+                  <Route path="service" element={<BPDetailService />}></Route>
+                  <Route path="coms" element={<BPDetailComs />}></Route>
+                </Route>
+              </Route>
             </Route>
           </Route>
           <Route path="/*" element={<WildCard />} />

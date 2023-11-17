@@ -90,18 +90,21 @@ export const createUserInShopifySystem = async (user) => {
       "first_name": user.name,
       "last_name": user.nickname,
       "email": user.email,
-      "verified_email": true
+      "verified_email": user?.verifiedEmail
     }
   });
   let url = `https://phoenix-ph.myshopify.com/admin/api/2023-07/customers.json`;
   const response = await Axios(url, 'POST', data, null, true, false, true);
   if (!axios.isAxiosError(response)) {
-    console.log("User creation in shopify response :::", response);
     return response;
   } else {
-    console.log("response?.cause", response?.response);
-    console.error("Error while creating an user in shopify :::", response?.cause?.message);
-    return null;
+    if (response?.response?.data['errors']['email']) {
+      console.error("Error while creating an user in shopify :::", 'email', response?.response?.data['errors']['email'][0]);
+      return `email ${response?.response?.data['errors']['email'][0]}`;
+    } else {
+      console.error("Error while creating an user in shopify :::", response?.cause?.message[0]);
+      return response?.cause?.message;
+    }
   }
 };
 export const updateUserInShopify = async (user, shopifyCustomerId) => {
@@ -127,10 +130,19 @@ export const checkUserExistsInShopify = async (userEmail) => {
   let url = `https://phoenix-ph.myshopify.com/admin/api/2023-07/customers/search.json?query=email:${userEmail}`;
   const response = await Axios(url, 'GET', null, null, true, false, true);
   if (!axios.isAxiosError(response)) {
-    console.log("checking user response from shopify :::", response);
     return response.customers[0] ? response.customers[0]?.id : false;
   } else {
     console.error("Error while checking user in shopify :::", response?.cause?.message);
     return null;
+  }
+};
+export const updateUserInAuth0 = async (url, userId, body, token) => {
+  let endpoint = `${url}users/${userId}`;
+  const response = await Axios(endpoint, 'PATCH', body, token, true, null, null);
+  if (!axios.isAxiosError(response)) {
+    return true;
+  } else {
+    console.error("Error while updating user information in Auth0 system :::", response?.cause?.message);
+    return false;
   }
 };

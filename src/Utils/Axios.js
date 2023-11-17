@@ -16,6 +16,8 @@ const Axios = async (url, method = "get", data = null, token = null, isManagemen
     }
     if (isShopify) {
       headers['X-Shopify-Access-Token'] = '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';
+      headers['Access-Control-Allow-Origin'] = "*";
+      headers['Access-Control-Allow-Headers'] = 'X-Requested-With';
     }
 
     const response = await axios.request({

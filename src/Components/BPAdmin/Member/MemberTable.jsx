@@ -243,13 +243,13 @@ const MemberTable = () => {
   return (
     <>
       <div className="py-4">
-        <Search
+        {!loading && <Search
           records={memberData}
           setRecords={setFilteredRecord}
           isSearchActived={setIsSearchActive}
           setLoadSpinner={setLoad}
           data={memberData}
-        />
+        />}
       </div>
       {!loading && (
         <DataGridTable

@@ -11,15 +11,9 @@ import {
 } from "../../store/auth0Slice";
 import PasswordValidation from "../../Utils/PasswordValidation";
 import { useNavigate } from "react-router-dom";
+import { checkUserExistsInShopify, createUserInShopifySystem, updateUserInAuth0 } from "../BusinessLogics/Logics";
 
-function AddUser({
-  setIsUserAdded,
-  isTokenFetched,
-  setIsPasteModelShow,
-  isPasteCancel,
-  setIsPasteCancel,
-  buttonLabel,
-}) {
+function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteCancel, setIsPasteCancel, buttonLabel }) {
   const userInfo = useSelector((store) => store.auth0Context);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -34,14 +28,14 @@ function AddUser({
   const [emailValidation, setEmailValidation] = useState(false);
   const [isConnection, setIsConnection] = useState(false);
   const [passwordValidation, setPasswordValidation] = useState(false);
-  const [passwordCapableValidation, setPasswordCapableValidation] =
-    useState(false);
+  const [passwordCapableValidation, setPasswordCapableValidation] = useState(false);
   const [isPassWordValue, setIsPasswordValue] = useState(false);
-  const [repeatPasswordValidation, setRepeatPasswordValidation] =
-    useState(false);
+  const [repeatPasswordValidation, setRepeatPasswordValidation] = useState(false);
   const [userModal, setUserModal] = useState(false);
   const [isModelView, setIsModelView] = useState(false);
   const [isDisable, setIsDisable] = useState(false);
+  const url = process.env.REACT_APP_AUDIENCE;
+
   const initializeFileds = () => {
     setIsDisable(false);
     setIsConnection(false);
@@ -114,6 +108,7 @@ function AddUser({
 
   const createUser = async () => {
     // check whether the access_token is valid or not
+    let createdUserId = null;
     if (userInfo?.accessToken && userInfo?.accessToken?.length > 0) {
       await getAuthToken().then(async (managementToken) => {
         let body = {
@@ -130,12 +125,15 @@ function AddUser({
         )
           .then((addedUser) => {
             if (addedUser.hasOwnProperty("response")) {
-              toast(addedUser.response.data.message, { type: "error" });
+              toast(addedUser.response.data.message, { type: "error", theme: "colored" });
               setIsDisable(false);
               return;
             }
+            createdUserId = addedUser?.user_id;
+            if (buttonLabel == "Member") {
+              navigate(`/members/${addedUser?.user_id}/roles/assigned`);
+            }
             dispatch(renderingCurrentUser({ currentUser: addedUser }));
-            navigate(`/members/${addedUser?.user_id}/roles/assigned`);
             toast(`${addedUser.name} is added`, {
               type: "success",
               theme: "colored",
@@ -145,13 +143,73 @@ function AddUser({
           })
           .catch((error) => {
             if (JSON.stringify(error) !== "{}") {
-              toast(error.response.data.message, { type: "error" });
+              toast(error.response.data.message, { type: "error", theme: "colored" });
               setIsDisable(false);
             }
           });
       });
+      await handleUserCreationAcrossSystems(buttonLabel, createdUserId);
     }
   };
+
+  const handleUserCreationAcrossSystems = async (currentButtonLabel, createdUserId) => {
+    switch (currentButtonLabel) {
+      case "Member": {
+        const responseState = await userCreationInShopify();
+        await handleIntimations(responseState, createdUserId);
+        break;
+      }
+      default:
+        console.log("creating user in users tab...");
+        break;
+    }
+  };
+
+  const handleIntimations = async (responseState, auth0Id) => {
+    if (String(responseState).startsWith("EX_")) {
+      toast.warning(`User already exists in the shopfy system.`, { theme: "colored" });
+      await patchUserInAuth0(auth0Id, String(responseState).substring(3));
+      return;
+    } else if (typeof responseState === "number") {
+      await patchUserInAuth0(auth0Id, responseState);
+      return;
+    }
+  }
+
+  const patchUserInAuth0 = async (userId, shopifyCustomerId) => {
+    let metadataUpdate = {
+      "user_metadata": {
+        "ShopifyCustomerId": String(shopifyCustomerId)
+      }
+    };
+    await updateUserInAuth0(url, userId, metadataUpdate, userInfo?.managementAccessToken);
+  }
+
+  const userCreationInShopify = async () => {
+    if (userEmail) {
+      const userCheckingResponse = await checkUserExistsInShopify(userEmail);
+      if (typeof userCheckingResponse === "boolean" && !userCheckingResponse) {
+        let user = {
+          name: userEmail,
+          nickname: String(userEmail).split("@")[0],
+          email: userEmail,
+          verifiedEmail: false
+        };
+        const userCreationResponse = await createUserInShopifySystem(user);
+        if (userCreationResponse && typeof userCreationResponse === "object") {
+          return userCreationResponse?.customer?.id
+        } else {
+          return `Error ${userCreationResponse}`;
+        }
+      } else {
+        return `EX_${userCheckingResponse}`;
+      }
+    }
+    return "Invalid user email";
+  };
+
+
+
   const isemailvalidate = () => {
     let emailValidation =
       /^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/.test(userEmail);
@@ -349,7 +407,7 @@ function AddUser({
                       disabled={
                         userInfo.conceptionDatabase?.length === 1 ? true : false
                       }
-                      // onBlur={isConnectionValidate}
+                    // onBlur={isConnectionValidate}
                     >
                       <option value={userInfo.conceptionDatabase}>
                         Concepcion
