@@ -141,7 +141,7 @@ const BPDetail = () => {
     return (
         <>
             <div
-                className="d-flex align-items-center pt-2 pb-2 container profileHeader"
+                className="d-flex align-items-center pt-2 pb-2  profileHeader"
                 style={{
                     backgroundColor: "#e5e5e5",
                     height: "200px !important",
@@ -180,7 +180,7 @@ const BPDetail = () => {
                             <InputText width="350px !important" style={{ marginBottom: "7px", marginLeft: "10px" }} type="text" className="p-inputtext-lg" placeholder="BP Name" value={bpDescription} ref={ref} onChange={(e) => handleOnChange("desc", e.target.value)} />
                         </div>
                     }
-                    <Button size='small' icon={`pi pi-${icon}`} onClick={(e) => handleEditClick()} style={{ borderRadius: "15px", border: "none", background: "black", marginLeft: "20px" }} />
+                    <Button size='small' icon={`pi pi-${icon}`} onClick={(e) => handleEditClick()} style={{ borderRadius: "15px", border: "none", background: "black", marginLeft: "20px" ,display:"inline-flex",alignItems:"center",alignSelf:"end",marginBottom:"10px",width:"35px",height:"35px"}} />
                 </div>
                 <div style={{ marginBottom: "50px", padding: "10px" }}>
                     <div className="d-flex justify-content-end" style={{ width: "250px" }}>

@@ -48,7 +48,7 @@ const MemberHeader = ({ userProfile }) => {
     return (
         <>
             <div
-                className="d-flex align-items-center pt-2 pb-2 container profileHeader"
+                className="d-flex align-items-center pt-2 pb-2  profileHeader"
                 style={{
                     backgroundColor: "#e5e5e5",
                     height: "200px !important",
