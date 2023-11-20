@@ -9,6 +9,8 @@ const Axios = async (url, method = "get", data = null, token = null, isManagemen
     if (isOSC) {
       headers["OSvC-CREST-Application-Context"] = "Fetch";
       headers['Content-Type'] = 'application/json';
+      headers['Access-Control-Allow-Origin'] = "http://localhost:3000/";
+      headers['Access-Control-Allow-Headers'] = 'X-Requested-With';
       headers['Authorization'] = 'Basic c3BlcmlkaWFuX2FkbWluOlNwZXJpZGlhbkAxMjMj';
     }
     if (isManagementApi) {

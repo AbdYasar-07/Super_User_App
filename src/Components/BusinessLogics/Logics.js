@@ -55,7 +55,7 @@ export const getAllSystemGroupsFromAuth0 = async (url, accessToken) => {
   if (!axios.isAxiosError(response)) {
     return response;
   } else {
-    console.error("Erro while getting groups from the Auth0 system :::", response?.cause?.message);
+    console.error("Erro while getting groups from the Auth0 system :::", response?.message);
     return null;
   }
 
@@ -80,7 +80,7 @@ export const getShopifyCompaniesId = async () => {
   if (!axios.isAxiosError(response)) {
     return response;
   } else {
-    console.error("Error while getting shopify company inforamtion :::", response?.cause?.message);
+    console.error("Error while getting shopify company inforamtion :::", response?.message);
     return null;
   }
 };
@@ -102,8 +102,8 @@ export const createUserInShopifySystem = async (user) => {
       console.error("Error while creating an user in shopify :::", 'email', response?.response?.data['errors']['email'][0]);
       return `email ${response?.response?.data['errors']['email'][0]}`;
     } else {
-      console.error("Error while creating an user in shopify :::", response?.cause?.message[0]);
-      return response?.cause?.message;
+      console.error("Error while creating an user in shopify :::", response?.message[0]);
+      return response?.message;
     }
   }
 };
@@ -122,7 +122,7 @@ export const updateUserInShopify = async (user, shopifyCustomerId) => {
     console.log("Updated user response from shopify :::", response);
     return response;
   } else {
-    console.error("Error while updating user in shopify :::", response?.cause?.message);
+    console.error("Error while updating user in shopify :::", response?.message);
     return null;
   }
 };
@@ -132,7 +132,7 @@ export const checkUserExistsInShopify = async (userEmail) => {
   if (!axios.isAxiosError(response)) {
     return response.customers[0] ? response.customers[0]?.id : false;
   } else {
-    console.error("Error while checking user in shopify :::", response?.cause?.message);
+    console.error("Error while checking user in shopify :::", response?.message);
     return null;
   }
 };
@@ -142,7 +142,79 @@ export const updateUserInAuth0 = async (url, userId, body, token) => {
   if (!axios.isAxiosError(response)) {
     return true;
   } else {
-    console.error("Error while updating user information in Auth0 system :::", response?.cause?.message);
+    console.error("Error while updating user information in Auth0 system :::", response?.message);
     return false;
+  }
+};
+export const checkUserExistsInOSC = async (userEmail) => {
+
+  if (!userEmail)
+    return;
+
+  const url = "https://service-staging.carrier.com.ph/services/rest/connect/v1.4/analyticsReportResults";
+  let data = JSON.stringify({
+    "id": Number(process.env.REACT_APP_OSC_KEY),
+    "filters": [
+      {
+        "name": "Type",
+        "values": ""
+      },
+      {
+        "name": "Email",
+        "values": `${userEmail}`
+      }
+    ]
+  });
+  const response = await Axios(url, 'POST', data, null, false, true, null);
+  if (!axios.isAxiosError(response)) {
+    return response?.count > 0;
+  } else {
+    console.error("Error while searching contact in OSC :::", response.message);
+    return null;
+  }
+};
+export const createUserInOSCSystem = async (user) => {
+  let url = 'https://service-staging.carrier.com.ph/services/rest/connect/v1.4/contacts';
+  let data = JSON.stringify({
+    "name": {
+      "first": user?.name,
+      "last": user?.name
+    },
+    "emails": {
+      "address": user?.email,
+      "addressType": {
+        "id": 0
+      }
+    },
+    "customFields": {
+      "c": {
+        "verified": false,
+        "type": {
+          "id": 98
+        },
+        "source": {
+          "id": 140 // creating from super user app
+        }
+      }
+    }
+  });
+
+  const response = await Axios(url, 'POST', data, null, false, true, false);
+  if (!axios.isAxiosError(response)) {
+    console.log("user creation response in osc ****", response);
+    return response;
+  } else {
+    console.error("Error while creating contact in OSC :::", response?.message);
+    return null;
+  }
+};
+export const getUserFieldFromAuth0 = async (userId, field, managementToken) => {
+  let url = `https://dev-34chvqyi4i2beker.jp.auth0.com/api/v2/users/${userId}?fields=${field}`;
+  const response = await Axios(url, 'GET', null, managementToken, true, false, false);
+  if (!axios.isAxiosError(response)) {
+    console.log("user info from auth0 ::", response);
+    return response;
+  } else {
+    console.error("Error while retriving user info from Auth0 system :::", response?.message);
   }
 };

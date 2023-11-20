@@ -11,7 +11,7 @@ import {
 } from "../../store/auth0Slice";
 import PasswordValidation from "../../Utils/PasswordValidation";
 import { useNavigate } from "react-router-dom";
-import { checkUserExistsInShopify, createUserInShopifySystem, updateUserInAuth0 } from "../BusinessLogics/Logics";
+import { checkUserExistsInOSC, checkUserExistsInShopify, createUserInOSC, createUserInOSCSystem, createUserInShopifySystem, getUserFieldFromAuth0, updateUserInAuth0 } from "../BusinessLogics/Logics";
 
 function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteCancel, setIsPasteCancel, buttonLabel }) {
   const userInfo = useSelector((store) => store.auth0Context);
@@ -155,9 +155,13 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
   const handleUserCreationAcrossSystems = async (currentButtonLabel, createdUserId) => {
     switch (currentButtonLabel) {
       case "Member": {
-        const responseState = await userCreationInShopify();
-        await handleIntimations(responseState, createdUserId);
-        break;
+        const shopifyResponse = await userCreationInShopify();
+        console.log("shopifyResponse", shopifyResponse);
+        await handleIntimations(shopifyResponse, createdUserId, 'shopify');
+        const oscResponse = await userCreationInOSC();
+        console.log("oscResponse", oscResponse);
+        await handleIntimations(oscResponse, createdUserId, 'OSC');
+        break
       }
       default:
         console.log("creating user in users tab...");
@@ -165,23 +169,31 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
     }
   };
 
-  const handleIntimations = async (responseState, auth0Id) => {
+  const handleIntimations = async (responseState, auth0Id, scope) => {
     if (String(responseState).startsWith("EX_")) {
-      toast.warning(`User already exists in the shopfy system.`, { theme: "colored" });
-      await patchUserInAuth0(auth0Id, String(responseState).substring(3));
+      toast.warning(`User already exists in the ${scope} system.`, { theme: "colored" });
+      await patchUserInAuth0(auth0Id, String(responseState).substring(3), scope);
       return;
     } else if (typeof responseState === "number") {
-      await patchUserInAuth0(auth0Id, responseState);
+      await patchUserInAuth0(auth0Id, responseState, scope);
       return;
     }
   }
 
-  const patchUserInAuth0 = async (userId, shopifyCustomerId) => {
-    let metadataUpdate = {
-      "user_metadata": {
-        "ShopifyCustomerId": String(shopifyCustomerId)
-      }
-    };
+  const patchUserInAuth0 = async (userId, externalId, system) => {
+    let metadataUpdate = null;
+    if (system == "shopify") {
+      metadataUpdate = {
+        "user_metadata": {
+          "ShopifyCustomerId": String(externalId),
+        }
+      };
+    } else if (system == "OSC") {
+      metadataUpdate = await getUserFieldFromAuth0(userId, "user_metadata", userInfo?.managementAccessToken);
+      let body = Object(metadataUpdate);
+      body["user_metadata"]["OSCID"] = externalId;
+      metadataUpdate = body;
+    }
     await updateUserInAuth0(url, userId, metadataUpdate, userInfo?.managementAccessToken);
   }
 
@@ -206,6 +218,28 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
       }
     }
     return "Invalid user email";
+  };
+
+  const userCreationInOSC = async () => {
+    if (userEmail) {
+      const userCheckingResponse = await checkUserExistsInOSC(userEmail);
+      if (typeof userCheckingResponse === "boolean" && !userCheckingResponse) {
+        let user = {
+          name: userEmail.split("@")[0],
+          email: userEmail
+        };
+        const userCreationResponse = await createUserInOSCSystem(user);
+        if (userCreationResponse && typeof userCreationResponse === "object") {
+          return userCreationResponse?.id;
+        } else {
+          return `Error ${userCreationResponse}`;
+        }
+      } else {
+        return `EX_${userCheckingResponse}`;
+      }
+    } else {
+      return "Invalid user email";
+    }
   };
 
 
