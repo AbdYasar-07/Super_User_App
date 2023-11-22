@@ -13,7 +13,6 @@ import { assignMembersInGroup, getAllSystemGroupsFromAuth0 } from "../../Busines
 import AddUser from "../../Users/AddUser";
 import ImportUserModal from "../../../Utils/ImportUserModal";
 import TableData from "../../../Utils/TableData";
-import { BiUser } from "react-icons/bi";
 import { Badge } from "primereact/badge";
 import { toast } from "react-toastify";
 
@@ -46,9 +45,7 @@ const BPDetailMembers = () => {
   });
   const [allGroups, setAllGroups] = useState([]);
   const [unAssignedMembers, setUnAssignedMembers] = useState([]);
-  const [selectedUnassignedMembers, setSelectedUnAssignedMembers] = useState(
-    []
-  );
+  const [selectedUnassignedMembers, setSelectedUnAssignedMembers] = useState([]);
   const [isUserAdded, setIsUserAdded] = useState(false);
   const [isTokenFetched, setIsTokenFteched] = useState(false);
   const [isPasteModelShow, setIsPasteModelShow] = useState(false);
@@ -71,36 +68,25 @@ const BPDetailMembers = () => {
     if (!bpId) return;
 
     let url = `${resource}/groups/${bpId}/members`;
-    const response = await Axios(
-      url,
-      "GET",
-      null,
-      localStorage.getItem("auth_access_token"),
-      false,
-      false,
-      false
-    );
+    const response = await Axios(url, "GET", null, localStorage.getItem("auth_access_token"), false, false, false);
     if (!axios.isAxiosError(response)) {
       setMembers(response?.users);
       handleUsersMapping(response?.users);
       setLoading(false);
       return response;
     } else {
-      console.error(
-        "Error while getting members for a group :::",
-        response?.cause?.message
-      );
+      console.error("Error while getting members for a group :::", response?.cause?.message);
       setLoading(false);
       return null;
     }
   };
-
   const getCurrentData = async (data, action) => {
-   
+
     switch (action?.toLowerCase()) {
       case "remove": {
+        setLoading(true);
         await removeMemberFromCurrentBP(data.id, bpId);
-        await getMembersForBP(bpId);
+        await getMembersList(false);
         break;
       }
       default: {
@@ -109,32 +95,20 @@ const BPDetailMembers = () => {
       }
     }
   };
-
   const removeMemberFromCurrentBP = async (memberId, bpId) => {
     let url = `${resource}/groups/${bpId}/members`;
     const body = [`${memberId}`];
-    const response = await Axios(
-      url,
-      "DELETE",
-      body,
-      localStorage.getItem("auth_access_token"),
-      false,
-      false,
-      false
-    );
+    const response = await Axios(url, "DELETE", body, localStorage.getItem("auth_access_token"), false, false, false);
     if (!axios.isAxiosError(response)) {
+      await getMembersForBP(bpId);
       setLoading(false);
       return response;
     } else {
-      console.error(
-        "Error while removing member for a group :::",
-        response?.cause?.message
-      );
+      console.error("Error while removing member for a group :::", response?.cause?.message);
       setLoading(false);
       return null;
     }
   };
-
   const handleUsersMapping = (users) => {
     if (Array.isArray(users) && users.length > 0) {
       const actualUsers = users.map((user) => {
@@ -148,9 +122,10 @@ const BPDetailMembers = () => {
         };
       });
       setFilteredRecord(actualUsers);
+    } else {
+      setFilteredRecord([]);
     }
   };
-
   const formatTimestamp = (timestamp) => {
     if (!timestamp) {
       return "Never";
@@ -178,7 +153,6 @@ const BPDetailMembers = () => {
     const diffInDays = Math.floor(diffInHours / 24);
     return `${diffInDays} days ago`;
   };
-
   const renderOutBP = (tabValue) => {
     if (typeof tabValue === "string" && tabValue === "OutBP") {
       setMessage("Relate Users To This BP");
@@ -187,10 +161,10 @@ const BPDetailMembers = () => {
     } else {
       setMessage("Individually Unassign Users From This BP");
       setShowOutBP(false);
+      setValue("InBP");
       return;
     }
   };
-
   const fetchManagementToken = async () => {
     const body = {
       grant_type: process.env.REACT_APP_AUTH_GRANT_TYPE,
@@ -210,31 +184,23 @@ const BPDetailMembers = () => {
   const getMembersList = async (isBpFirst) => {
     setLoading(true);
     let managementResponse = null;
-    if (
-      !auth0Context?.managementAccessToken &&
-      auth0Context?.managementAccessToken?.length === 0
-    ) {
+    if (!auth0Context?.managementAccessToken && auth0Context?.managementAccessToken?.length === 0) {
       managementResponse = await fetchManagementToken();
     }
-    let response = await fetchAuth0Users(
-      100,
-      "conception",
-      managementResponse?.access_token
-        ? managementResponse?.access_token
-        : auth0Context?.managementAccessToken,
-      serverPaginate
-    );
-    console.log(response, "for");
+    let accessToken = managementResponse?.access_token ? managementResponse?.access_token : auth0Context?.managementAccessToken;
+    let response = await fetchAuth0Users(100, "conception", accessToken, serverPaginate);
     const groupsResponse = await getAllAuth0Groups(response);
     if (Array.isArray(response.users) && Array.isArray(groupsResponse)) {
-      console.log(response.users, "ionininin");
-      filterUsersByDatabase(
-        response.users,
-        "conception",
-        groupsResponse,
-        isBpFirst
-      );
-      console.log(groupsResponse, "groupsResponse");
+      const members = await filterUsersByDatabase(response.users, "conception", groupsResponse, isBpFirst);
+      const assignedMembersResponse = await getMembersForBP(bpId);
+      if (assignedMembersResponse?.users.length > 0) {
+        const actualMembers = members.filter((member) => {
+          return assignedMembersResponse?.users.every((user) => user?.user_id !== member?.id);
+        });
+        setUnAssignedMembers(filterUnassignedMembers(actualMembers));
+      } else {
+        setUnAssignedMembers(filterUnassignedMembers(members));
+      }
       setAllGroups(groupsResponse);
     }
     setLoading(false);
@@ -258,13 +224,7 @@ const BPDetailMembers = () => {
 
     return false;
   }
-
-  const filterUsersByDatabase = (
-    users,
-    databaseName,
-    groupsResponse,
-    isBpFirst
-  ) => {
+  const filterUsersByDatabase = async (users, databaseName, groupsResponse, isBpFirst) => {
     if (users.length === 0) return;
     // criteria 1 : filter for Conception database
     const filteredByConceptionDatabase = users.filter((user) => {
@@ -286,11 +246,7 @@ const BPDetailMembers = () => {
         )
     );
 
-    let clubedUsers = filterUsersBy(
-      isBpFirst,
-      filteredUsers,
-      filteredUsersNotInBp
-    );
+    let clubedUsers = filterUsersBy(isBpFirst, filteredUsers, filteredUsersNotInBp);
 
     if (Array.isArray(clubedUsers)) {
       // setActualMembers(clubedUsers);
@@ -310,34 +266,31 @@ const BPDetailMembers = () => {
           Email: filteredUser.email,
           LatestLogin: formatTimestamp(filteredUser.last_login),
           Logins: filteredUser.logins_count,
-          BPID:
-            filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup] &&
+          BPID: filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup] &&
             filteredUser?.app_metadata?.authorization?.groups[
               indexOfBpGroup
             ].substring(3).length == 10
-              ? filteredUser?.app_metadata?.authorization?.groups[
-                  indexOfBpGroup
-                ].substring(3)
-              : "Unassigned",
+            ? filteredUser?.app_metadata?.authorization?.groups[
+              indexOfBpGroup
+            ].substring(3)
+            : "Unassigned",
           BPName: groupsResponse?.filter(
             (group) =>
               group?.groupName ===
               filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup]
           )[0]
             ? groupsResponse?.filter(
-                (group) =>
-                  group?.groupName ===
-                  filteredUser?.app_metadata?.authorization?.groups[
-                    indexOfBpGroup
-                  ]
-              )[0]?.groupDescription
+              (group) =>
+                group?.groupName ===
+                filteredUser?.app_metadata?.authorization?.groups[
+                indexOfBpGroup
+                ]
+            )[0]?.groupDescription
             : "-",
         };
       });
 
-      console.log(members, "getmembers");
-      console.log(filterUnassignedMembers(members));
-      setUnAssignedMembers(filterUnassignedMembers(members));
+      return members;
     }
   };
   const getAllAuth0Groups = async () => {
@@ -359,25 +312,14 @@ const BPDetailMembers = () => {
       return filteredResponse;
     }
   };
-  const fetchAuth0Users = async (
-    perPage,
-    database,
-    managementAccessToken,
-    serverPaginate
-  ) => {
+  const fetchAuth0Users = async (perPage, database, managementAccessToken, serverPaginate) => {
     if (serverPaginate.processedRecords === serverPaginate.total) {
       return serverPaginate;
     }
 
     let url = `${resourceTwo}users?per_page=${perPage}&include_totals=true&connection=${database}&search_engine=v3&page=${serverPaginate.start}`;
 
-    const response = await Axios(
-      url,
-      "get",
-      null,
-      managementAccessToken,
-      false
-    );
+    const response = await Axios(url, "get", null, managementAccessToken, false);
 
     const updatedServerPaginate = {
       start: serverPaginate.start + 1,
@@ -402,19 +344,17 @@ const BPDetailMembers = () => {
     selectedUnassignedMembers.map((unAssignedMember) => {
       data?.push(unAssignedMember?.id);
     });
-    let response = await assignMembersInGroup(bpId,data);
-  if(response==="200"){
-    getMembersForBP(bpId);
-    getMembersList(false);
-    toast.success(`Member${selectedUnassignedMembers?.length===1?"":"'s"} successfully added`,{theme:"colored"});
-  }else{
-    toast.error(response,{theme:"colored"});
-  }
-   
-    
+    let response = await assignMembersInGroup(bpId, data);
+    if (response === "200") {
+      await getMembersList(false);
+      toast.success(`Member${selectedUnassignedMembers?.length === 1 ? "" : "'s"} successfully added`, { theme: "colored" });
+    } else {
+      toast.error(response, { theme: "colored" });
+    }
+    setSelectedUnAssignedMembers([]);
   };
+
   useEffect(() => {
-    console.log("renderOutBP", value);
     if (value === "OutBP") {
       setSelectedUnAssignedMembers([]);
     }
@@ -425,7 +365,7 @@ const BPDetailMembers = () => {
     <>
       <div
         className="text-start"
-        // style={{ marginTop: "30px", position: "relative", right: "465px" }}
+      // style={{ marginTop: "30px", position: "relative", right: "465px" }}
       >
         <div
           className="mt-3"
@@ -494,7 +434,6 @@ const BPDetailMembers = () => {
                     }}
                     onClick={() => {
                       assignMembersIntoGroup();
-                      console.log(selectedUnassignedMembers);
                     }}
                   ></Button>
                   <Badge

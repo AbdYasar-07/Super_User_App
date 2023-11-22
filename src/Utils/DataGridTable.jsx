@@ -1,30 +1,12 @@
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import React, { useEffect, useState } from "react";
-import {
-  BiCross,
-  BiPencil,
-  BiSolidTime,
-  BiTime,
-  BiTrash,
-  BiUserPlus,
-} from "react-icons/bi";
+import React, { useState } from "react";
+import { BiPencil, BiUserPlus, } from "react-icons/bi";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { renderComponent } from "../store/auth0Slice";
 
-const DataGridTable = ({
-  data,
-  rowHeader,
-  getCurrentData,
-  loading,
-  action,
-  emptyMessage,
-  showTrashOnly = false,
-  isRowCheck = false,
-  isCheckbox = false,
-  getRowSelected
-}) => {
+const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, emptyMessage, showTrashOnly = false, isCheckbox = false, getRowSelected }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [selectedRow, setSelectedRow] = useState(null);
@@ -136,12 +118,10 @@ const DataGridTable = ({
         emptyMessage={emptyMessage}
         loading={loading}
       >
-        {/* {isRowCheck && ( */}
         <Column
           selectionMode={isCheckbox ? "multiple" : ""}
           headerStyle={{ width: "3rem" }}
         ></Column>
-        {/* )} */}
         {rowHeader?.map((colHeader) => {
           return (
             <Column
@@ -157,8 +137,8 @@ const DataGridTable = ({
                   ? colHeader === rowHeader[0]
                     ? handleClickOnName
                     : colHeader === "Action"
-                    ? handelAction
-                    : ""
+                      ? handelAction
+                      : ""
                   : colHeader === rowHeader[0] && handleClickOnName
               }
             ></Column>
