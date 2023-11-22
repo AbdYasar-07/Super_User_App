@@ -1,5 +1,6 @@
 import axios from "axios";
 import Axios from "../../Utils/Axios";
+import { error } from "jquery";
 
 
 
@@ -216,5 +217,21 @@ export const getUserFieldFromAuth0 = async (userId, field, managementToken) => {
     return response;
   } else {
     console.error("Error while retriving user info from Auth0 system :::", response?.message);
+  }
+};
+
+export const assignMembersInGroup = async (bpId,memberIds) => {
+  const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
+  const response = await Axios(
+    resource + `/groups/${bpId}/members`,
+    "PATCH",
+    memberIds,
+    localStorage.getItem("auth_access_token")
+  )
+  if (!axios.isAxiosError(response)) {
+    return "200";
+  } else {
+    console.error("Error while assign member into group info from Auth0 system :::", response?.message);
+    return `Error while assign member${memberIds?.length===1?"":"'s"} into BP, ${response?.message}`
   }
 };

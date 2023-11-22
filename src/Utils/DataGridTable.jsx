@@ -1,16 +1,33 @@
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import React, { useEffect } from "react";
-import { BiCross, BiPencil, BiSolidTime, BiTime, BiTrash, BiUserPlus } from "react-icons/bi";
+import React, { useEffect, useState } from "react";
+import {
+  BiCross,
+  BiPencil,
+  BiSolidTime,
+  BiTime,
+  BiTrash,
+  BiUserPlus,
+} from "react-icons/bi";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { renderComponent } from "../store/auth0Slice";
 
-const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, emptyMessage, showTrashOnly = false, isRowCheck = false }) => {
-
+const DataGridTable = ({
+  data,
+  rowHeader,
+  getCurrentData,
+  loading,
+  action,
+  emptyMessage,
+  showTrashOnly = false,
+  isRowCheck = false,
+  isCheckbox = false,
+  getRowSelected
+}) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const [selectedRow, setSelectedRow] = useState(null);
   const alignHeader = (column) => {
     if (!column) return;
 
@@ -40,15 +57,15 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
   };
 
   const handleTrashClick = (rowData) => {
-    getCurrentData(rowData, 'remove');
+    getCurrentData(rowData, "remove");
     // console.log("Row Data :::", rowData);
-  }
+  };
 
   const handelAction = (rowData) => {
     return (
       <div className="d-flex align-items-center">
         <>
-          {!showTrashOnly &&
+          {!showTrashOnly && (
             <BiUserPlus
               style={{
                 fontSize: "24px",
@@ -57,14 +74,14 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
                 height: "30px",
                 padding: "4px",
                 borderRadius: "3px",
-                cursor: "pointer"
+                cursor: "pointer",
               }}
               title="Add member"
               className="mx-1 fw-light"
               onClick={() => handleActionClick()}
             />
-          }
-          {!showTrashOnly &&
+          )}
+          {!showTrashOnly && (
             <BiPencil
               style={{
                 fontSize: "24px",
@@ -73,13 +90,13 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
                 height: "30px",
                 padding: "4px",
                 borderRadius: "3px",
-                cursor: "pointer"
+                cursor: "pointer",
               }}
               title="Edit BP"
               className="mx-1"
             />
-          }
-          {showTrashOnly &&
+          )}
+          {showTrashOnly && (
             <i
               style={{
                 fontSize: "24px",
@@ -89,14 +106,14 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
                 padding: "4px",
                 borderRadius: "3px",
                 cursor: "pointer",
-                color: 'grey',
-                fontSize: '1.5rem'
+                color: "grey",
+                fontSize: "1.5rem",
               }}
               title="Remove Member"
               className="mx-1 pi pi-times"
               onClick={(e) => handleTrashClick(rowData)}
             />
-          }
+          )}
         </>
       </div>
     );
@@ -104,6 +121,12 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
   return (
     <div className="card">
       <DataTable
+        selectionMode={isCheckbox ? "checkbox" : ""}
+        selection={selectedRow}
+        onSelectionChange={(e) => {
+          setSelectedRow(e.value);
+          getRowSelected(e.value);
+        }}
         value={data}
         removableSort
         filterDisplay="row"
@@ -112,14 +135,13 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
         tableStyle={{ minWidth: "50rem" }}
         emptyMessage={emptyMessage}
         loading={loading}
-        onSelectionChange={(e) => {
-          console.log("e .target .value ", e.value);
-        }}
       >
-        {isRowCheck &&
-          <Column selectionMode="single" headerStyle={{ width: '3rem' }}>
-          </Column>
-        }
+        {/* {isRowCheck && ( */}
+        <Column
+          selectionMode={isCheckbox ? "multiple" : ""}
+          headerStyle={{ width: "3rem" }}
+        ></Column>
+        {/* )} */}
         {rowHeader?.map((colHeader) => {
           return (
             <Column
@@ -135,8 +157,8 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
                   ? colHeader === rowHeader[0]
                     ? handleClickOnName
                     : colHeader === "Action"
-                      ? handelAction
-                      : ""
+                    ? handelAction
+                    : ""
                   : colHeader === rowHeader[0] && handleClickOnName
               }
             ></Column>

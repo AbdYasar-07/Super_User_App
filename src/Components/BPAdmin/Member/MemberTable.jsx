@@ -86,6 +86,7 @@ const MemberTable = () => {
     );
     const groupsResponse = await getAllAuth0Groups(response);
     if (Array.isArray(response.users) && Array.isArray(groupsResponse)) {
+      console.log(response.users,"ueeeeee");
       filterUsersByDatabase(response.users, "conception", groupsResponse, isBpFirst);
       setAllGroups(groupsResponse);
     }
@@ -160,7 +161,7 @@ const MemberTable = () => {
           BPName: (groupsResponse?.filter((group) => group?.groupName === filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup])[0]) ? groupsResponse?.filter((group) => group?.groupName === filteredUser?.app_metadata?.authorization?.groups[indexOfBpGroup])[0]?.groupDescription : "-"
         };
       });
-
+   console.log(members);
       setFilteredRecord(members);
       setMemberData(members);
     }
@@ -215,9 +216,9 @@ const MemberTable = () => {
     if (serverPaginate.processedRecords === serverPaginate.total) {
       return serverPaginate;
     }
-
+   
     let url = `${resource}users?per_page=${perPage}&include_totals=true&connection=${database}&search_engine=v3&page=${serverPaginate.start}`;
-
+     console.log(url);
     const response = await Axios(url, "get", null, managementAccessToken, false);
 
     const updatedServerPaginate =
@@ -273,14 +274,4 @@ const MemberTable = () => {
 };
 export default MemberTable;
 
-// const dummmyData = [
-//   {
-//     id: "1000",
-//     Name: "jeeva",
-//     Email: "jeeva@gmail.com",
-//     LastLogin: "nethu",
-//     Logins: "today",
-//     Connections: "conception",
-//     BP: "conception",
-//   },
-// ];
+
