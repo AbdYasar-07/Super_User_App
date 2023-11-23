@@ -122,7 +122,7 @@ const BPtabel = () => {
 
   return (
     <>
-      <div className="py-4">
+      {!loading && (<><div className="py-4">
         <Search
           records={bpData}
           setRecords={setFilteredRecord}
@@ -131,7 +131,7 @@ const BPtabel = () => {
           data={bpData}
         />
       </div>
-      {!loading && (
+
         <DataGridTable
           data={filterRecord}
           rowHeader={[
@@ -147,6 +147,7 @@ const BPtabel = () => {
           action={true}
           emptyMessage={"No Business Partners Found."}
         />
+      </>
       )}
       {loading && <AppSpinner />}
     </>

@@ -11,6 +11,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import AppSpinner from "../../../Utils/AppSpinner";
 import { checkUserExistsInShopify, getAllSystemGroupsFromAuth0 } from "../../BusinessLogics/Logics";
+import RefreshButton from "../../../Utils/RefreshButton";
 
 const MemberTable = () => {
   const [filterRecord, setFilteredRecord] = useState([]);
@@ -43,9 +44,7 @@ const MemberTable = () => {
   };
 
   useEffect(() => {
-    if (auth0Context?.refreshUnRelatedComponent?.target === "") {
-      getMembersList(true);
-    }
+    fetchMembersList()
   }, []);
 
   useEffect(() => {
@@ -54,7 +53,11 @@ const MemberTable = () => {
       dispatch(renderComponent({ cmpName: "" }));
     }
   }, [auth0Context?.refreshUnRelatedComponent?.render])
-
+  const fetchMembersList = async () => {
+    if (auth0Context?.refreshUnRelatedComponent?.target === "") {
+      await getMembersList(true);
+    }
+  }
   const fetchManagementToken = async () => {
     const body = {
       grant_type: process.env.REACT_APP_AUTH_GRANT_TYPE,
@@ -248,6 +251,9 @@ const MemberTable = () => {
           setLoadSpinner={setLoad}
           data={memberData}
         />}
+        <div className="position-absolute end-0 p-0  customizePosition">
+          <RefreshButton isRefresh={loading} onClick={fetchMembersList} />
+        </div>
       </div>
       {!loading && (
         <DataGridTable
