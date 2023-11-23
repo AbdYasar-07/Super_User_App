@@ -1,17 +1,17 @@
 import axios from "axios";
 
-const Axios = async (url, method = "get", data = null, token = null, isManagementApi, isOSC = null, isShopify = null) => {
+const Axios = async (url, method = "get", data = null, token = null, isManagementApi, isOSC = null, isShopify = null, oscHeader = 'Fetch') => {
   try {
     const headers = {};
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
     if (isOSC) {
-      headers["OSvC-CREST-Application-Context"] = "Fetch";
+      headers["OSvC-CREST-Application-Context"] = `${oscHeader}`;
       headers['Content-Type'] = 'application/json';
-      headers['Access-Control-Allow-Origin'] = "http://localhost:3000/";
-      headers['Access-Control-Allow-Headers'] = 'X-Requested-With';
       headers['Authorization'] = 'Basic c3BlcmlkaWFuX2FkbWluOlNwZXJpZGlhbkAxMjMj';
+      headers['Access-Control-Allow-Origin'] = "*";
+      // headers['Access-Control-Allow-Headers'] = '*';
     }
     if (isManagementApi) {
       headers["content-type"] = "application/json"

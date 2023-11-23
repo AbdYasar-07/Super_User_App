@@ -1,6 +1,5 @@
 import axios from "axios";
 import Axios from "../../Utils/Axios";
-import { error } from "jquery";
 
 
 
@@ -39,7 +38,7 @@ export const getOSCStoreIDByBPCode = async (bpCode) => {
       },
     ],
   });
-  const url = "https://service-staging.carrier.com.ph/services/rest/connect/v1.4/analyticsReportResults";
+  const url = process.env.REACT_APP_OSC_UAT_REPORT_RESULTS;
   const response = await Axios(url, "POST", body, null, false, true);
   if (!axios.isAxiosError(response)) {
     return response;
@@ -152,7 +151,7 @@ export const checkUserExistsInOSC = async (userEmail) => {
   if (!userEmail)
     return;
 
-  const url = "https://service-staging.carrier.com.ph/services/rest/connect/v1.4/analyticsReportResults";
+  const url = process.env.REACT_APP_OSC_UAT_REPORT_RESULTS;
   let data = JSON.stringify({
     "id": Number(process.env.REACT_APP_OSC_KEY),
     "filters": [
@@ -219,8 +218,7 @@ export const getUserFieldFromAuth0 = async (userId, field, managementToken) => {
     console.error("Error while retriving user info from Auth0 system :::", response?.message);
   }
 };
-
-export const assignMembersInGroup = async (bpId,memberIds) => {
+export const assignMembersInGroup = async (bpId, memberIds) => {
   const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
   const response = await Axios(
     resource + `/groups/${bpId}/members`,
@@ -232,6 +230,72 @@ export const assignMembersInGroup = async (bpId,memberIds) => {
     return "200";
   } else {
     console.error("Error while assign member into group info from Auth0 system :::", response?.message);
-    return `Error while assign member${memberIds?.length===1?"":"'s"} into BP, ${response?.message}`
+    return `Error while assign member${memberIds?.length === 1 ? "" : "'s"} into BP, ${response?.message}`
   }
+};
+export const isStoreExistsInOSC = async (sapBpCode, isInProd) => {
+
+  const url = (isInProd) ? process.env.REACT_APP_OSC_PROD_REPORT_RESULTS : process.env.REACT_APP_OSC_UAT_REPORT_RESULTS;
+  let data = JSON.stringify({
+    "id": 107165,
+    "filters": [
+      {
+        "name": "SAP BP Code",
+        "values": `${sapBpCode}`
+      }
+    ]
+  });
+
+  const response = await Axios(url, 'POST', data, null, false, true, false);
+  if (!axios.isAxiosError(response)) {
+    console.log("Searched store response :::", response);
+    return response?.count >= 1;
+  }
+
+  console.error("Error while searching store in OSC :::", response?.message);
+  return null;
+
+};
+export const createStoreInOSC = async (bpInfoObj, isInProd) => {
+
+  const url = (isInProd) ? process.env.REACT_APP_OSC_PROD_ORGANIZATION : process.env.REACT_APP_OSC_UAT_ORGANIZATION;
+  let data = JSON.stringify({
+    "name": `${bpInfoObj.name}`,
+    "customFields": {
+      "c": {
+        "type": {
+          "id": 43
+        },
+        "code": `${bpInfoObj.bpId}`
+      }
+    }
+  });
+
+  const response = await Axios(url, 'POST', data, null, false, true, false, 'Create Organization');
+  if (!axios.isAxiosError(response)) {
+    console.log("osc created response :::", response?.id);
+    return response?.id;
+  }
+
+  console.error("Error while creating a store in OSC :::", response?.message);
+  return null;
+
+};
+export const isCompanyExistsInShopify = async (sapBpCode) => {
+
+  const response = await getShopifyCompaniesId();
+  const edges = response?.data?.companies?.edges;
+
+  if (Array.isArray(edges)) {
+    const filteredCompany = edges.filter((edge) => edge?.node?.externalId === sapBpCode);
+    return filteredCompany.length == 1;
+  }
+
+  return null;
+};
+export const createCompanyInShopify = async (bpInfoObj, isInProd) => {
+  // need to clarify company creation with shopify team
+}
+export const updateStoreInOSC = (bpInfoObj, isInProd) => {
+
 };

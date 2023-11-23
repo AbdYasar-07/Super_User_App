@@ -200,6 +200,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
   const userCreationInShopify = async () => {
     if (userEmail) {
       const userCheckingResponse = await checkUserExistsInShopify(userEmail);
+      console.log("userCheckingResponse", userCheckingResponse);
       if (typeof userCheckingResponse === "boolean" && !userCheckingResponse) {
         let user = {
           name: userEmail,
@@ -328,6 +329,17 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPasteCancel]);
+
+  useEffect(() => {
+    check("userfortest01@gmail.com");
+    createUser()
+  }, []);
+
+  const check = async (email) => {
+    const result = await checkUserExistsInShopify(email);
+    console.log("result ***", result);
+  }
+
   return (
     <div className={`${!userInfo?.accessToken ? "cursorDisable" : ""}`}>
       <ToastContainer />

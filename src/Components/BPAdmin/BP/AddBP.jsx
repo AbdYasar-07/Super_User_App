@@ -10,6 +10,8 @@ import { useDispatch } from "react-redux";
 import { renderComponent } from "../../../store/auth0Slice";
 import highFive from "../../../asset/highFive.png";
 import "../../Styles/AddBP.css";
+import { checkUserExistsInShopify, createCompanyInShopify, createStoreInOSC, isCompanyExistsInShopify, isStoreExistsInOSC } from "../../BusinessLogics/Logics";
+import { toast } from "react-toastify";
 
 export default function AddBP({
   setIsPasteModelShow,
@@ -80,9 +82,7 @@ export default function AddBP({
       return false;
     } else if (bpName.length < 5) {
       setIsValidBpName(false);
-      setBpNameMessage(
-        "BP Name atleast contains more than 5 characters of description"
-      );
+      setBpNameMessage("BP Name atleast contains more than 5 characters of description");
       return false;
     }
     setIsValidBpName(true);
@@ -95,29 +95,58 @@ export default function AddBP({
       name: `BP_${bpId}`,
       description: `${bpName}`,
     };
-    const response = await Axios(
-      url,
-      "POST",
-      data,
-      localStorage.getItem("auth_access_token"),
-      false,
-      false
-    );
+    const response = await Axios(url, "POST", data, localStorage.getItem("auth_access_token"), false, false);
     if (!axios.isAxiosError(response)) {
       return response;
     } else {
       setLoading(false);
-      console.error(
-        "Error while creating a group ::",
-        response.cause && response.cause.message
-      );
+      console.error("Error while creating a group ::", response.cause && response.cause.message);
     }
+  };
+
+  const isProductionEnvironment = () => {
+    return (system == "PROD") ? true : false;
+  };
+
+  const createStore = async () => {
+
+    const isExists = await isStoreExistsInOSC(bpId, isProductionEnvironment());
+    if (isExists) {
+      toast.warning("Store already exists in OSC", { theme: "colored" });
+      return;
+    }
+
+    const bpInfoObj = { bpId: bpId, name: bpName };
+    const result = await createStoreInOSC(bpInfoObj, isProductionEnvironment());
+    if (result) {
+      toast.success(`${bpName} has been created in OSC`, { theme: "colored" });
+      return;
+    }
+
+    toast.error(`Error while creating ${bpName} in OSC.`, { theme: "colored" });
+  }
+
+  const createCompany = async () => {
+    const isExists = await isCompanyExistsInShopify(bpId);
+    if (isExists) {
+      toast.warning("Company already exists in shopify", { theme: "colored" });
+      return;
+    }
+    const bpInfoObj = { bpId: bpId, name: bpName };
+    const result = await createCompanyInShopify(bpInfoObj, isProductionEnvironment());
+    if (result) {
+      // company created successfully
+      return;
+    }
+
+    toast.error(`Error while creating ${bpName} in shopify.`, { theme: "colored" });
   };
 
   const onFormSubmit = async () => {
     if (isFormSubmissionValid()) {
       setLoading(true);
       await createGroup();
+      await createStore();
       setLoading(false);
       dispatch(renderComponent({ cmpName: "BPTABLE" }));
       resetForm();

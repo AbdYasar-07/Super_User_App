@@ -50,6 +50,8 @@ const BPtabel = () => {
         Members: _grp?.members?.length,
         IsInShopify: "",
         IsInOSC: "",
+        shopifyId: "",
+        oscId: ""
       };
     });
 
@@ -62,6 +64,7 @@ const BPtabel = () => {
     patchTotalGroupsForShopifyResponse(bpCodes, nodes, total_groups);
 
     if (total_groups?.length > 0) {
+      console.log("total_groups ***", total_groups);
       setFilteredRecord(total_groups);
       setBpData(total_groups);
     }
@@ -72,6 +75,7 @@ const BPtabel = () => {
       const filteredNode = nodes.find((node) => node?.node?.externalId === bpCode);
       const businessPartnerIdx = total_groups.findIndex((group) => String(group.BPID) === bpCode);
       total_groups[businessPartnerIdx]['IsInShopify'] = filteredNode?.node?.externalId && filteredNode?.node?.externalId.length > 0 ? "Yes" : "No";
+      total_groups[businessPartnerIdx]['shopifyId'] = filteredNode?.node?.externalId;
     });
   }
 
@@ -86,20 +90,24 @@ const BPtabel = () => {
 
   const accessOSC = async (bpCodes, total_groups) => {
     if (Array.isArray(bpCodes) && bpCodes.length > 0) {
-      const bpIdPromises = bpCodes.map(async (bpCode) => {
-        const result = await getOSCStoreIDByBPCode(bpCode);
-        const idx = total_groups.findIndex(
-          (group) => String(group.BPID) === bpCode
-        );
-        // value = result?.rows[0][0] = true;
-        total_groups[idx]["IsInOSC"] =
-          result && result?.rows?.length > 0 ? "Yes" : "No";
+      const pairsMap = new Map();
+      for (const bpCode of bpCodes) {
+        await getOSCStoreIDByBPCode(bpCode).then((result) => {
+          const oscId = (result?.rows && result?.rows.length > 0) ? result?.rows[0][0] : null;
+          pairsMap.set(bpCode, oscId);
+        });
+      }
+
+      pairsMap.forEach((value, key) => {
+        const idx = total_groups.findIndex((group) => String(group.BPID) === key);
+        total_groups[idx]["IsInOSC"] = value ? "Yes" : "No";
+        total_groups[idx]["oscId"] = value;
       });
-      await Promise.all(bpIdPromises);
     }
   };
 
   useEffect(() => {
+
     setLoading(true);
     fetchAllGroups();
   }, []);
