@@ -13,7 +13,7 @@ import PasswordValidation from "../../Utils/PasswordValidation";
 import { useNavigate } from "react-router-dom";
 import { checkUserExistsInOSC, checkUserExistsInShopify, createUserInOSC, createUserInOSCSystem, createUserInShopifySystem, getUserFieldFromAuth0, updateUserInAuth0 } from "../BusinessLogics/Logics";
 
-function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteCancel, setIsPasteCancel, buttonLabel }) {
+function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteCancel, setIsPasteCancel, buttonLabel, isForMember = false, getMemberDetail }) {
   const userInfo = useSelector((store) => store.auth0Context);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -129,6 +129,12 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
               setIsDisable(false);
               return;
             }
+            if (isForMember) {
+              getMemberDetail(addedUser);
+              setUserModal(false);
+              setIsUserAdded(true);
+              return
+            }
             createdUserId = addedUser?.user_id;
             if (buttonLabel == "Member") {
               navigate(`/members/${addedUser?.user_id}/roles/assigned`);
@@ -148,7 +154,9 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
             }
           });
       });
-      await handleUserCreationAcrossSystems(buttonLabel, createdUserId);
+      if (!isForMember) {
+        await handleUserCreationAcrossSystems(buttonLabel, createdUserId);
+      }
     }
   };
 

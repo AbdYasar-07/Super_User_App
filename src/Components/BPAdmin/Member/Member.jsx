@@ -9,7 +9,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { toast } from "react-toastify";
 import Axios from "../../../Utils/Axios";
 import { useDispatch } from "react-redux";
-import { addAuthorizationCode } from "../../../store/auth0Slice";
 
 const Member = () => {
   const [isUserAdded, setIsUserAdded] = useState(false);
@@ -75,7 +74,7 @@ const Member = () => {
         <div>
           <MemberTable />
         </div>
-        <div className="position-absolute end-0 p-0 me-4 customizePosition">
+        <div className="position-absolute end-0 me-4 p-0 customizePosition" >
           <AddUser
             buttonLabel="Member"
             setIsUserAdded={setIsUserAdded}
@@ -84,7 +83,9 @@ const Member = () => {
             isPasteCancel={isPasteCancel}
             setIsPasteCancel={setIsPasteCancel}
           />
+          
         </div>
+        
         <div>
           <ImportUserModal
             action="Add_User"

@@ -28,6 +28,8 @@ const TableData = ({
   setIsPasteModelShow,
   isTableShow,
   setIsTableShow,
+  getMembersIdFromTable,
+  isForMember
 }) => {
   const gridApiRef = useGridApiRef();
   const userInfo = useSelector((state) => state.auth0Context);
@@ -59,6 +61,7 @@ const TableData = ({
     header: "",
     content: "",
   });
+  let usersId = [];
 
   const CustomToolbar = () => {
     return (
@@ -70,6 +73,7 @@ const TableData = ({
   };
 
   const getImportedUsers = async (id) => {
+    debugger
     if (id === "m1") {
       await createUsers(getSelectedValue()).finally((_) => {
         // toast(CustomToastWithLink, { theme: "light", autoClose: false }) -- inticating with excel export (logs)
@@ -156,18 +160,16 @@ const TableData = ({
       setConfirmationModalData({
         id: "m1",
         header: "Confirmation Import user",
-        content: `Are you sure want to import the ${
-          selectedRows.length > 1 ? "users?" : "user?"
-        }`,
+        content: `Are you sure want to import the ${selectedRows.length > 1 ? "users?" : "user?"
+          }`,
       });
     }
     if (columnType === "bpColumn") {
       setConfirmationModalData({
         id: "bp",
         header: "Confirmation Import Bp user",
-        content: `Are you sure want to import the ${
-          selectedRows.length > 1 ? "Bp users?" : "Bp user?"
-        }`,
+        content: `Are you sure want to import the ${selectedRows.length > 1 ? "Bp users?" : "Bp user?"
+          }`,
       });
     }
     setIsActivateConfirmModal(true);
@@ -220,6 +222,9 @@ const TableData = ({
         managementAccessToken != null
       ) {
         await createUser(user, managementAccessToken);
+        if (isForMember) {
+          getMembersIdFromTable(usersId);
+        }
       }
     });
     dispatch(clearImportedUser());
@@ -254,7 +259,12 @@ const TableData = ({
           );
           return;
         }
+        if (isForMember) {
+          if (addedUser) {
+            usersId.push(addedUser?.user_id)
+          }
 
+        }
         logCurrentUserObject(user, true, JSON.stringify(addedUser));
       })
       .catch((error) => {

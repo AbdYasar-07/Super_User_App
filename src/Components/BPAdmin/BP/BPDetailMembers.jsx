@@ -353,7 +353,32 @@ const BPDetailMembers = () => {
     }
     setSelectedUnAssignedMembers([]);
   };
+  const getMemberDetail = async (memberDetail) => {
 
+    let data = [memberDetail?.user_id];
+    let response = await assignMembersInGroup(bpId, data);
+    if (response === "200") {
+      await getMembersList(false);
+      toast.success(`Member successfully added`, { theme: "colored" });
+    } else {
+      toast.error(response, { theme: "colored" });
+    }
+  }
+
+  const getMembersIdFromTable = async (getmembersId) => {
+
+    let data = [];
+    getmembersId.map((memberId) => {
+      data?.push(memberId);
+    });
+    let response = await assignMembersInGroup(bpId, data);
+    if (response === "200") {
+      await getMembersList(false);
+      toast.success(`Member${data?.length === 1 ? "" : "'s"} successfully added`, { theme: "colored" });
+    } else {
+      toast.error(response, { theme: "colored" });
+    }
+  }
   useEffect(() => {
     if (value === "OutBP") {
       setSelectedUnAssignedMembers([]);
@@ -395,6 +420,8 @@ const BPDetailMembers = () => {
                       setIsPasteModelShow={setIsPasteModelShow}
                       isPasteCancel={isPasteCancel}
                       setIsPasteCancel={setIsPasteCancel}
+                      getMemberDetail={getMemberDetail}
+                      isForMember={true}
                     />
                   </div>
                   <div>
@@ -415,6 +442,8 @@ const BPDetailMembers = () => {
                       setTableData={setTableData}
                       setIsPasteModelShow={setIsPasteModelShow}
                       setIsPasteCancel={setIsPasteCancel}
+                      getMembersIdFromTable={getMembersIdFromTable}
+                      isForMember={true}
                     />
                   </div>
                 </div>
