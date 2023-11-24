@@ -74,7 +74,7 @@ const Member = () => {
         <div>
           <MemberTable />
         </div>
-        <div className="position-absolute end-0 me-4 p-0 customizePosition" >
+        <div className="position-absolute end-0 p-0 customizePosition" style={{marginRight:"80px"}}>
           <AddUser
             buttonLabel="Member"
             setIsUserAdded={setIsUserAdded}

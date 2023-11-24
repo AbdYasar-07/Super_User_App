@@ -146,12 +146,12 @@ export const updateUserInAuth0 = async (url, userId, body, token) => {
     return false;
   }
 };
-export const checkUserExistsInOSC = async (userEmail) => {
+export const checkUserExistsInOSC = async (isInProd, userEmail) => {
 
   if (!userEmail)
     return;
 
-  const url = process.env.REACT_APP_OSC_UAT_REPORT_RESULTS;
+  const url = isInProd ? process.env.REACT_APP_OSC_PROD_REPORT_RESULTS : process.env.REACT_APP_OSC_UAT_REPORT_RESULTS;
   let data = JSON.stringify({
     "id": Number(process.env.REACT_APP_OSC_KEY),
     "filters": [
@@ -165,7 +165,7 @@ export const checkUserExistsInOSC = async (userEmail) => {
       }
     ]
   });
-  const response = await Axios(url, 'POST', data, null, false, true, null);
+  const response = await Axios(url, 'POST', data, null, true, false, "Fetch Consumers");
   if (!axios.isAxiosError(response)) {
     return response?.count > 0;
   } else {
@@ -173,8 +173,8 @@ export const checkUserExistsInOSC = async (userEmail) => {
     return null;
   }
 };
-export const createUserInOSCSystem = async (user) => {
-  let url = 'https://service-staging.carrier.com.ph/services/rest/connect/v1.4/contacts';
+export const createUserInOSCSystem = async (isInProd, user) => {
+  let url = isInProd ? process.env.REACT_APP_OSC_PROD_CREATE_CONTACT : process.env.REACT_APP_OSC_UAT_CREATE_CONTACT;
   let data = JSON.stringify({
     "name": {
       "first": user?.name,
@@ -193,13 +193,12 @@ export const createUserInOSCSystem = async (user) => {
           "id": 98
         },
         "source": {
-          "id": 140 // creating from super user app
+          "id": process.env.REACT_APP_SUPER_USER_APP_ID,
         }
       }
     }
   });
-
-  const response = await Axios(url, 'POST', data, null, false, true, false);
+  const response = await Axios(url, 'POST', data, null, true, false, "Fetch");
   if (!axios.isAxiosError(response)) {
     console.log("user creation response in osc ****", response);
     return response;
