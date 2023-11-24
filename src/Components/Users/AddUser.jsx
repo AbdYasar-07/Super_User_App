@@ -12,6 +12,7 @@ import {
 import PasswordValidation from "../../Utils/PasswordValidation";
 import { useNavigate } from "react-router-dom";
 import { checkUserExistsInOSC, checkUserExistsInShopify, createUserInOSC, createUserInOSCSystem, createUserInShopifySystem, getUserFieldFromAuth0, updateUserInAuth0 } from "../BusinessLogics/Logics";
+import { RadioButton } from "primereact/radiobutton";
 
 function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteCancel, setIsPasteCancel, buttonLabel, isForMember = false, getMemberDetail }) {
   const userInfo = useSelector((store) => store.auth0Context);
@@ -34,6 +35,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
   const [userModal, setUserModal] = useState(false);
   const [isModelView, setIsModelView] = useState(false);
   const [isDisable, setIsDisable] = useState(false);
+  const [system, setSystem] = useState("");
   const url = process.env.REACT_APP_AUDIENCE;
 
   const initializeFileds = () => {
@@ -50,9 +52,14 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
     setUserEmail("");
     setUserPassword("");
     setRepeatPassword("");
+    setSystem("");
     if (userInfo?.accessToken && userInfo?.accessToken?.length > 0) {
       setIsModelView(true);
     }
+  };
+
+  const isProductionEnvironment = () => {
+    return (system == "PROD") ? true : false;
   };
 
   const getAuthToken = async () => {
@@ -163,6 +170,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
   const handleUserCreationAcrossSystems = async (currentButtonLabel, createdUserId) => {
     switch (currentButtonLabel) {
       case "Member": {
+
         const shopifyResponse = await userCreationInShopify();
         console.log("shopifyResponse", shopifyResponse);
         await handleIntimations(shopifyResponse, createdUserId, 'shopify');
@@ -238,7 +246,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
           name: userEmail.split("@")[0],
           email: userEmail
         };
-        const userCreationResponse = await createUserInOSCSystem(user);
+        const userCreationResponse = await createUserInOSCSystem(isProductionEnvironment(), user);
         if (userCreationResponse && typeof userCreationResponse === "object") {
           return userCreationResponse?.id;
         } else {
@@ -288,6 +296,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
   };
 
   const getUserData = () => {
+
     setValidation(true);
     setEmailReqdValidation(true);
     setIsPasswordValue(true);
@@ -372,7 +381,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
               </div>
               <div class="modal-body">
                 <form class="row g-2 needs-validation">
-                  <div class="mb-3 text-start">
+                  <div class="mb-3 mt-0 text-start">
                     <label for="recipient-name" class="col-form-label">
                       Login (email address)
                       <span className="text-danger ps-1">*</span>
@@ -398,7 +407,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
                     )}
                   </div>
 
-                  <div class="mb-3 text-start">
+                  <div class="mb-3 mt-0 text-start">
                     <label for="recipient-name" class="col-form-label">
                       Password<span className="text-danger ps-1">*</span>
                     </label>
@@ -421,7 +430,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
                         </p>
                       )}
                   </div>
-                  <div class="mb-3 text-start">
+                  <div class="mb-3 mt-0 text-start">
                     <label for="recipient-name" class="col-form-label">
                       Repeat Password<span className="text-danger ps-1">*</span>
                     </label>
@@ -441,7 +450,53 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
                       </p>
                     )}
                   </div>
-                  <div>
+
+                  {buttonLabel === "Member" && <div className="mb-3 text-start">
+                    <label htmlFor="system" class="col-form-label">
+                      System <span className="text-danger ms-2">*</span>
+                    </label>
+                    <div className=" d-flex align-items-center">
+                      <div className="d-flex align-items-center me-3">
+                        <RadioButton
+                          inputId="PROD"
+                          name="PROD"
+                          value="PROD"
+                          onChange={(e) => { setSystem(e.value) }}
+                          checked={system === "PROD"}
+                        />
+                        <label
+                          htmlFor="PROD"
+                          className="ps-2 col-form-label"
+                          style={{ cursor: "pointer" }}
+                        >
+                          PROD
+                        </label>
+                      </div>
+                      <div className="d-flex align-items-center me-3">
+                        <RadioButton
+                          inputId="TEST"
+                          name="TEST"
+                          value="TEST"
+                          onChange={(e) => setSystem(e.value)}
+                          checked={system === "TEST"}
+                        />
+                        <label
+                          htmlFor="TEST"
+                          className="ps-2 col-form-label"
+                          style={{ cursor: "pointer" }}
+                        >
+                          TEST
+                        </label>
+                      </div>
+                    </div>
+                    {validation && !system && (
+                      <p className="text-danger mt-1 mb-0">
+                        System is required *
+                      </p>
+                    )}
+
+                  </div>}
+                  <div className="mt-0">
                     <label for="conection" className="pe-4 d-block text-start">
                       Connection <span className="text-danger ms-2">*</span>
                     </label>
