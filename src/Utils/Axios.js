@@ -10,7 +10,7 @@ const Axios = async (url, method = "get", data = null, token = null, isManagemen
       headers["OSvC-CREST-Application-Context"] = `${oscHeader}`;
       headers['Content-Type'] = 'application/json';
       headers['Authorization'] = 'Basic c3BlcmlkaWFuX2FkbWluOlNwZXJpZGlhbkAxMjMj';
-      headers['Access-Control-Allow-Origin'] = "*";
+      // headers['Access-Control-Allow-Origin'] = "*";
       // headers['Access-Control-Allow-Headers'] = '*';
     }
     if (isManagementApi) {

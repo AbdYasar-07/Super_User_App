@@ -15,7 +15,8 @@ const initialState = {
   refreshUnRelatedComponent: {
     target: "",
     render: false
-  }
+  },
+  currentBusinessPartner: {}
 };
 
 const auth0Slice = createSlice({
@@ -54,6 +55,9 @@ const auth0Slice = createSlice({
     clearImportedUser(state, action) {
       state.importedUserLogs = [];
     },
+    addCurrentBusinessPartner(state, action) {
+      state.currentBusinessPartner = action.payload.businessPartner;
+    },
     clearState(state, action) {
       state.accessToken = "";
       state.idToken = "";
@@ -65,10 +69,11 @@ const auth0Slice = createSlice({
       state.conceptionDatabase = [];
       state.renderingUser = {};
       state.importedUserLogs = [];
+      state.currentBusinessPartner = {};
     },
   },
 });
 
-export const { addUserInfo, addAuthorizationCode, addConceptionDatabase, renderingCurrentUser, addImportedUserLogs, clearImportedUser, addManagementAccessToken, addBP, renderComponent, clearState } =
+export const { addUserInfo, addAuthorizationCode, addConceptionDatabase, renderingCurrentUser, addImportedUserLogs, clearImportedUser, addManagementAccessToken, addBP, renderComponent, addCurrentBusinessPartner, clearState } =
   auth0Slice.actions;
 export default auth0Slice.reducer;

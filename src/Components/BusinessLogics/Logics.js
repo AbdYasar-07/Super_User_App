@@ -296,6 +296,27 @@ export const isCompanyExistsInShopify = async (sapBpCode) => {
 export const createCompanyInShopify = async (bpInfoObj, isInProd) => {
   // need to clarify company creation with shopify team
 }
-export const updateStoreInOSC = (bpInfoObj, isInProd) => {
+export const updateStoreInOSC = async (bpInfoObj, isInProd, oscId) => {
+  let url = (isInProd) ? process.env.REACT_APP_OSC_PROD_ORGANIZATION : process.env.REACT_APP_OSC_UAT_ORGANIZATION;
+  url += `/${oscId}`;
+  let data = JSON.stringify({
+    "name": `${bpInfoObj.name}`,
+    "customFields": {
+      "c": {
+        "type": {
+          "id": 43
+        },
+        "code": `${bpInfoObj.bpId}`
+      }
+    }
+  });
 
+  const response = await Axios(url, 'PATCH', data, null, false, true, false, 'Create Organization');
+  if (!axios.isAxiosError(response)) {
+    console.log("osc created response :::", response?.id);
+    return response?.id;
+  }
+
+  console.error("Error while creating a store in OSC :::", response?.message);
+  return null;
 };

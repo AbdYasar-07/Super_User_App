@@ -169,7 +169,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
         const oscResponse = await userCreationInOSC();
         console.log("oscResponse", oscResponse);
         await handleIntimations(oscResponse, createdUserId, 'OSC');
-        break
+        break;
       }
       default:
         console.log("creating user in users tab...");
@@ -232,6 +232,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
   const userCreationInOSC = async () => {
     if (userEmail) {
       const userCheckingResponse = await checkUserExistsInOSC(userEmail);
+      console.log("userCheckingResponse", userCheckingResponse);
       if (typeof userCheckingResponse === "boolean" && !userCheckingResponse) {
         let user = {
           name: userEmail.split("@")[0],
@@ -338,15 +339,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPasteCancel]);
 
-  useEffect(() => {
-    check("userfortest01@gmail.com");
-    createUser()
-  }, []);
 
-  const check = async (email) => {
-    const result = await checkUserExistsInShopify(email);
-    console.log("result ***", result);
-  }
 
   return (
     <div className={`${!userInfo?.accessToken ? "cursorDisable" : ""}`}>

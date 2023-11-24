@@ -6,7 +6,7 @@ import Axios from "../../../Utils/Axios";
 import { getOSCStoreIDByBPCode, getShopifyCompaniesId, groupFilter } from "../../BusinessLogics/Logics";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { renderComponent } from "../../../store/auth0Slice";
+import { addCurrentBusinessPartner, renderComponent } from "../../../store/auth0Slice";
 
 const BPtabel = () => {
   const [loading, setLoading] = useState(false);
@@ -19,6 +19,7 @@ const BPtabel = () => {
   const dispatch = useDispatch();
 
   const getCurrentData = (data) => {
+    dispatch(addCurrentBusinessPartner({ businessPartner: data }))
     navigate(`/bp/${data.id}/tabs`);
   };
 
@@ -64,7 +65,6 @@ const BPtabel = () => {
     patchTotalGroupsForShopifyResponse(bpCodes, nodes, total_groups);
 
     if (total_groups?.length > 0) {
-      console.log("total_groups ***", total_groups);
       setFilteredRecord(total_groups);
       setBpData(total_groups);
     }

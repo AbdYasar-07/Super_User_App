@@ -8,6 +8,8 @@ import { Button } from 'primereact/button';
 import { ToastContainer, toast } from 'react-toastify';
 import SaveTabs from './SaveTabs';
 import { RadioButton } from 'primereact/radiobutton';
+import { useSelector } from 'react-redux';
+import { updateStoreInOSC } from '../../BusinessLogics/Logics';
 
 
 const BPDetail = () => {
@@ -20,6 +22,7 @@ const BPDetail = () => {
     const [bpDescription, setBpDescription] = useState();
     const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
     const ref = useRef(null);
+    const auth0Context = useSelector((store) => store?.auth0Context);
     const navigate = useNavigate();
 
 
@@ -59,6 +62,7 @@ const BPDetail = () => {
     const handleBPSave = async (currentIcon) => {
         if (currentIcon === "save" && isValidateChanges() === true) {
             const result = await updateBP(bpId);
+            await updateBPInOSC(auth0Context?.currentBusinessPartner?.oscId);
             setBpName(result?.name);
             setBpDescription(result?.description);
             setBusinessPartner(result);
@@ -118,6 +122,32 @@ const BPDetail = () => {
             console.error("Error while updating current group ::", response?.cause?.message);
         }
     }
+
+    const updateBPInOSC = async (oscId) => {
+
+        if (!oscId) {
+            toast.error("Invalid OSC ID", { theme: "colored" });
+            console.error("Error. Invalid osc Id");
+            return;
+        }
+
+        const bpInfoObj = { "bpId": bpId, "name": bpName };
+        const axios = await updateStoreInOSC(bpInfoObj, isProductionEnvironment(), oscId);
+
+
+
+    };
+
+    const isProductionEnvironment = () => {
+        return (system == "PROD") ? true : false;
+    };
+
+    const handleSystemChange = (e) => {
+        const value = e.value;
+        if (value) {
+            setSystem(value);
+        }
+    };
 
     const handleOnChange = (field, value) => {
         switch (field) {
@@ -180,7 +210,7 @@ const BPDetail = () => {
                             <InputText width="350px !important" style={{ marginBottom: "7px", marginLeft: "10px" }} type="text" className="p-inputtext-lg" placeholder="BP Name" value={bpDescription} ref={ref} onChange={(e) => handleOnChange("desc", e.target.value)} />
                         </div>
                     }
-                    <Button size='small' icon={`pi pi-${icon}`} onClick={(e) => handleEditClick()} style={{ borderRadius: "15px", border: "none", background: "black", marginLeft: "20px" ,display:"inline-flex",alignItems:"center",alignSelf:"end",marginBottom:"10px",width:"35px",height:"35px"}} />
+                    <Button size='small' icon={`pi pi-${icon}`} onClick={(e) => handleEditClick()} style={{ borderRadius: "15px", border: "none", background: "black", marginLeft: "20px", display: "inline-flex", alignItems: "center", alignSelf: "end", marginBottom: "10px", width: "35px", height: "35px" }} />
                 </div>
                 <div style={{ marginBottom: "50px", padding: "10px" }}>
                     <div className="d-flex justify-content-end" style={{ width: "250px" }}>
@@ -189,11 +219,11 @@ const BPDetail = () => {
                         </div>
                         <div className='d-flex flex-column' >
                             <div className='d-flex'>
-                                <RadioButton inputId="PROD" name="PROD" value='PROD' />
+                                <RadioButton inputId="PROD" name="PROD" value="PROD" checked={system === "PROD"} onChange={(e) => handleSystemChange(e)} />
                                 <label htmlFor="PROD" style={{ marginLeft: "10px", fontWeight: "bolder", fontSize: "17px" }} className="ml-2">PROD</label>
                             </div>
                             <div className='d-flex' style={{ marginTop: "5px" }}>
-                                <RadioButton inputId="TEST" name="TEST" value='TEST' />
+                                <RadioButton inputId="TEST" name="TEST" value="TEST" checked={system === "TEST"} onChange={(e) => handleSystemChange(e)} />
                                 <label htmlFor="TEST" style={{ marginLeft: "10px", fontWeight: "bolder", fontSize: "17px" }} className="ml-2">TEST</label>
                             </div>
                         </div>
