@@ -25,6 +25,7 @@ import BPDetailMembers from "./Components/BPAdmin/BP/BPDetailMembers";
 import BPDetailService from "./Components/BPAdmin/BP/BPDetailService";
 import BPDetailStore from "./Components/BPAdmin/BP/BPDetailStore";
 import BPDetailComs from "./Components/BPAdmin/BP/BPDetailComs";
+import BPProdDetailService from "./Components/BPAdmin/BP/BPProdDetailService";
 
 function App() {
   const [isProfileRendered, setIsProfileRendered] = useState(false);
@@ -99,7 +100,8 @@ function App() {
                 <Route path="tabs" element={<BPDetailOutlet />}>
                   <Route path="members" element={<BPDetailMembers />}></Route>
                   <Route path="store" element={<BPDetailStore />}></Route>
-                  <Route path="service" element={<BPDetailService />}></Route>
+                  <Route path="uat-service" element={<BPDetailService />}></Route>
+                  <Route path="prod-service" element={<BPProdDetailService />} ></Route>
                   <Route path="coms" element={<BPDetailComs />}></Route>
                 </Route>
               </Route>

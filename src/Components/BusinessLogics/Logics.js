@@ -28,9 +28,9 @@ export const toMapApplicationNames = (data, clientsinfo) => {
     return data;
   }
 };
-export const getOSCStoreIDByBPCode = async (bpCode) => {
+export const getOSCStoreIDByBPCode = async (bpCode, isInProd = false) => {
   const body = JSON.stringify({
-    id: 107164,
+    id: (isInProd) ? 107163 : 107164,
     filters: [
       {
         name: "SAP BP Code",
@@ -38,12 +38,13 @@ export const getOSCStoreIDByBPCode = async (bpCode) => {
       },
     ],
   });
-  const url = process.env.REACT_APP_OSC_UAT_REPORT_RESULTS;
+  const url = (isInProd) ? process.env.REACT_APP_OSC_PROD_REPORT_RESULTS : process.env.REACT_APP_OSC_UAT_REPORT_RESULTS;
   const response = await Axios(url, "POST", body, null, false, true);
   if (!axios.isAxiosError(response)) {
     return response;
   } else {
     console.error("Error :::", response.cause);
+    return null;
   }
 };
 export const getAllSystemGroupsFromAuth0 = async (url, accessToken) => {

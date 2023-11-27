@@ -50,9 +50,12 @@ const BPtabel = () => {
         BPName: _grp?.description,
         Members: _grp?.members?.length,
         IsInShopify: "",
-        IsInOSC: "",
+        IsInOSCDev: "",
+        IsInOSCProd: "",
         shopifyId: "",
-        oscId: ""
+        devOscId: "",
+        prodOscId: "",
+        IsOSCStoreInBothSystem: false
       };
     });
 
@@ -60,9 +63,11 @@ const BPtabel = () => {
       return String(group.BPID);
     });
 
-    await accessOSC(bpCodes, total_groups); // call for osc
+    await accessOSCDev(bpCodes, total_groups); // call for osc server
+    await accessOSCProd(bpCodes, total_groups); // call for osc prod server
     const nodes = await accessShopify(bpCodes); // call for shopify
     patchTotalGroupsForShopifyResponse(bpCodes, nodes, total_groups);
+    markOSCStoreInBothSystem(total_groups);
 
     if (total_groups?.length > 0) {
       setFilteredRecord(total_groups);
@@ -88,20 +93,47 @@ const BPtabel = () => {
     }
   }
 
-  const accessOSC = async (bpCodes, total_groups) => {
+  const accessOSCDev = async (bpCodes, total_groups) => {
     if (Array.isArray(bpCodes) && bpCodes.length > 0) {
-      const pairsMap = new Map();
+      const pairsMapDev = new Map();
       for (const bpCode of bpCodes) {
         await getOSCStoreIDByBPCode(bpCode).then((result) => {
           const oscId = (result?.rows && result?.rows.length > 0) ? result?.rows[0][0] : null;
-          pairsMap.set(bpCode, oscId);
+          pairsMapDev.set(bpCode, oscId);
         });
       }
 
-      pairsMap.forEach((value, key) => {
+      pairsMapDev.forEach((value, key) => {
         const idx = total_groups.findIndex((group) => String(group.BPID) === key);
-        total_groups[idx]["IsInOSC"] = value ? "Yes" : "No";
-        total_groups[idx]["oscId"] = value;
+        total_groups[idx]["IsInOSCDev"] = value ? "Yes" : "No";
+        total_groups[idx]["devOscId"] = value;
+      });
+    }
+  };
+
+  const accessOSCProd = async (bpCodes, total_groups) => {
+    if (Array.isArray(bpCodes) && bpCodes.length > 0) {
+      const pairsMapProd = new Map();
+      for (const bpCode of bpCodes) {
+        await getOSCStoreIDByBPCode(bpCode).then((result) => {
+          const oscId = (result?.rows && result?.rows.length > 0) ? result?.rows[0][0] : null;
+          pairsMapProd.set(bpCode, oscId);
+        });
+      }
+
+      pairsMapProd.forEach((value, key) => {
+        const idx = total_groups.findIndex((group) => String(group.BPID) === key);
+        total_groups[idx]["IsInOSCProd"] = value ? "Yes" : "No";
+        total_groups[idx]["prodOscId"] = value;
+      });
+    }
+
+  };
+
+  const markOSCStoreInBothSystem = (total_groups) => {
+    if (total_groups) {
+      total_groups.map((group) => {
+        group['IsOSCStoreInBothSystem'] = (group?.IsInOSCDev == "Yes" && group?.IsInOSCProd == "Yes") ? true : false;
       });
     }
   };
@@ -139,7 +171,8 @@ const BPtabel = () => {
             "BP Name",
             "Members",
             "Is In Shopify",
-            "Is In OSC",
+            "Is In OSC Dev",
+            "Is In OSC Prod",
             "Action",
           ]}
           getCurrentData={getCurrentData}

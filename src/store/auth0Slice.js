@@ -16,7 +16,8 @@ const initialState = {
     target: "",
     render: false
   },
-  currentBusinessPartner: {}
+  currentBusinessPartner: {},
+  renderShopifySystem: false
 };
 
 const auth0Slice = createSlice({
@@ -58,6 +59,9 @@ const auth0Slice = createSlice({
     addCurrentBusinessPartner(state, action) {
       state.currentBusinessPartner = action.payload.businessPartner;
     },
+    addIsShopifyBPTab(state, action) {
+      state.renderShopifySystem = action.payload.showShopifySystemTab;
+    },
     clearState(state, action) {
       state.accessToken = "";
       state.idToken = "";
@@ -74,6 +78,6 @@ const auth0Slice = createSlice({
   },
 });
 
-export const { addUserInfo, addAuthorizationCode, addConceptionDatabase, renderingCurrentUser, addImportedUserLogs, clearImportedUser, addManagementAccessToken, addBP, renderComponent, addCurrentBusinessPartner, clearState } =
+export const { addUserInfo, addAuthorizationCode, addConceptionDatabase, renderingCurrentUser, addImportedUserLogs, clearImportedUser, addManagementAccessToken, addBP, renderComponent, addCurrentBusinessPartner, addIsShopifyBPTab, clearState } =
   auth0Slice.actions;
 export default auth0Slice.reducer;

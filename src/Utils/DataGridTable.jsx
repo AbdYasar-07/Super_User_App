@@ -76,6 +76,7 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
               }}
               title="Edit BP"
               className="mx-1"
+              onClick={(e) => getCurrentData(rowData)}
             />
           )}
           {showTrashOnly && (
@@ -133,14 +134,9 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
                 width: "fit-content",
               }}
               body={
-                action
-                  ? colHeader === rowHeader[0]
-                    ? handleClickOnName
-                    : colHeader === "Action"
-                      ? handelAction
-                      : ""
-                  : colHeader === rowHeader[0] && handleClickOnName
+                action ? colHeader === rowHeader[0] ? handleClickOnName : colHeader === "Action" ? handelAction : "" : colHeader === rowHeader[0] && handleClickOnName
               }
+
             ></Column>
           );
         })}

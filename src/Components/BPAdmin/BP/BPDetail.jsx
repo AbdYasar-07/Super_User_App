@@ -19,6 +19,7 @@ const BPDetail = () => {
     const [icon, setIcon] = useState('pencil');
     const [bpName, setBpName] = useState();
     const [system, setSystem] = useState('TEST');
+    const [showSystem, setShowSystem] = useState(false);
     const [bpDescription, setBpDescription] = useState();
     const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
     const ref = useRef(null);
@@ -167,6 +168,14 @@ const BPDetail = () => {
         getBP();
     }, [])
 
+    useEffect(() => {
+        if (auth0Context?.renderShopifySystem) {
+            setShowSystem(true);
+            return;
+        }
+        setShowSystem(false);
+    }, [auth0Context?.renderShopifySystem]);
+
 
     return (
         <>
@@ -212,23 +221,26 @@ const BPDetail = () => {
                     }
                     <Button size='small' icon={`pi pi-${icon}`} onClick={(e) => handleEditClick()} style={{ borderRadius: "15px", border: "none", background: "black", marginLeft: "20px", display: "inline-flex", alignItems: "center", alignSelf: "end", marginBottom: "10px", width: "35px", height: "35px" }} />
                 </div>
-                <div style={{ marginBottom: "50px", padding: "10px" }}>
-                    <div className="d-flex justify-content-end" style={{ width: "250px" }}>
-                        <div style={{ marginRight: "25px" }}>
-                            <label htmlFor="system" style={{ fontSize: "20px", fontWeight: "bolder" }}>SYSTEM</label>
-                        </div>
-                        <div className='d-flex flex-column' >
-                            <div className='d-flex'>
-                                <RadioButton inputId="PROD" name="PROD" value="PROD" checked={system === "PROD"} onChange={(e) => handleSystemChange(e)} />
-                                <label htmlFor="PROD" style={{ marginLeft: "10px", fontWeight: "bolder", fontSize: "17px" }} className="ml-2">PROD</label>
+                {
+                    showSystem &&
+                    <div style={{ marginBottom: "50px", padding: "10px" }}>
+                        <div className="d-flex justify-content-end" style={{ width: "250px" }}>
+                            <div style={{ marginRight: "25px" }}>
+                                <label htmlFor="system" style={{ fontSize: "20px", fontWeight: "bolder" }}>SYSTEM</label>
                             </div>
-                            <div className='d-flex' style={{ marginTop: "5px" }}>
-                                <RadioButton inputId="TEST" name="TEST" value="TEST" checked={system === "TEST"} onChange={(e) => handleSystemChange(e)} />
-                                <label htmlFor="TEST" style={{ marginLeft: "10px", fontWeight: "bolder", fontSize: "17px" }} className="ml-2">TEST</label>
+                            <div className='d-flex flex-column' >
+                                <div className='d-flex'>
+                                    <RadioButton inputId="PROD" name="PROD" value="PROD" checked={system === "PROD"} onChange={(e) => handleSystemChange(e)} />
+                                    <label htmlFor="PROD" style={{ marginLeft: "10px", fontWeight: "bolder", fontSize: "17px" }} className="ml-2">PROD</label>
+                                </div>
+                                <div className='d-flex' style={{ marginTop: "5px" }}>
+                                    <RadioButton inputId="TEST" name="TEST" value="TEST" checked={system === "TEST"} onChange={(e) => handleSystemChange(e)} />
+                                    <label htmlFor="TEST" style={{ marginLeft: "10px", fontWeight: "bolder", fontSize: "17px" }} className="ml-2">TEST</label>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                }
                 <div>
                     <div className="d-flex flex-column align-items-center justify-content-center">
                         <SaveTabs />
