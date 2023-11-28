@@ -102,7 +102,6 @@ const BPtabel = () => {
           pairsMapDev.set(bpCode, oscId);
         });
       }
-
       pairsMapDev.forEach((value, key) => {
         const idx = total_groups.findIndex((group) => String(group.BPID) === key);
         total_groups[idx]["IsInOSCDev"] = value ? "Yes" : "No";
@@ -115,12 +114,11 @@ const BPtabel = () => {
     if (Array.isArray(bpCodes) && bpCodes.length > 0) {
       const pairsMapProd = new Map();
       for (const bpCode of bpCodes) {
-        await getOSCStoreIDByBPCode(bpCode).then((result) => {
+        await getOSCStoreIDByBPCode(bpCode, true).then((result) => {
           const oscId = (result?.rows && result?.rows.length > 0) ? result?.rows[0][0] : null;
           pairsMapProd.set(bpCode, oscId);
         });
       }
-
       pairsMapProd.forEach((value, key) => {
         const idx = total_groups.findIndex((group) => String(group.BPID) === key);
         total_groups[idx]["IsInOSCProd"] = value ? "Yes" : "No";

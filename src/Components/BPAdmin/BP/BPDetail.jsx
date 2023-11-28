@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Outlet, useNavigate, useParams } from 'react-router-dom'
+import { Outlet, useParams } from 'react-router-dom'
 import Axios from '../../../Utils/Axios';
 import axios from 'axios';
-import AppSpinner from '../../../Utils/AppSpinner';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { ToastContainer, toast } from 'react-toastify';
@@ -24,7 +23,6 @@ const BPDetail = () => {
     const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
     const ref = useRef(null);
     const auth0Context = useSelector((store) => store?.auth0Context);
-    const navigate = useNavigate();
 
 
     const getBPInfo = async (bpId) => {
@@ -63,11 +61,11 @@ const BPDetail = () => {
     const handleBPSave = async (currentIcon) => {
         if (currentIcon === "save" && isValidateChanges() === true) {
             const result = await updateBP(bpId);
-            await updateBPInOSC(auth0Context?.currentBusinessPartner?.oscId);
+            await updateBPInOSC();
             setBpName(result?.name);
             setBpDescription(result?.description);
             setBusinessPartner(result);
-            toast.success(`${businessPartner?.name} has been updated`, { theme: "colored" })
+            toast.success(`${businessPartner?.name} has been updated in Auth0`, { theme: "colored" })
         } else {
             setBpName(businessPartner?.name);
             setBpDescription(businessPartner?.description);
@@ -124,24 +122,29 @@ const BPDetail = () => {
         }
     }
 
-    const updateBPInOSC = async (oscId) => {
-
-        if (!oscId) {
-            toast.error("Invalid OSC ID", { theme: "colored" });
-            console.error("Error. Invalid osc Id");
-            return;
+    const updateBPInOSC = async () => {
+        const bpInfoObj = { "bpId": bpName.substring(3), "name": bpDescription };
+        let isInDev = (auth0Context?.currentBusinessPartner?.IsInOSCDev == "Yes") ? true : false;
+        if (isInDev) {
+            const devOSCResponse = await updateStoreInOSC(bpInfoObj, !isInDev, auth0Context?.currentBusinessPartner?.devOscId);
+            if (typeof devOSCResponse === 'boolean' && devOSCResponse === true) {
+                toast.success(`${bpName} has been updated in OSC (UAT)`, { theme: "colored" });
+                return;
+            }
         }
-
-        const bpInfoObj = { "bpId": bpId, "name": bpName };
-        const axios = await updateStoreInOSC(bpInfoObj, isProductionEnvironment(), oscId);
-
-
-
+        let isInOSCProd = (auth0Context?.currentBusinessPartner?.IsInOSCProd == "Yes") ? true : false;
+        if (isInOSCProd) {
+            const prodOSCResponse = await updateStoreInOSC(bpInfoObj, isInOSCProd, auth0Context?.currentBusinessPartner?.prodOscId);
+            if (typeof prodOSCResponse === 'boolean' && prodOSCResponse === true) {
+                toast.success(`${bpName} has been updated in OSC (PROD)`, { theme: "colored" });
+                return;
+            }
+        }
     };
 
-    const isProductionEnvironment = () => {
-        return (system == "PROD") ? true : false;
-    };
+    // const isProductionEnvironment = () => {
+    //     return (system == "PROD") ? true : false;
+    // };
 
     const handleSystemChange = (e) => {
         const value = e.value;

@@ -30,7 +30,7 @@ export const toMapApplicationNames = (data, clientsinfo) => {
 };
 export const getOSCStoreIDByBPCode = async (bpCode, isInProd = false) => {
   const body = JSON.stringify({
-    id: (isInProd) ? 107163 : 107164,
+    id: (isInProd) ? 107163 : 107165,
     filters: [
       {
         name: "SAP BP Code",
@@ -43,7 +43,7 @@ export const getOSCStoreIDByBPCode = async (bpCode, isInProd = false) => {
   if (!axios.isAxiosError(response)) {
     return response;
   } else {
-    console.error("Error :::", response.cause);
+    console.error("Error while getting store information from osc :::", response.message);
     return null;
   }
 };
@@ -237,7 +237,7 @@ export const isStoreExistsInOSC = async (sapBpCode, isInProd) => {
 
   const url = (isInProd) ? process.env.REACT_APP_OSC_PROD_REPORT_RESULTS : process.env.REACT_APP_OSC_UAT_REPORT_RESULTS;
   let data = JSON.stringify({
-    "id": 107165,
+    "id": (isInProd) ? 107163 : 107165,
     "filters": [
       {
         "name": "SAP BP Code",
@@ -248,7 +248,6 @@ export const isStoreExistsInOSC = async (sapBpCode, isInProd) => {
 
   const response = await Axios(url, 'POST', data, null, false, true, false);
   if (!axios.isAxiosError(response)) {
-    console.log("Searched store response :::", response);
     return response?.count >= 1;
   }
 
@@ -273,7 +272,6 @@ export const createStoreInOSC = async (bpInfoObj, isInProd) => {
 
   const response = await Axios(url, 'POST', data, null, false, true, false, 'Create Organization');
   if (!axios.isAxiosError(response)) {
-    console.log("osc created response :::", response?.id);
     return response?.id;
   }
 
@@ -313,10 +311,9 @@ export const updateStoreInOSC = async (bpInfoObj, isInProd, oscId) => {
 
   const response = await Axios(url, 'PATCH', data, null, false, true, false, 'Create Organization');
   if (!axios.isAxiosError(response)) {
-    console.log("osc created response :::", response?.id);
-    return response?.id;
+    return true;
   }
 
-  console.error("Error while creating a store in OSC :::", response?.message);
+  console.error("Error while updating a store in OSC :::", response?.message);
   return null;
 };
