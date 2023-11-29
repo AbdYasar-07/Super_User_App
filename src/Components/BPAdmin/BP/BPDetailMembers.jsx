@@ -9,7 +9,7 @@ import AppSpinner from "../../../Utils/AppSpinner";
 import { Button } from "primereact/button";
 import { useDispatch, useSelector } from "react-redux";
 import { addManagementAccessToken } from "../../../store/auth0Slice";
-import { assignMembersInGroup, getAllSystemGroupsFromAuth0 } from "../../BusinessLogics/Logics";
+import { assignMembersInGroup, checkUserExistsInOSC, getAllSystemGroupsFromAuth0, updateUserWithOSCOrganization, updateUserWithOrganization } from "../../BusinessLogics/Logics";
 import AddUser from "../../Users/AddUser";
 import ImportUserModal from "../../../Utils/ImportUserModal";
 import TableData from "../../../Utils/TableData";
@@ -81,11 +81,11 @@ const BPDetailMembers = () => {
     }
   };
   const getCurrentData = async (data, action) => {
-
     switch (action?.toLowerCase()) {
       case "remove": {
         setLoading(true);
         await removeMemberFromCurrentBP(data.id, bpId);
+        await removeContactFromCurrentStoreInOSC(data)
         await getMembersList(false);
         break;
       }
@@ -101,13 +101,62 @@ const BPDetailMembers = () => {
     const response = await Axios(url, "DELETE", body, localStorage.getItem("auth_access_token"), false, false, false);
     if (!axios.isAxiosError(response)) {
       await getMembersForBP(bpId);
+      toast.success(`User unlinked from this group (Auth0) `, { theme: "colored" })
       setLoading(false);
       return response;
     } else {
-      console.error("Error while removing member for a group :::", response?.cause?.message);
+      toast.error(`Error while removing member from this group : ${response?.message}`, { theme: "colored" });
+      console.error("Error while removing member for a group :::", response?.message);
       setLoading(false);
       return null;
     }
+  };
+  const removeContactFromCurrentStoreInOSC = async (data) => {
+    if (!data.OSCID) {
+      toast.error(`Error! unable to unlink this contact with respective store. Please check this contact exists in OSC`, { theme: "colored" });
+      return;
+    }
+    let uatStoreOscId = Number(auth0Context?.currentBusinessPartner?.devOscId);
+    let prodStoreOscId = Number(auth0Context?.currentBusinessPartner?.prodOscId);
+    let isInOSCDev = (auth0Context?.currentBusinessPartner?.IsInOSCDev == "Yes") ? true : false;
+    let isInOSCProd = (auth0Context?.currentBusinessPartner?.IsInOSCProd == "Yes") ? true : false;
+    let oscContactId = data?.OSCID;
+
+    if (!uatStoreOscId && !prodStoreOscId) {
+      toast.error(`Error! unable to unlink this contact with respective store. Please check this store exists in OSC`, { theme: "colored" });
+      return;
+    }
+
+    if (auth0Context?.currentBusinessPartner?.IsOSCStoreInBothSystem) {
+      const uatResponse = await checkUserExistsInOSC(false, data?.Email);// for uat
+      if (Number.isInteger(Number(uatResponse))) {
+        await updateUserWithOSCOrganization(oscContactId, uatStoreOscId, true, false);// for UAT (TEST)
+      }
+      const prodResponse = await checkUserExistsInOSC(true, data?.Email);// for prod
+      if (Number.isFinite(Number(prodResponse))) {
+        await updateUserWithOSCOrganization(oscContactId, prodStoreOscId, true, true); // for PROD
+      }
+      return;
+    }
+
+
+    if (isInOSCDev) {
+      const uatResponse = await checkUserExistsInOSC(false, data?.Email);// for uat
+      if (Number.isInteger(Number(uatResponse))) {
+        await updateUserWithOSCOrganization(oscContactId, uatStoreOscId, true, false);// for UAT (TEST)
+      }
+      return;
+    }
+
+
+    if (isInOSCProd) {
+      const prodResponse = await checkUserExistsInOSC(true, data?.Email);// for prod
+      if (Number.isFinite(Number(prodResponse))) {
+        await updateUserWithOSCOrganization(oscContactId, prodStoreOscId, true, true); // for PROD
+      }
+      return;
+    }
+
   };
   const handleUsersMapping = (users) => {
     if (Array.isArray(users) && users.length > 0) {
@@ -119,6 +168,8 @@ const BPDetailMembers = () => {
           LatestLogin: formatTimestamp(user?.last_login),
           Logins: user?.logins_count,
           Connection: user?.identities[0]?.connection,
+          OSCID: Number(user?.user_metadata?.OSCID),
+          ShopifyCustomerId: Number(user?.user_metadata?.ShopifyCustomerId)
         };
       });
       setFilteredRecord(actualUsers);
@@ -287,6 +338,8 @@ const BPDetailMembers = () => {
                 ]
             )[0]?.groupDescription
             : "-",
+          OSCID: filteredUser?.user_metadata?.OSCID,
+          ShopifyId: filteredUser?.user_metadata?.ShopifyCustomerId
         };
       });
 
@@ -379,6 +432,35 @@ const BPDetailMembers = () => {
       toast.error(response, { theme: "colored" });
     }
   }
+
+  const handleAssignMembersIntoGroup = async () => {
+    await assignMembersIntoGroup();
+    await mapUsersWithOSCStore();
+  }
+
+  const mapUsersWithOSCStore = async () => {
+    let usersOscId = [];
+    selectedUnassignedMembers.map((unAssignedMember) => {
+      usersOscId?.push(unAssignedMember?.OSCID);
+    });
+
+    let oscStoreId = null;
+    if (auth0Context?.currentBusinessPartner?.devOscId && Number.isInteger(Number(auth0Context?.currentBusinessPartner?.devOscId))) {
+      oscStoreId = Number(auth0Context?.currentBusinessPartner?.devOscId);
+    } else if (auth0Context?.currentBusinessPartner?.prodOscId && Number.isInteger(Number(auth0Context?.currentBusinessPartner?.prodOscId))) {
+      oscStoreId = Number(auth0Context?.currentBusinessPartner?.prodOscId);
+    }
+
+    if (usersOscId.length > 0 && oscStoreId) {
+      for (let oscContactId of usersOscId) {
+        const response = await updateUserWithOSCOrganization(oscContactId, oscStoreId);
+        if (!response) {
+          toast.error(`Error! while linking ${oscContactId} with BP ${oscStoreId} `, { theme: "colored" });
+        }
+      }
+    }
+  }
+
   useEffect(() => {
     if (value === "OutBP") {
       setSelectedUnAssignedMembers([]);
@@ -462,7 +544,7 @@ const BPDetailMembers = () => {
                       marginRight: "30px",
                     }}
                     onClick={() => {
-                      assignMembersIntoGroup();
+                      handleAssignMembersIntoGroup();
                     }}
                   ></Button>
                   <Badge

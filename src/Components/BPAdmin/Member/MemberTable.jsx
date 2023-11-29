@@ -10,7 +10,7 @@ import {
 } from "../../../store/auth0Slice";
 import { useDispatch, useSelector } from "react-redux";
 import AppSpinner from "../../../Utils/AppSpinner";
-import { checkUserExistsInShopify, getAllSystemGroupsFromAuth0 } from "../../BusinessLogics/Logics";
+import { checkUserExistsInOSC, getAllSystemGroupsFromAuth0 } from "../../BusinessLogics/Logics";
 import RefreshButton from "../../../Utils/RefreshButton";
 
 const MemberTable = () => {
@@ -44,7 +44,7 @@ const MemberTable = () => {
   };
 
   useEffect(() => {
-    fetchMembersList()
+    fetchMembersList();
   }, []);
 
   useEffect(() => {

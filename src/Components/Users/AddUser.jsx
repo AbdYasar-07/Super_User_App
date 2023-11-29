@@ -172,10 +172,8 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
       case "Member": {
 
         const shopifyResponse = await userCreationInShopify();
-        console.log("shopifyResponse", shopifyResponse);
-        await handleIntimations(shopifyResponse, createdUserId, 'shopify');
+        await handleIntimations(shopifyResponse, createdUserId, 'Shopify');
         const oscResponse = await userCreationInOSC();
-        console.log("oscResponse", oscResponse);
         await handleIntimations(oscResponse, createdUserId, 'OSC');
         break;
       }
@@ -198,7 +196,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
 
   const patchUserInAuth0 = async (userId, externalId, system) => {
     let metadataUpdate = null;
-    if (system == "shopify") {
+    if (system == "Shopify") {
       metadataUpdate = {
         "user_metadata": {
           "ShopifyCustomerId": String(externalId),
@@ -216,7 +214,6 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
   const userCreationInShopify = async () => {
     if (userEmail) {
       const userCheckingResponse = await checkUserExistsInShopify(userEmail);
-      console.log("userCheckingResponse", userCheckingResponse);
       if (typeof userCheckingResponse === "boolean" && !userCheckingResponse) {
         let user = {
           name: userEmail,
@@ -239,8 +236,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
 
   const userCreationInOSC = async () => {
     if (userEmail) {
-      const userCheckingResponse = await checkUserExistsInOSC(userEmail);
-      console.log("userCheckingResponse", userCheckingResponse);
+      const userCheckingResponse = await checkUserExistsInOSC(isProductionEnvironment(), userEmail);
       if (typeof userCheckingResponse === "boolean" && !userCheckingResponse) {
         let user = {
           name: userEmail.split("@")[0],
