@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { checkUserExistsInOSC, checkUserExistsInShopify, createUserInOSC, createUserInOSCSystem, createUserInShopifySystem, getUserFieldFromAuth0, updateUserInAuth0 } from "../BusinessLogics/Logics";
 import { RadioButton } from "primereact/radiobutton";
 
-function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteCancel, setIsPasteCancel, buttonLabel, isForMember = false, getMemberDetail }) {
+function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteCancel, setIsPasteCancel, buttonLabel, isForMember = false, getMemberDetail, isForBPScreen = false }) {
   const userInfo = useSelector((store) => store.auth0Context);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -130,17 +130,19 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
           managementToken?.access_token,
           true
         )
-          .then((addedUser) => {
+          .then(async (addedUser) => {
             if (addedUser.hasOwnProperty("response")) {
               toast(addedUser.response.data.message, { type: "error", theme: "colored" });
               setIsDisable(false);
               return;
             }
-            if (isForMember) {
-              getMemberDetail(addedUser);
+            if (isForBPScreen) {
+              toast.success(`User has been created in Auth0`, { theme: "colored" });
+              await handleUserCreationAcrossSystems(buttonLabel, addedUser?.user_id);
+              await getMemberDetail(addedUser);
               setUserModal(false);
               setIsUserAdded(true);
-              return
+              return;
             }
             createdUserId = addedUser?.user_id;
             if (buttonLabel == "Member") {
@@ -202,7 +204,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
           "ShopifyCustomerId": String(externalId),
         }
       };
-    } else if (system == "OSC") {
+    } else if (system == "OSC" && userId) {
       metadataUpdate = await getUserFieldFromAuth0(userId, "user_metadata", userInfo?.managementAccessToken);
       let body = Object(metadataUpdate);
       body["user_metadata"]["OSCID"] = externalId;

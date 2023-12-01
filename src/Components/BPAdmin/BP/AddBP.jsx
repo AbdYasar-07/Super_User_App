@@ -97,6 +97,7 @@ export default function AddBP({
     };
     const response = await Axios(url, "POST", data, localStorage.getItem("auth_access_token"), false, false);
     if (!axios.isAxiosError(response)) {
+      toast.success(`${bpName} has been created in Auth0`, { theme: "colored" });
       return response;
     } else {
       setLoading(false);

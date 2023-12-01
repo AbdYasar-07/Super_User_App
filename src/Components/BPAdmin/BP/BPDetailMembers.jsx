@@ -9,7 +9,7 @@ import AppSpinner from "../../../Utils/AppSpinner";
 import { Button } from "primereact/button";
 import { useDispatch, useSelector } from "react-redux";
 import { addManagementAccessToken } from "../../../store/auth0Slice";
-import { assignMembersInGroup, checkUserExistsInOSC, getAllSystemGroupsFromAuth0, updateUserWithOSCOrganization, updateUserWithOrganization } from "../../BusinessLogics/Logics";
+import { assignMembersInGroup, checkUserExistsInOSC, getAllSystemGroupsFromAuth0, getUserFieldFromAuth0, updateUserWithOSCOrganization } from "../../BusinessLogics/Logics";
 import AddUser from "../../Users/AddUser";
 import ImportUserModal from "../../../Utils/ImportUserModal";
 import TableData from "../../../Utils/TableData";
@@ -52,6 +52,7 @@ const BPDetailMembers = () => {
   const [isPasteCancel, setIsPasteCancel] = useState(false);
   const [isTableShow, setIsTableShow] = useState(false);
   const [tableData, setTableData] = useState([]);
+  const [isForBPScreen, setIsForBPScreen] = useState(true);
 
   useEffect(() => {
     setLoading(true);
@@ -381,9 +382,21 @@ const BPDetailMembers = () => {
     let response = await assignMembersInGroup(bpId, data);
     if (response === "200") {
       await getMembersList(false);
-      toast.success(`Member successfully added`, { theme: "colored" });
+      toast.success(`Member successfully added in Auth0`, { theme: "colored" });
     } else {
       toast.error(response, { theme: "colored" });
+    }
+
+    if (isForBPScreen) {
+      if (memberDetail?.user_id) {
+        const userField = await getUserFieldFromAuth0(memberDetail?.user_id, "email,user_metadata", auth0Context?.managementAccessToken);
+        let usersInfo = [];
+        let unassignedUserInfo = Object.assign({});
+        unassignedUserInfo['OSCID'] = userField?.user_metadata?.OSCID;
+        unassignedUserInfo['Email'] = userField?.email;
+        usersInfo?.push(unassignedUserInfo);
+        await linkingUsersWithOSCStore(usersInfo);
+      }
     }
   }
   const getMembersIdFromTable = async (getmembersId) => {
@@ -466,7 +479,6 @@ const BPDetailMembers = () => {
 
       if (isInOSCDev) {
         const uatResponse = await checkUserExistsInOSC(false, email);// for uat
-        console.log("SC2 :::", uatResponse);
         if (Number.isInteger(Number(uatResponse))) {
           await updateUserWithOSCOrganization(oscContactId, uatStoreOscId, false, false);// for UAT (TEST)
         }
@@ -565,6 +577,7 @@ const BPDetailMembers = () => {
                       setIsPasteCancel={setIsPasteCancel}
                       getMemberDetail={getMemberDetail}
                       isForMember={true}
+                      isForBPScreen={isForBPScreen}
                     />
                   </div>
                   <div>

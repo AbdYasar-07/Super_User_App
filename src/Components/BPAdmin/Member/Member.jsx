@@ -74,7 +74,7 @@ const Member = () => {
         <div>
           <MemberTable />
         </div>
-        <div className="position-absolute end-0 p-0 customizePosition" style={{marginRight:"80px"}}>
+        <div className="position-absolute end-0 p-0 customizePosition" style={{ marginRight: "80px" }}>
           <AddUser
             buttonLabel="Member"
             setIsUserAdded={setIsUserAdded}
@@ -83,9 +83,9 @@ const Member = () => {
             isPasteCancel={isPasteCancel}
             setIsPasteCancel={setIsPasteCancel}
           />
-          
+
         </div>
-        
+
         <div>
           <ImportUserModal
             action="Add_User"

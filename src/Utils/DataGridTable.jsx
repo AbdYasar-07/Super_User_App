@@ -10,6 +10,9 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [unselectedRows, setUnselectedRows] = useState(data);
+
   const alignHeader = (column) => {
     if (!column) return;
 
@@ -19,6 +22,12 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
     }
 
     return column;
+  };
+
+  const handleSelectionChange = (e) => {
+    setSelectedRows(e.value);
+    setUnselectedRows(data.filter(row => !e.value.includes(row)));
+    getRowSelected(e.value);
   };
 
   const handleClickOnName = (rowData) => {
@@ -40,7 +49,6 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
 
   const handleTrashClick = (rowData) => {
     getCurrentData(rowData, "remove");
-    // console.log("Row Data :::", rowData);
   };
 
   const handelAction = (rowData) => {
@@ -105,12 +113,12 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
     <div className="card">
       <DataTable
         selectionMode={isCheckbox ? "checkbox" : ""}
-        selection={selectedRow}
+        selection={selectedRows}
         onSelectionChange={(e) => {
+          handleSelectionChange(e)
           setSelectedRow(e.value);
-          getRowSelected(e.value);
         }}
-        value={data}
+        value={[...selectedRows, ...unselectedRows]}
         removableSort
         filterDisplay="row"
         paginator={data.length >= 10}

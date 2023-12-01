@@ -280,7 +280,6 @@ export const updateStoreInOSC = async (bpInfoObj, isInProd, oscId) => {
 export const checkUserExistsInShopify = async (userEmail) => {
   let url = `https://phoenix-ph.myshopify.com/admin/api/2023-07/customers/search.json?query=email:${userEmail}`;
   const response = await Axios(url, 'GET', null, null, true, false, true);
-  console.log("Shopify checking user response", response);
   if (!axios.isAxiosError(response)) {
     return response.customers[0] ? response.customers[0]?.id : false;
   } else {
@@ -324,7 +323,6 @@ export const updateUserInShopify = async (user, shopifyCustomerId) => {
   let url = `https://phoenix-ph.myshopify.com/admin/api/2023-07/customers/${shopifyCustomerId}.json`;
   const response = await Axios(url, 'PUT', body, null, true, false, true);
   if (!axios.isAxiosError(response)) {
-    console.log("Updated user response from shopify :::", response);
     return response;
   } else {
     console.error("Error while updating user in shopify :::", response?.message);
