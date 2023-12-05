@@ -64,8 +64,11 @@ const BPtabel = () => {
     });
 
     await accessOSCDev(bpCodes, total_groups); // call for osc server
+    console.log("after osc dev ***", total_groups);
     await accessOSCProd(bpCodes, total_groups); // call for osc prod server
+    console.log("after osc prod ***", total_groups);
     const nodes = await accessShopify(bpCodes); // call for shopify
+
     patchTotalGroupsForShopifyResponse(bpCodes, nodes, total_groups);
     markOSCStoreInBothSystem(total_groups);
 
@@ -76,6 +79,9 @@ const BPtabel = () => {
   };
 
   const patchTotalGroupsForShopifyResponse = (bpCodes, nodes, total_groups) => {
+    if (!nodes)
+      return;
+
     bpCodes.map((bpCode) => {
       const filteredNode = nodes.find((node) => node?.node?.externalId === bpCode);
       const businessPartnerIdx = total_groups.findIndex((group) => String(group.BPID) === bpCode);
@@ -87,21 +93,28 @@ const BPtabel = () => {
   const accessShopify = async (bpCodes) => {
     if (Array.isArray(bpCodes) && bpCodes.length > 0) {
       const result = await getShopifyCompaniesId();
-      if (result['data'] && result['data']['companies'] && result['data']['companies']['edges'] && Array.isArray(result['data']['companies']['edges'])) {
+      if (result && result['data'] && result['data']['companies'] && result['data']['companies']['edges'] && Array.isArray(result['data']['companies']['edges'])) {
         return result['data']['companies']['edges'];
       }
+
+      return null;
     }
   }
 
   const accessOSCDev = async (bpCodes, total_groups) => {
     if (Array.isArray(bpCodes) && bpCodes.length > 0) {
       const pairsMapDev = new Map();
+      console.log("Bp codes :::", bpCodes);
       for (const bpCode of bpCodes) {
         await getOSCStoreIDByBPCode(bpCode).then((result) => {
+          console.log(`bpcode ${bpCode} ::: OSC response ${JSON.stringify(result)}`);
           const oscId = (result?.rows && result?.rows.length > 0) ? result?.rows[0][0] : null;
           pairsMapDev.set(bpCode, oscId);
-        });
+        }).catch((error) => {
+          console.error(`Error while access OSC Dev for the BP ${bpCode} ::: ${error}`);
+        })
       }
+      console.log("OSC DEV responses ***", pairsMapDev);
       pairsMapDev.forEach((value, key) => {
         const idx = total_groups.findIndex((group) => String(group.BPID) === key);
         total_groups[idx]["IsInOSCDev"] = value ? "Yes" : "No";
@@ -119,6 +132,7 @@ const BPtabel = () => {
           pairsMapProd.set(bpCode, oscId);
         });
       }
+      console.log("pairsMapProd ***", pairsMapProd);
       pairsMapProd.forEach((value, key) => {
         const idx = total_groups.findIndex((group) => String(group.BPID) === key);
         total_groups[idx]["IsInOSCProd"] = value ? "Yes" : "No";

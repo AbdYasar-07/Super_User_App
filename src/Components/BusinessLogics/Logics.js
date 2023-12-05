@@ -349,12 +349,17 @@ export const getShopifyCompaniesId = async () => {
     variables: {}
   });
   let url = `https://phoenix-ph.myshopify.com/admin/api/2023-07/graphql.json`;
-  const response = await Axios(url, 'POST', data, null, true, false, true);
-  if (!axios.isAxiosError(response)) {
-    return response;
-  } else {
-    console.error("Error while getting shopify company inforamtion :::", response?.message);
-    return null;
+  try {
+    const response = await Axios(url, 'POST', data, null, false, false, true);
+    if (!axios.isAxiosError(response)) {
+      return response;
+    } else {
+      console.error("Error while getting shopify company inforamtion :::", response?.message);
+      return null;
+    }
+  }
+  catch (ex) {
+    console.log("error in shopify ****", ex);
   }
 };
 export const isCompanyExistsInShopify = async (sapBpCode) => {
