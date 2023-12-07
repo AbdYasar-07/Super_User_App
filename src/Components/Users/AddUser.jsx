@@ -164,6 +164,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
           });
       });
       if (!isForMember) {
+        console.log("createdUserId ***", createdUserId);
         await handleUserCreationAcrossSystems(buttonLabel, createdUserId);
       }
     }
@@ -216,6 +217,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
   const userCreationInShopify = async () => {
     if (userEmail) {
       const userCheckingResponse = await checkUserExistsInShopify(userEmail);
+      console.log(`${isForMember} :: ${userCheckingResponse}`);
       if (typeof userCheckingResponse === "boolean" && !userCheckingResponse) {
         let user = {
           name: userEmail,
