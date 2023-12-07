@@ -245,7 +245,7 @@ const MemberTable = () => {
     <>
       <div className="py-4">
         {!loading && <Search
-          records={memberData}
+          records={filterRecord}
           setRecords={setFilteredRecord}
           isSearchActived={setIsSearchActive}
           setLoadSpinner={setLoad}

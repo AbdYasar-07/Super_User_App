@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { renderComponent } from "../store/auth0Slice";
 
-const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, emptyMessage, showTrashOnly = false, isCheckbox = false, getRowSelected }) => {
+const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, emptyMessage, showTrashOnly = false, isCheckbox = false, getRowSelected, isAbleToSelect = false }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [selectedRow, setSelectedRow] = useState(null);
@@ -118,7 +118,7 @@ const DataGridTable = ({ data, rowHeader, getCurrentData, loading, action, empty
           handleSelectionChange(e)
           setSelectedRow(e.value);
         }}
-        value={[...selectedRows, ...unselectedRows]}
+        value={(isAbleToSelect) ? [...selectedRows, ...unselectedRows] : data}
         removableSort
         filterDisplay="row"
         paginator={data.length >= 10}

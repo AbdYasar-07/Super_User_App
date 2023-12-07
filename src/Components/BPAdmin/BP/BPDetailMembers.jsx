@@ -667,6 +667,7 @@ const BPDetailMembers = () => {
               action={true}
               showTrashOnly={true}
               emptyMessage={"No Members Found."}
+              isAbleToSelect={true}
             />
           )}
           {!loading && showOutBP && (
@@ -688,6 +689,7 @@ const BPDetailMembers = () => {
                 showTrashOnly={true}
                 emptyMessage={"No Members Found."}
                 isCheckbox={true}
+                isAbleToSelect={true}
               />
             </>
           )}
