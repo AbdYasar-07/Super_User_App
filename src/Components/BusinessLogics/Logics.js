@@ -302,6 +302,9 @@ export const createUserInShopifySystem = async (user) => {
   if (!axios.isAxiosError(response)) {
     return response;
   } else {
+    console.log("creating user error in shopify response :::", response);
+    console.log(axios.isAxiosError(response));
+    console.log(response?.cause?.message);
     if (response?.response?.data['errors']['email']) {
       console.error("Error while creating an user in shopify :::", 'email', response?.response?.data['errors']['email'][0]);
       return `email ${response?.response?.data['errors']['email'][0]}`;
