@@ -64,9 +64,7 @@ const BPtabel = () => {
     });
 
     await accessOSCDev(bpCodes, total_groups); // call for osc server
-    console.log("after osc dev ***", total_groups);
     await accessOSCProd(bpCodes, total_groups); // call for osc prod server
-    console.log("after osc prod ***", total_groups);
     const nodes = await accessShopify(bpCodes); // call for shopify
 
     patchTotalGroupsForShopifyResponse(bpCodes, nodes, total_groups);
@@ -79,8 +77,15 @@ const BPtabel = () => {
   };
 
   const patchTotalGroupsForShopifyResponse = (bpCodes, nodes, total_groups) => {
-    if (!nodes)
+    if (!nodes) {
+      bpCodes.map((bpCode) => {
+        const businessPartnerIdx = total_groups.findIndex((group) => String(group.BPID) === bpCode);
+        total_groups[businessPartnerIdx]['IsInShopify'] = "Inaccessible";
+        total_groups[businessPartnerIdx]['shopifyId'] = null;
+      });
       return;
+    }
+
 
     bpCodes.map((bpCode) => {
       const filteredNode = nodes.find((node) => node?.node?.externalId === bpCode);
@@ -104,21 +109,25 @@ const BPtabel = () => {
   const accessOSCDev = async (bpCodes, total_groups) => {
     if (Array.isArray(bpCodes) && bpCodes.length > 0) {
       const pairsMapDev = new Map();
-      console.log("Bp codes :::", bpCodes);
       for (const bpCode of bpCodes) {
         await getOSCStoreIDByBPCode(bpCode).then((result) => {
-          console.log(`bpcode ${bpCode} ::: OSC response ${JSON.stringify(result)}`);
-          const oscId = (result?.rows && result?.rows.length > 0) ? result?.rows[0][0] : null;
-          pairsMapDev.set(bpCode, oscId);
-        }).catch((error) => {
-          console.error(`Error while access OSC Dev for the BP ${bpCode} ::: ${error}`);
-        })
+          if (result && result?.count == 0) {
+            pairsMapDev.set(bpCode, false);
+          } else {
+            const oscId = (result && result?.rows && result?.rows.length > 0) ? result?.rows[0][0] : null;
+            pairsMapDev.set(bpCode, oscId);
+          }
+        });
       }
-      console.log("OSC DEV responses ***", pairsMapDev);
       pairsMapDev.forEach((value, key) => {
         const idx = total_groups.findIndex((group) => String(group.BPID) === key);
-        total_groups[idx]["IsInOSCDev"] = value ? "Yes" : "No";
-        total_groups[idx]["devOscId"] = value;
+        if (value == null) {
+          total_groups[idx]["IsInOSCDev"] = "Inaccessible";
+          total_groups[idx]["devOscId"] = null;
+        } else {
+          total_groups[idx]["IsInOSCDev"] = value ? "Yes" : "No";
+          total_groups[idx]["devOscId"] = value;
+        }
       });
     }
   };
@@ -128,15 +137,23 @@ const BPtabel = () => {
       const pairsMapProd = new Map();
       for (const bpCode of bpCodes) {
         await getOSCStoreIDByBPCode(bpCode, true).then((result) => {
-          const oscId = (result?.rows && result?.rows.length > 0) ? result?.rows[0][0] : null;
-          pairsMapProd.set(bpCode, oscId);
+          if (result && result?.count == 0) {
+            pairsMapProd.set(bpCode, false);
+          } else {
+            const oscId = (result && result?.rows && result?.rows.length > 0) ? result?.rows[0][0] : null;
+            pairsMapProd.set(bpCode, oscId);
+          }
         });
       }
-      console.log("pairsMapProd ***", pairsMapProd);
       pairsMapProd.forEach((value, key) => {
         const idx = total_groups.findIndex((group) => String(group.BPID) === key);
-        total_groups[idx]["IsInOSCProd"] = value ? "Yes" : "No";
-        total_groups[idx]["prodOscId"] = value;
+        if (value != null) {
+          total_groups[idx]["IsInOSCProd"] = value ? "Yes" : "No";
+          total_groups[idx]["prodOscId"] = value;
+        } else {
+          total_groups[idx]["IsInOSCProd"] = "Inaccessible";
+          total_groups[idx]["prodOscId"] = null;
+        }
       });
     }
 
