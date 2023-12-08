@@ -608,7 +608,7 @@ const BPDetailMembers = () => {
       const result = companyContactResponse[0];
       let companyContactId = result?.id;
       const isUnlinked = await unlinkingCustomerWithCompany(companyContactId);
-      console.log(`unlinked response for ${shopifyCompanyId} & ${shopifyCustomerId} is ${isUnlinked}`);
+      console.log(`unlinked response for ${companyContactId} ${shopifyCustomerId} is ${isUnlinked}`);
     }
   };
 
