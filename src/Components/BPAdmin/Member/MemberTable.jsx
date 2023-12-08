@@ -93,6 +93,15 @@ const MemberTable = () => {
       setAllGroups(groupsResponse);
     }
     setLoad(false);
+    const updatedServerPaginate =
+    {
+      start: 0,
+      length: 0,
+      total: -1,
+      processedRecords: 0,
+      users: [],
+    };
+    setServerPagnitae(updatedServerPaginate);
   };
 
   const getAllAuth0Groups = async () => {
@@ -215,6 +224,7 @@ const MemberTable = () => {
    */
   const fetchAuth0Users = async (perPage, database, managementAccessToken, serverPaginate) => {
     if (serverPaginate.processedRecords === serverPaginate.total) {
+      console.log("here");
       return serverPaginate;
     }
 
