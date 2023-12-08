@@ -369,7 +369,7 @@ export const isCompanyExistsInShopify = async (sapBpCode) => {
 
   let data = JSON.stringify({
     query: `query GetThat {
-  companies(query:${String(sapBpCode)} , first:1) {
+  companies(query:"${sapBpCode}" , first:1) {
     edges {
       node {
         name
