@@ -112,10 +112,15 @@ export default function AddBP({
   const createStore = async () => {
 
     const isExists = await isStoreExistsInOSC(bpId, isProductionEnvironment());
-    if (isExists) {
+    if (isExists === true || isExists === null) {
+      if (isExists === null) {
+        toast.error("Error while checking company exists in shopify", { theme: "colored" });
+        return;
+      }
       toast.warning("Store already exists in OSC", { theme: "colored" });
       return;
     }
+
 
     const bpInfoObj = { bpId: bpId, name: bpName };
     const result = await createStoreInOSC(bpInfoObj, isProductionEnvironment());

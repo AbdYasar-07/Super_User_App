@@ -369,7 +369,7 @@ export const isCompanyExistsInShopify = async (sapBpCode) => {
 
   let data = JSON.stringify({
     query: `query GetThat {
-  companies(query:${sapBpCode} , first:1) {
+  companies(query:${String(sapBpCode)} , first:1) {
     edges {
       node {
         name
@@ -385,7 +385,13 @@ export const isCompanyExistsInShopify = async (sapBpCode) => {
   if (!axios.isAxiosError(response)) {
     console.log("is checking response from shopify :::", response);
     console.log(!response?.data?.companies?.edges?.length === 0);
-    return !response?.data?.companies?.edges?.length === 0;
+    if (response['data']) {
+      let isExists = response?.data?.companies?.edges?.length === 0;
+      return !isExists;
+    }
+
+    return null;
+
   } else {
     console.error(`Error while cheking a company exists in shopify :::`, response?.message);
     return null;
@@ -406,7 +412,7 @@ export const createCompanyInShopify = async (bpInfoObj, system) => {
     }
   }
 }`,
-    variables: { "input": { "company": { "externalId": bpInfoObj?.bpId, "name": bpInfoObj?.bpName } } }
+    variables: { "input": { "company": { "externalId": bpInfoObj?.bpId, "name": bpInfoObj?.name } } }
   });
 
   const response = await Axios("https://phoenix-ph.myshopify.com/admin/api/2023-07/graphql.json", 'POST', data, null, false, false, true);
