@@ -332,6 +332,115 @@ export const updateUserInShopify = async (user, shopifyCustomerId) => {
     return null;
   }
 };
+export const linkingCustomerWithCompany = async (shopifyCompanyId, shopifyCustomerId) => {
+
+  if (!shopifyCompanyId)
+    return;
+
+  if (!shopifyCustomerId)
+    return;
+
+  const axios = require('axios');
+  let data = JSON.stringify({
+    query: `mutation companyAssignCustomerAsContact($companyId: ID!, $customerId: ID!) {
+  companyAssignCustomerAsContact(companyId: $companyId, customerId: $customerId) {
+    companyContact {
+        company {
+        id
+      }
+       
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}`,
+    variables: { "companyId": shopifyCompanyId, "customerId": shopifyCustomerId }
+  });
+
+  const response = await Axios("https://phoenix-ph.myshopify.com/admin/api/2023-07/graphql.json", 'POST', data, null, false, false, true);
+  if (!axios.isAxiosError(response)) {
+    const errors = response?.data?.companyAssignCustomerAsContact?.userErrors?.length;
+    return (errors === 0);
+  } else {
+    console.error(`Error while linking company with customer in shopify [CompanyId]:${shopifyCompanyId},[CustomerId]:${shopifyCustomerId} :::`, response?.message);
+    return null;
+  }
+};
+export const unlinkingCustomerWithCompany = async (companyContactId) => {
+  let data = JSON.stringify({
+    query: `mutation companyContactDelete($companyContactId: ID!) {
+  companyContactDelete(companyContactId: $companyContactId) {
+    deletedCompanyContactId
+    userErrors {
+      field
+      message
+    }
+  }
+}`,
+    variables: { "companyContactId": companyContactId }
+  });
+
+  const response = await Axios("https://phoenix-ph.myshopify.com/admin/api/2023-07/graphql.json", 'POST', data, null, false, false, true);
+  if (!axios.isAxiosError(response)) {
+    let errors = response?.data?.companyContactDelete?.userErrors?.length;
+    return errors === 0;
+  } else {
+    console.error(`Error while deleting a contact from a company [CompanyContactId]:${companyContactId} :::`, response?.message);
+    return null;
+  }
+
+};
+export const getCompanyContactIdInShopify = async (shopifyCustomerId) => {
+
+  if (!shopifyCustomerId)
+    return "Invalid shopify customer id";
+
+  let data = JSON.stringify({
+    query: `query MyQuery {
+  customer(id: "${shopifyCustomerId}") {
+    companyContactProfiles {
+      id
+      isMainContact
+      company {
+        contactRoles(first: 2) {
+          edges {
+            node {
+              id
+              name
+            }
+          }
+        }
+        locations(first: 10) {
+          nodes {
+            id
+          }
+        }
+      }
+    }
+  }
+}`,
+    variables: {}
+  });
+
+  const response = await Axios("https://phoenix-ph.myshopify.com/admin/api/2023-07/graphql.json", 'POST', data, null, false, false, true);
+  if (!axios.isAxiosError(response)) {
+    let customer = response?.data?.customer;
+    if (customer) {
+      return customer?.companyContactProfiles;
+    }
+    return null;
+  } else {
+    console.error(`Error while getting company contact id for the [CustomerId]:${shopifyCustomerId} :::`, response?.message);
+    return null;
+  }
+
+
+
+
+
+};
 
 /**
  * SHOPIFY COMPANY RELATED APIs 

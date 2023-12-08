@@ -9,7 +9,7 @@ import AppSpinner from "../../../Utils/AppSpinner";
 import { Button } from "primereact/button";
 import { useDispatch, useSelector } from "react-redux";
 import { addManagementAccessToken } from "../../../store/auth0Slice";
-import { assignMembersInGroup, checkUserExistsInOSC, getAllSystemGroupsFromAuth0, getUserFieldFromAuth0, updateUserWithOSCOrganization } from "../../BusinessLogics/Logics";
+import { assignMembersInGroup, checkUserExistsInOSC, checkUserExistsInShopify, getAllSystemGroupsFromAuth0, getCompanyContactIdInShopify, getUserFieldFromAuth0, linkingCustomerWithCompany, unlinkingCustomerWithCompany, updateUserWithOSCOrganization } from "../../BusinessLogics/Logics";
 import AddUser from "../../Users/AddUser";
 import ImportUserModal from "../../../Utils/ImportUserModal";
 import TableData from "../../../Utils/TableData";
@@ -87,7 +87,8 @@ const BPDetailMembers = () => {
       case "remove": {
         setLoading(true);
         await removeMemberFromCurrentBP(data.id, bpId);
-        await removeContactFromCurrentStoreInOSC(data)
+        await removeContactFromCurrentStoreInOSC(data);
+        await removeCustomerFromCompanyInShopify(data);
         await getMembersList(false);
         break;
       }
@@ -127,6 +128,20 @@ const BPDetailMembers = () => {
     }
 
     await handleLinkUnlinkOperationsWithOSC(false, null, data);
+  };
+  const removeCustomerFromCompanyInShopify = async (data) => {
+    if (!data.ShopifyId) {
+      toast.error(`Error! unable to unlink this customer with respective company. Please check this customer exists in shopify`, { theme: "colored" });
+      return;
+    }
+
+    let shopifyCompanyId = auth0Context?.currentBusinessPartner?.shopifyId;
+    if (!shopifyCompanyId) {
+      toast.error(`Error! unable to unlink this customer with respective company. Please check this company exists in shopify`, { theme: "colored" });
+      return;
+    }
+
+    await handleLinkUnlinkOperationsWithShopify(false, null, data);
   };
   const handleUsersMapping = (users) => {
     if (Array.isArray(users) && users.length > 0) {
@@ -398,7 +413,7 @@ const BPDetailMembers = () => {
         await linkingUsersWithOSCStore(usersInfo);
       }
     }
-  }
+  };
   const getMembersIdFromTable = async (getmembersId) => {
 
     let data = [];
@@ -412,11 +427,12 @@ const BPDetailMembers = () => {
     } else {
       toast.error(response, { theme: "colored" });
     }
-  }
+  };
   const handleAssignMembersIntoGroup = async () => {
     await assignMembersIntoGroup();
     await mapUsersWithOSCStore();
-  }
+    await mapUsersWithShopifyCompany();
+  };
   const mapUsersWithOSCStore = async () => {
     let usersInfo = [];
     selectedUnassignedMembers.map((unAssignedMember) => {
@@ -442,7 +458,7 @@ const BPDetailMembers = () => {
     }
 
     await handleLinkUnlinkOperationsWithOSC(true, usersInfo, null);
-  }
+  };
   const handleLinkUnlinkOperationsWithOSC = async (isForLinking, usersInfo = null, userInfo = null) => {
     if (isForLinking) {
       await linkingUsersWithOSCStore(usersInfo).finally(() => {
@@ -530,6 +546,69 @@ const BPDetailMembers = () => {
         await updateUserWithOSCOrganization(oscContactId, prodStoreOscId, true, true); // for PROD
       }
       return;
+    }
+  };
+  const mapUsersWithShopifyCompany = async () => {
+    let usersInfo = [];
+    selectedUnassignedMembers.map((unAssignedMember) => {
+      if (unAssignedMember?.ShopifyId) {
+        let unassignedUserInfo = Object.assign({});
+        unassignedUserInfo['ShopifyId'] = unAssignedMember?.ShopifyId;
+        unassignedUserInfo['Email'] = unAssignedMember?.Email;
+        usersInfo?.push(unassignedUserInfo);
+      }
+    });
+
+    if (usersInfo.length === 0) {
+      toast.error(`Error! unable to link this ${selectedUnassignedMembers.length == 1 ? 'customer' : 'customers'} with respective store. Please check selected ${selectedUnassignedMembers.length == 1 ? 'customer' : 'customers'} exists in shopify`, { theme: "colored" });
+      return;
+    }
+
+    let shopifyCompanyId = Number(auth0Context?.currentBusinessPartner?.shopifyId);
+    if (!shopifyCompanyId) {
+      toast.error(`Error! unable to link this ${selectedUnassignedMembers.length == 1 ? 'customer' : 'customers'} with respective Company. Please check this company exists in shopify`, { theme: "colored" });
+      return;
+    }
+
+
+    await handleLinkUnlinkOperationsWithShopify(true, usersInfo, null);
+  };
+  const handleLinkUnlinkOperationsWithShopify = async (isForLinking, usersInfo = null, userInfo = null) => {
+    if (isForLinking) {
+      await linkingUsersWithShopify(usersInfo).finally(() => {
+        toast.success(`${usersInfo.length == 1 ? 'User' : 'Users'} linked to shopify company`, { theme: "colored" });
+      });
+    } else {
+      await unlinkingUserWithShopify(userInfo).finally(() => {
+        toast.success(`User unlinked from shopify company`, { theme: "colored" });
+      });
+    }
+  };
+  const linkingUsersWithShopify = async (usersInfo) => {
+    if (usersInfo.length === 0)
+      return;
+
+    for (let user in usersInfo) {
+      let email = usersInfo[user]?.Email;
+      const id = await checkUserExistsInShopify(email);
+      let shopifyCustomerId = `gid://shopify/Customer/${id}`;
+      let shopifyCompanyId = auth0Context?.currentBusinessPartner?.shopifyId;
+      const linkedResponse = await linkingCustomerWithCompany(shopifyCompanyId, shopifyCustomerId);
+      console.log(`linked response for ${shopifyCompanyId} & ${shopifyCustomerId} is ${linkedResponse}`);
+    }
+
+
+  };
+  const unlinkingUserWithShopify = async (userInfo) => {
+    // let shopifyCompanyId = auth0Context?.currentBusinessPartner?.shopifyId;
+    let id = userInfo?.ShopifyId;
+    let shopifyCustomerId = `gid://shopify/Customer/${id}`;
+    const companyContactResponse = await getCompanyContactIdInShopify(shopifyCustomerId);
+    if (Array.isArray(companyContactResponse) && companyContactResponse.length !== 0) {
+      const result = companyContactResponse[0];
+      let companyContactId = result?.id;
+      const isUnlinked = await unlinkingCustomerWithCompany(companyContactId);
+      console.log(`unlinked response for ${shopifyCompanyId} & ${shopifyCustomerId} is ${isUnlinked}`);
     }
   };
 
