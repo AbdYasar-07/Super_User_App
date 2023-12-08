@@ -340,7 +340,6 @@ export const linkingCustomerWithCompany = async (shopifyCompanyId, shopifyCustom
   if (!shopifyCustomerId)
     return;
 
-  const axios = require('axios');
   let data = JSON.stringify({
     query: `mutation companyAssignCustomerAsContact($companyId: ID!, $customerId: ID!) {
   companyAssignCustomerAsContact(companyId: $companyId, customerId: $customerId) {

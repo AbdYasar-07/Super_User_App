@@ -89,7 +89,6 @@ const BPDetailMembers = () => {
         await removeMemberFromCurrentBP(data.id, bpId);
         await removeContactFromCurrentStoreInOSC(data);
         await removeCustomerFromCompanyInShopify(data);
-        await getMembersList(false);
         break;
       }
       default: {
@@ -97,6 +96,7 @@ const BPDetailMembers = () => {
         break;
       }
     }
+    await getMembersList(false);
   };
   const removeMemberFromCurrentBP = async (memberId, bpId) => {
     let url = `${resource}/groups/${bpId}/members`;
@@ -130,7 +130,7 @@ const BPDetailMembers = () => {
     await handleLinkUnlinkOperationsWithOSC(false, null, data);
   };
   const removeCustomerFromCompanyInShopify = async (data) => {
-    if (!data.ShopifyId) {
+    if (!data.ShopifyCustomerId) {
       toast.error(`Error! unable to unlink this customer with respective company. Please check this customer exists in shopify`, { theme: "colored" });
       return;
     }
@@ -385,7 +385,7 @@ const BPDetailMembers = () => {
     let response = await assignMembersInGroup(bpId, data);
     if (response === "200") {
       await getMembersList(false);
-      toast.success(`Member${selectedUnassignedMembers?.length === 1 ? "" : "'s"} successfully added in Auth0`, { theme: "colored" });
+      toast.success(`Member${selectedUnassignedMembers?.length === 1 ? "" : "'s"} linked to the group`, { theme: "colored" });
     } else {
       toast.error(response, { theme: "colored" });
     }
@@ -575,33 +575,39 @@ const BPDetailMembers = () => {
   };
   const handleLinkUnlinkOperationsWithShopify = async (isForLinking, usersInfo = null, userInfo = null) => {
     if (isForLinking) {
-      await linkingUsersWithShopify(usersInfo).finally(() => {
+      const result = await linkingUsersWithShopify(usersInfo);
+      if (result) {
         toast.success(`${usersInfo.length == 1 ? 'User' : 'Users'} linked to shopify company`, { theme: "colored" });
-      });
+      }
     } else {
-      await unlinkingUserWithShopify(userInfo).finally(() => {
-        toast.success(`User unlinked from shopify company`, { theme: "colored" });
-      });
+      await unlinkingUserWithShopify(userInfo);
+      toast.success(`User unlinked from shopify company`, { theme: "colored" });
     }
   };
   const linkingUsersWithShopify = async (usersInfo) => {
     if (usersInfo.length === 0)
-      return;
+      return false;
 
-    for (let user in usersInfo) {
-      let email = usersInfo[user]?.Email;
-      const id = await checkUserExistsInShopify(email);
-      let shopifyCustomerId = `gid://shopify/Customer/${id}`;
-      let shopifyCompanyId = auth0Context?.currentBusinessPartner?.shopifyId;
-      const linkedResponse = await linkingCustomerWithCompany(shopifyCompanyId, shopifyCustomerId);
-      console.log(`linked response for ${shopifyCompanyId} & ${shopifyCustomerId} is ${linkedResponse}`);
+    try {
+      for (let user of usersInfo) {
+        let email = user?.Email;
+        const id = await checkUserExistsInShopify(email);
+        let shopifyCustomerId = `gid://shopify/Customer/${id}`;
+        let shopifyCompanyId = auth0Context?.currentBusinessPartner?.shopifyId;
+        const linkedResponse = await linkingCustomerWithCompany(shopifyCompanyId, shopifyCustomerId);
+        console.log(`linked response for ${shopifyCompanyId} & ${shopifyCustomerId} is ${linkedResponse}`);
+      }
+      return true;
     }
-
+    catch (error) {
+      console.error("Error while linking users with Shopify:", error);
+      toast.error(`Failed to link ${usersInfo.length == 1 ? 'user' : 'users'} to Shopify company`, { theme: "colored" });
+      return false;
+    }
 
   };
   const unlinkingUserWithShopify = async (userInfo) => {
-    // let shopifyCompanyId = auth0Context?.currentBusinessPartner?.shopifyId;
-    let id = userInfo?.ShopifyId;
+    let id = userInfo?.ShopifyCustomerId;
     let shopifyCustomerId = `gid://shopify/Customer/${id}`;
     const companyContactResponse = await getCompanyContactIdInShopify(shopifyCustomerId);
     if (Array.isArray(companyContactResponse) && companyContactResponse.length !== 0) {
