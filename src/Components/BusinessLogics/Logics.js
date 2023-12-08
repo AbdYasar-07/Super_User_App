@@ -279,7 +279,7 @@ export const updateStoreInOSC = async (bpInfoObj, isInProd, oscId) => {
  */
 export const checkUserExistsInShopify = async (userEmail) => {
   let url = `https://phoenix-ph.myshopify.com/admin/api/2023-07/customers/search.json?query=email:${userEmail}`;
-  const response = await Axios(url, 'GET', null, null, true, false, true);
+  const response = await Axios(url, 'GET', null, null, false, false, true);
   if (!axios.isAxiosError(response)) {
     return response.customers[0] ? response.customers[0]?.id : false;
   } else {
