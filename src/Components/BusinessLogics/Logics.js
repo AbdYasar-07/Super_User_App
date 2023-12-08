@@ -421,10 +421,10 @@ export const createCompanyInShopify = async (bpInfoObj, system) => {
     let shopifyCompanyId = response?.data?.companyCreate?.company?.id;
     const metaFieldResponse = await updateCompanyMetadataFields(shopifyCompanyId, system);
     if (!metaFieldResponse) {
-      return "Company has been created. Unable to update the company metafields to (BP_STATUS)";
+      return `${bpInfoObj?.name} has been created in shopify. Unable to update the company metafields to (BP_STATUS)`;
     }
 
-    return "Company has been created. Updated the metafields for (BP_STATUS)";
+    return `${bpInfoObj?.name} has been created in shopify. Updated the metafields for (BP_STATUS)`;
 
   } else {
     console.error(`Error while creating a company in shopify :::`, response?.message);
@@ -465,4 +465,31 @@ export const updateCompanyMetadataFields = async (shopifyCompanyId, systemStatus
 
 
 
-}
+};
+export const updateCompanyInShopify = async (shopifyCompanyId, externalId, name) => {
+  let data = JSON.stringify({
+    query: `mutation companyUpdate($companyId: ID!, $input: CompanyInput!) {
+    companyUpdate(companyId: $companyId, input: $input) {
+      company {
+        id
+        externalId
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }`,
+    variables: { "companyId": shopifyCompanyId, "input": { "externalId": externalId, "name": name } }
+  });
+
+  const response = await Axios("https://phoenix-ph.myshopify.com/admin/api/2023-07/graphql.json", 'POST', data, null, false, false, true);
+  if (!axios.isAxiosError(response)) {
+    const result = response?.data.companyUpdate.userErrors;
+    return (result && result?.length === 0);
+  } else {
+    console.error(`Error while updating a company with the company id ${shopifyCompanyId} :::`, response?.message);
+    return null;
+  }
+
+};

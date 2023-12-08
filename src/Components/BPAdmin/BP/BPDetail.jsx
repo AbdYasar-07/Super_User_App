@@ -8,7 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import SaveTabs from './SaveTabs';
 import { RadioButton } from 'primereact/radiobutton';
 import { useSelector } from 'react-redux';
-import { updateStoreInOSC } from '../../BusinessLogics/Logics';
+import { updateCompanyInShopify, updateStoreInOSC } from '../../BusinessLogics/Logics';
 
 
 const BPDetail = () => {
@@ -62,6 +62,7 @@ const BPDetail = () => {
         if (currentIcon === "save" && isValidateChanges() === true) {
             const result = await updateBP(bpId);
             await updateBPInOSC();
+            await updateBPInShopify();
             setBpName(result?.name);
             setBpDescription(result?.description);
             setBusinessPartner(result);
@@ -140,6 +141,18 @@ const BPDetail = () => {
                 return;
             }
         }
+    };
+
+    const updateBPInShopify = async () => {
+        const bpInfoObj = { "bpId": bpName.substring(3), "name": bpDescription };
+        const result = await updateCompanyInShopify(auth0Context?.currentBusinessPartner?.shopifyId, bpInfoObj.bpId, bpInfoObj.name);
+        if (result) {
+            toast.success(`${bpName} has been updated in shopify`, { theme: "colored" });
+            return;
+        }
+
+        toast.error(`Error while updating a company in shopify ${auth0Context?.currentBusinessPartner?.shopifyId}`, { theme: "colored" });
+        return;
     };
 
     // const isProductionEnvironment = () => {
