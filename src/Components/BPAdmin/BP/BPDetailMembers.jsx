@@ -490,7 +490,6 @@ const BPDetailMembers = () => {
         if (Number.isFinite(Number(prodResponse))) {
           await updateUserWithOSCOrganization(oscContactId, prodStoreOscId, false, true); // for PROD
         }
-        return;
       }
 
       if (isInOSCDev) {
@@ -498,7 +497,6 @@ const BPDetailMembers = () => {
         if (Number.isInteger(Number(uatResponse))) {
           await updateUserWithOSCOrganization(oscContactId, uatStoreOscId, false, false);// for UAT (TEST)
         }
-        return;
       }
 
       if (isInOSCProd) {
@@ -506,7 +504,6 @@ const BPDetailMembers = () => {
         if (Number.isFinite(Number(prodResponse))) {
           await updateUserWithOSCOrganization(oscContactId, prodStoreOscId, false, true); // for PROD
         }
-        return;
       }
     }
   };
