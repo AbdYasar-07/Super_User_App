@@ -408,9 +408,11 @@ const BPDetailMembers = () => {
         let usersInfo = [];
         let unassignedUserInfo = Object.assign({});
         unassignedUserInfo['OSCID'] = userField?.user_metadata?.OSCID;
+        unassignedUserInfo['ShopifyCustomerId'] = userField?.user_metadata?.ShopifyCustomerId;
         unassignedUserInfo['Email'] = userField?.email;
         usersInfo?.push(unassignedUserInfo);
-        await linkingUsersWithOSCStore(usersInfo);
+        await handleLinkUnlinkOperationsWithOSC(isForBPScreen, usersInfo, null);
+        await handleLinkUnlinkOperationsWithShopify(isForBPScreen, usersInfo, null);
       }
     }
   };
@@ -461,9 +463,10 @@ const BPDetailMembers = () => {
   };
   const handleLinkUnlinkOperationsWithOSC = async (isForLinking, usersInfo = null, userInfo = null) => {
     if (isForLinking) {
-      await linkingUsersWithOSCStore(usersInfo).finally(() => {
+      const result = await linkingUsersWithOSCStore(usersInfo);
+      if (result) {
         toast.success(`${usersInfo.length == 1 ? 'User' : 'Users'} linked to osc store`, { theme: "colored" });
-      });
+      }
     } else {
       await unlinkingUserWithOSCStore(userInfo).finally(() => {
         toast.success(`User unlinked from osc store`, { theme: "colored" });
@@ -476,35 +479,42 @@ const BPDetailMembers = () => {
     let prodStoreOscId = Number(auth0Context?.currentBusinessPartner?.prodOscId);
     let isInOSCDev = (auth0Context?.currentBusinessPartner?.IsInOSCDev == "Yes") ? true : false;
     let isInOSCProd = (auth0Context?.currentBusinessPartner?.IsInOSCProd == "Yes") ? true : false;
+    try {
 
-    for (let user in usersInfo) {
-      let email = usersInfo[user]?.Email;
-      let oscContactId = usersInfo[user]?.OSCID;
+      for (let user in usersInfo) {
+        let email = usersInfo[user]?.Email;
+        let oscContactId = usersInfo[user]?.OSCID;
 
-      if (auth0Context?.currentBusinessPartner?.IsOSCStoreInBothSystem) {
-        const uatResponse = await checkUserExistsInOSC(false, email);// for uat
-        if (Number.isInteger(Number(uatResponse))) {
-          await updateUserWithOSCOrganization(oscContactId, uatStoreOscId, false, false);// for UAT (TEST)
+        if (auth0Context?.currentBusinessPartner?.IsOSCStoreInBothSystem) {
+          const uatResponse = await checkUserExistsInOSC(false, email);// for uat
+          if (Number.isInteger(Number(uatResponse))) {
+            await updateUserWithOSCOrganization(oscContactId, uatStoreOscId, false, false);// for UAT (TEST)
+          }
+          const prodResponse = await checkUserExistsInOSC(true, email);// for prod
+          if (Number.isFinite(Number(prodResponse))) {
+            await updateUserWithOSCOrganization(oscContactId, prodStoreOscId, false, true); // for PROD
+          }
         }
-        const prodResponse = await checkUserExistsInOSC(true, email);// for prod
-        if (Number.isFinite(Number(prodResponse))) {
-          await updateUserWithOSCOrganization(oscContactId, prodStoreOscId, false, true); // for PROD
+
+        if (isInOSCDev) {
+          const uatResponse = await checkUserExistsInOSC(false, email);// for uat
+          if (Number.isInteger(Number(uatResponse))) {
+            await updateUserWithOSCOrganization(oscContactId, uatStoreOscId, false, false);// for UAT (TEST)
+          }
+        }
+
+        if (isInOSCProd) {
+          const prodResponse = await checkUserExistsInOSC(true, email);// for prod
+          if (Number.isFinite(Number(prodResponse))) {
+            await updateUserWithOSCOrganization(oscContactId, prodStoreOscId, false, true); // for PROD
+          }
         }
       }
-
-      if (isInOSCDev) {
-        const uatResponse = await checkUserExistsInOSC(false, email);// for uat
-        if (Number.isInteger(Number(uatResponse))) {
-          await updateUserWithOSCOrganization(oscContactId, uatStoreOscId, false, false);// for UAT (TEST)
-        }
-      }
-
-      if (isInOSCProd) {
-        const prodResponse = await checkUserExistsInOSC(true, email);// for prod
-        if (Number.isFinite(Number(prodResponse))) {
-          await updateUserWithOSCOrganization(oscContactId, prodStoreOscId, false, true); // for PROD
-        }
-      }
+      return true;
+    } catch (error) {
+      console.error("Error while linking users with OSC:", error);
+      toast.error(`Failed to link ${usersInfo.length == 1 ? 'user' : 'users'} to OSC Store`, { theme: "colored" });
+      return false;
     }
   };
   const unlinkingUserWithOSCStore = async (currentUserData) => {
