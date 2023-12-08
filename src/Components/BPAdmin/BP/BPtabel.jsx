@@ -91,7 +91,7 @@ const BPtabel = () => {
       const filteredNode = nodes.find((node) => node?.node?.externalId === bpCode);
       const businessPartnerIdx = total_groups.findIndex((group) => String(group.BPID) === bpCode);
       total_groups[businessPartnerIdx]['IsInShopify'] = filteredNode?.node?.externalId && filteredNode?.node?.externalId.length > 0 ? "Yes" : "No";
-      total_groups[businessPartnerIdx]['shopifyId'] = filteredNode?.node?.externalId;
+      total_groups[businessPartnerIdx]['shopifyId'] = filteredNode?.node?.id;
     });
   }
 

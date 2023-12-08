@@ -134,12 +134,11 @@ export default function AddBP({
       return;
     }
     const bpInfoObj = { bpId: bpId, name: bpName };
-    const result = await createCompanyInShopify(bpInfoObj, isProductionEnvironment());
+    const result = await createCompanyInShopify(bpInfoObj, system);
     if (result) {
-      // company created successfully
+      toast.success(`${result}`, { theme: "colored" });
       return;
     }
-
     toast.error(`Error while creating ${bpName} in shopify.`, { theme: "colored" });
   };
 
@@ -148,6 +147,7 @@ export default function AddBP({
       setLoading(true);
       await createGroup();
       await createStore();
+      await createCompany();
       setLoading(false);
       dispatch(renderComponent({ cmpName: "BPTABLE" }));
       resetForm();
