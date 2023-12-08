@@ -564,7 +564,7 @@ const BPDetailMembers = () => {
       return;
     }
 
-    let shopifyCompanyId = Number(auth0Context?.currentBusinessPartner?.shopifyId);
+    let shopifyCompanyId = auth0Context?.currentBusinessPartner?.shopifyId;
     if (!shopifyCompanyId) {
       toast.error(`Error! unable to link this ${selectedUnassignedMembers.length == 1 ? 'customer' : 'customers'} with respective Company. Please check this company exists in shopify`, { theme: "colored" });
       return;
