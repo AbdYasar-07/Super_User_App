@@ -3,7 +3,7 @@ import "../Components/Styles/RefreshButton.css"
 const RefreshButton = ({ isRefresh, func }) => {
 
     const handleRefreshClick = async () => {
-        await func();
+        await func(true);
     }
 
     return (

@@ -252,7 +252,7 @@ const MemberTable = () => {
           data={memberData}
         />}
         <div className="position-absolute end-0 p-0  customizePosition">
-          <RefreshButton isRefresh={loading} func={fetchMembersList} />
+          <RefreshButton isRefresh={loading} func={getMembersList} />
         </div>
       </div>
       {!loading && (

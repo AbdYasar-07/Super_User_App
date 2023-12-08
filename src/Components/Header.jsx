@@ -69,7 +69,7 @@ const Header = ({ user }) => {
             >
               <ToolTip
                 label={"About"}
-                info={"SUPER USER PORTAL APP VERSION : 3.8"}
+                info={"SUPER USER PORTAL APP VERSION : 3.9"}
               />
             </div>
             {isAuthenticated && (
