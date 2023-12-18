@@ -584,7 +584,11 @@ const BPDetailMembers = () => {
     if (isForLinking) {
       const result = await linkingUsersWithShopify(usersInfo);
       if (result) {
-        toast.success(`${usersInfo.length == 1 ? 'User' : 'Users'} linked to shopify company`, { theme: "colored" });
+        toast.success(`${usersInfo.length == 1 ? 'user' : 'users'} linked to shopify company`, { theme: "colored" });
+        return;
+      } else {
+        toast.error(`Error while linking ${usersInfo.length == 1 ? 'user' : 'users'} to the company in shopify`, { theme: "colored" });
+        return;
       }
     } else {
       await unlinkingUserWithShopify(userInfo);
@@ -597,11 +601,14 @@ const BPDetailMembers = () => {
 
     try {
       for (let user of usersInfo) {
+
         let email = user?.Email;
         const id = await checkUserExistsInShopify(email);
         let shopifyCustomerId = `gid://shopify/Customer/${id}`;
         let shopifyCompanyId = auth0Context?.currentBusinessPartner?.shopifyId;
         const linkedResponse = await linkingCustomerWithCompany(shopifyCompanyId, shopifyCustomerId);
+        if (!linkedResponse)
+          return false;
         console.log(`linked response for ${shopifyCompanyId} & ${shopifyCustomerId} is ${linkedResponse}`);
       }
       return true;

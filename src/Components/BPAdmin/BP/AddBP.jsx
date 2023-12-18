@@ -55,7 +55,7 @@ export default function AddBP({
     return false;
   };
 
-  const validateBPID = () => {
+  const validateBPID = (bpId) => {
     if (!bpId) {
       setIsValidBpId(false);
       setBpIdMessage("BP ID cannot be empty");
@@ -71,11 +71,11 @@ export default function AddBP({
   };
 
   const handleBlurValidation = () => {
-    validateBPID();
-    validateBpName();
+    validateBPID(bpId);
+    validateBpName(bpName);
   };
 
-  const validateBpName = () => {
+  const validateBpName = (bpName) => {
     if (!bpName) {
       setIsValidBpName(false);
       setBpNameMessage("BP Name cannot be empty");
@@ -246,7 +246,7 @@ export default function AddBP({
             value={bpId}
             onChange={(e) => {
               handleChange(e, "id");
-              validateBPID();
+              validateBPID(e.target.value);
             }}
             onBlur={() => handleBlurValidation()}
           />
@@ -266,7 +266,7 @@ export default function AddBP({
             value={bpName}
             onChange={(e) => {
               handleChange(e, "name");
-              validateBpName();
+              validateBpName(e.target.value);
             }}
             onBlur={() => handleBlurValidation()}
           />

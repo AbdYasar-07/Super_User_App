@@ -16,41 +16,41 @@ const BPDetailOutlet = () => {
     const handleSelectedTab = (tabValue) => {
         switch (tabValue) {
             case "Members": {
-                dispatch(addIsShopifyBPTab({ showShopifySystemTab: false }));
                 navigate(`/bp/${bpId}/tabs/members`);
                 break;
             }
             case "StoreDetails": {
-                dispatch(addIsShopifyBPTab({ showShopifySystemTab: true }));
                 navigate(`/bp/${bpId}/tabs/store`);
                 break;
             }
             case "UatServiceDetails": {
-                dispatch(addIsShopifyBPTab({ showShopifySystemTab: false }));
                 navigate(`/bp/${bpId}/tabs/uat-service`);
                 break;
             }
             case "ProdServiceDetails": {
-                dispatch(addIsShopifyBPTab({ showShopifySystemTab: false }));
                 navigate(`/bp/${bpId}/tabs/prod-service`);
                 break;
             }
             case "SAPDetails": {
-                dispatch(addIsShopifyBPTab({ showShopifySystemTab: false }));
                 break;
             }
             case "COMSDetails": {
-                dispatch(addIsShopifyBPTab({ showShopifySystemTab: false }));
                 navigate(`/bp/${bpId}/tabs/coms`);
                 break;
             }
             default: {
-                dispatch(addIsShopifyBPTab({ showShopifySystemTab: false }));
                 setValue("Members");
                 navigate(`/bp/${bpId}/tabs/members`);
                 break;
             }
         }
+
+        if (tabValue == "StoreDetails") {
+            dispatch(addIsShopifyBPTab({ showShopifySystemTab: true }));
+        } else {
+            dispatch(addIsShopifyBPTab({ showShopifySystemTab: false }));
+        }
+
     };
 
     const onTabChange = (value) => {
