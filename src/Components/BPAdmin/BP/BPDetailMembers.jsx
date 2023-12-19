@@ -14,7 +14,7 @@ import AddUser from "../../Users/AddUser";
 import ImportUserModal from "../../../Utils/ImportUserModal";
 import TableData from "../../../Utils/TableData";
 import { Badge } from "primereact/badge";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 
 const BPDetailMembers = () => {
   const resourceTwo = process.env.REACT_APP_AUTH_MANAGEMENT_AUDIENCE;
@@ -104,11 +104,11 @@ const BPDetailMembers = () => {
     const response = await Axios(url, "DELETE", body, localStorage.getItem("auth_access_token"), false, false, false);
     if (!axios.isAxiosError(response)) {
       await getMembersForBP(bpId);
-      toast.success(`User unlinked from this group (Auth0) `, { theme: "colored" })
+      toast.success(`User unlinked from this group (Auth0) `, { theme: "colored", autoClose: 20000 })
       setLoading(false);
       return response;
     } else {
-      toast.error(`Error while removing member from this group : ${response?.message}`, { theme: "colored" });
+      toast.error(`Error while removing member from this group : ${response?.message}`, { theme: "colored", autoClose: 20000 });
       console.error("Error while removing member for a group :::", response?.message);
       setLoading(false);
       return null;
@@ -116,14 +116,14 @@ const BPDetailMembers = () => {
   };
   const removeContactFromCurrentStoreInOSC = async (data) => {
     if (!data.OSCID) {
-      toast.error(`Error! unable to unlink this contact with respective store. Please check this contact exists in OSC`, { theme: "colored" });
+      toast.error(`Error! unable to unlink this contact with respective store. Please check this contact exists in OSC`, { theme: "colored", autoClose: 20000 });
       return;
     }
     let uatStoreOscId = Number(auth0Context?.currentBusinessPartner?.devOscId);
     let prodStoreOscId = Number(auth0Context?.currentBusinessPartner?.prodOscId);
 
     if (!uatStoreOscId && !prodStoreOscId) {
-      toast.error(`Error! unable to unlink this contact with respective store. Please check this store exists in OSC`, { theme: "colored" });
+      toast.error(`Error! unable to unlink this contact with respective store. Please check this store exists in OSC`, { theme: "colored", autoClose: 20000 });
       return;
     }
 
@@ -131,13 +131,13 @@ const BPDetailMembers = () => {
   };
   const removeCustomerFromCompanyInShopify = async (data) => {
     if (!data.ShopifyCustomerId) {
-      toast.error(`Error! unable to unlink this customer with respective company. Please check this customer exists in shopify`, { theme: "colored" });
+      toast.error(`Error! unable to unlink this customer with respective company. Please check this customer exists in shopify`, { theme: "colored", autoClose: 20000 });
       return;
     }
 
     let shopifyCompanyId = auth0Context?.currentBusinessPartner?.shopifyId;
     if (!shopifyCompanyId) {
-      toast.error(`Error! unable to unlink this customer with respective company. Please check this company exists in shopify`, { theme: "colored" });
+      toast.error(`Error! unable to unlink this customer with respective company. Please check this company exists in shopify`, { theme: "colored", autoClose: 20000 });
       return;
     }
 
@@ -385,9 +385,9 @@ const BPDetailMembers = () => {
     let response = await assignMembersInGroup(bpId, data);
     if (response === "200") {
       await getMembersList(false);
-      toast.success(`Member${selectedUnassignedMembers?.length === 1 ? "" : "'s"} linked to the group`, { theme: "colored" });
+      toast.success(`Member${selectedUnassignedMembers?.length === 1 ? "" : "'s"} linked to the group`, { theme: "colored", autoClose: 20000 });
     } else {
-      toast.error(response, { theme: "colored" });
+      toast.error(response, { theme: "colored", autoClose: 20000 });
     }
     setSelectedUnAssignedMembers([]);
   };
@@ -397,9 +397,9 @@ const BPDetailMembers = () => {
     let response = await assignMembersInGroup(bpId, data);
     if (response === "200") {
       await getMembersList(false);
-      toast.success(`Member successfully added in Auth0`, { theme: "colored" });
+      toast.success(`Member successfully added in Auth0`, { theme: "colored", autoClose: 20000 });
     } else {
-      toast.error(response, { theme: "colored" });
+      toast.error(response, { theme: "colored", autoClose: 20000 });
     }
 
     if (isForBPScreen) {
@@ -425,9 +425,9 @@ const BPDetailMembers = () => {
     let response = await assignMembersInGroup(bpId, data);
     if (response === "200") {
       await getMembersList(false);
-      toast.success(`Member${data?.length === 1 ? "" : "'s"} successfully added`, { theme: "colored" });
+      toast.success(`Member${data?.length === 1 ? "" : "'s"} successfully added`, { theme: "colored", autoClose: 20000 });
     } else {
-      toast.error(response, { theme: "colored" });
+      toast.error(response, { theme: "colored", autoClose: 20000 });
     }
   };
   const handleAssignMembersIntoGroup = async () => {
@@ -447,7 +447,7 @@ const BPDetailMembers = () => {
     });
 
     if (usersInfo.length === 0) {
-      toast.error(`Error! unable to link this ${selectedUnassignedMembers.length == 1 ? 'contact' : 'contacts'} with respective store. Please check selected ${selectedUnassignedMembers.length == 1 ? 'contact' : 'contacts'} exists in OSC`, { theme: "colored" });
+      toast.error(`Error! unable to link this ${selectedUnassignedMembers.length == 1 ? 'contact' : 'contacts'} with respective store. Please check selected ${selectedUnassignedMembers.length == 1 ? 'contact' : 'contacts'} exists in OSC`, { theme: "colored", autoClose: 20000 });
       return;
     }
 
@@ -455,7 +455,7 @@ const BPDetailMembers = () => {
     let prodStoreOscId = Number(auth0Context?.currentBusinessPartner?.prodOscId);
 
     if (!uatStoreOscId && !prodStoreOscId) {
-      toast.error(`Error! unable to link this ${selectedUnassignedMembers.length == 1 ? 'contact' : 'contacts'} with respective store. Please check this store exists in OSC`, { theme: "colored" });
+      toast.error(`Error! unable to link this ${selectedUnassignedMembers.length == 1 ? 'contact' : 'contacts'} with respective store. Please check this store exists in OSC`, { theme: "colored", autoClose: 20000 });
       return;
     }
 
@@ -464,12 +464,12 @@ const BPDetailMembers = () => {
   const handleLinkUnlinkOperationsWithOSC = async (isForLinking, usersInfo = null, userInfo = null) => {
     if (isForLinking) {
       const result = await linkingUsersWithOSCStore(usersInfo);
-      if (result) {
-        toast.success(`${usersInfo.length == 1 ? 'User' : 'Users'} linked to osc store`, { theme: "colored" });
+      if (result === true) {
+        toast.success(`${usersInfo.length == 1 ? 'User' : 'Users'} linked to osc store`, { theme: "colored", autoClose: 20000 });
       }
     } else {
       await unlinkingUserWithOSCStore(userInfo).finally(() => {
-        toast.success(`User unlinked from osc store`, { theme: "colored" });
+        toast.success(`User unlinked from osc store`, { theme: "colored", autoClose: 20000 });
       });
     }
   };
@@ -513,7 +513,7 @@ const BPDetailMembers = () => {
       return true;
     } catch (error) {
       console.error("Error while linking users with OSC:", error);
-      toast.error(`Failed to link ${usersInfo.length == 1 ? 'user' : 'users'} to OSC Store`, { theme: "colored" });
+      toast.error(`Failed to link ${usersInfo.length == 1 ? 'user' : 'users'} to OSC Store`, { theme: "colored", autoClose: 20000 });
       return false;
     }
   };
@@ -567,13 +567,13 @@ const BPDetailMembers = () => {
     });
 
     if (usersInfo.length === 0) {
-      toast.error(`Error! unable to link this ${selectedUnassignedMembers.length == 1 ? 'customer' : 'customers'} with respective store. Please check selected ${selectedUnassignedMembers.length == 1 ? 'customer' : 'customers'} exists in shopify`, { theme: "colored" });
+      toast.error(`Error! unable to link this ${selectedUnassignedMembers.length == 1 ? 'customer' : 'customers'} with respective store. Please check selected ${selectedUnassignedMembers.length == 1 ? 'customer' : 'customers'} exists in shopify`, { theme: "colored", autoClose: 20000 });
       return;
     }
 
     let shopifyCompanyId = auth0Context?.currentBusinessPartner?.shopifyId;
     if (!shopifyCompanyId) {
-      toast.error(`Error! unable to link this ${selectedUnassignedMembers.length == 1 ? 'customer' : 'customers'} with respective Company. Please check this company exists in shopify`, { theme: "colored" });
+      toast.error(`Error! unable to link this ${selectedUnassignedMembers.length == 1 ? 'customer' : 'customers'} with respective Company. Please check this company exists in shopify`, { theme: "colored", autoClose: 20000 });
       return;
     }
 
@@ -584,15 +584,15 @@ const BPDetailMembers = () => {
     if (isForLinking) {
       const result = await linkingUsersWithShopify(usersInfo);
       if (result) {
-        toast.success(`${usersInfo.length == 1 ? 'user' : 'users'} linked to shopify company`, { theme: "colored" });
+        toast.success(`${usersInfo.length == 1 ? 'user' : 'users'} linked to shopify company`, { theme: "colored", autoClose: 20000 });
         return;
       } else {
-        toast.error(`Error while linking ${usersInfo.length == 1 ? 'user' : 'users'} to the company in shopify`, { theme: "colored" });
+        toast.error(`Error while linking ${usersInfo.length == 1 ? 'user' : 'users'} to the company in shopify`, { theme: "colored", autoClose: 20000 });
         return;
       }
     } else {
       await unlinkingUserWithShopify(userInfo);
-      toast.success(`User unlinked from shopify company`, { theme: "colored" });
+      toast.success(`User unlinked from shopify company`, { theme: "colored", autoClose: 20000 });
     }
   };
   const linkingUsersWithShopify = async (usersInfo) => {
@@ -615,7 +615,7 @@ const BPDetailMembers = () => {
     }
     catch (error) {
       console.error("Error while linking users with Shopify:", error);
-      toast.error(`Failed to link ${usersInfo.length == 1 ? 'user' : 'users'} to Shopify company`, { theme: "colored" });
+      toast.error(`Failed to link ${usersInfo.length == 1 ? 'user' : 'users'} to Shopify company`, { theme: "colored", autoClose: 20000 });
       return false;
     }
 

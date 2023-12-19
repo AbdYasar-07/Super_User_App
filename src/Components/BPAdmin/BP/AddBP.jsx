@@ -47,9 +47,9 @@ export default function AddBP({
   };
 
   const isFormSubmissionValid = () => {
-    if (validateBPID()) {
+    if (validateBPID(bpId)) {
       return true;
-    } else if (validateBpName()) {
+    } else if (validateBpName(bpName)) {
       return true;
     }
     return false;

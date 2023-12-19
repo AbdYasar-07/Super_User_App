@@ -139,7 +139,7 @@ const ToggleSelection = () => {
 
     return (
         <>
-            <ToastContainer />
+            {/* <ToastContainer /> */}
             <Button label="VERIFY EMAIL" size='small' style={{ width: "180px", margin: "10px", borderRadius: "13px", }} severity='primary' raised loading={verifyLoader} disabled={JSON.parse(JSON.stringify(renderedUser))?.email_verified} onClick={(e) => verifyUserEmailHelper((userId) ? userId : memberId)} />
             <Button label={value} size='small' severity={blockButtonServeity()} style={{ width: "180px", margin: "10px", borderRadius: "13px" }} raised loading={blockLoader} onClick={(e) => handleToggleState(e.target.innerText)} />
 

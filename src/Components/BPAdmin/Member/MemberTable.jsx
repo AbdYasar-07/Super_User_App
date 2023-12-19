@@ -224,7 +224,6 @@ const MemberTable = () => {
    */
   const fetchAuth0Users = async (perPage, database, managementAccessToken, serverPaginate) => {
     if (serverPaginate.processedRecords === serverPaginate.total) {
-      console.log("here");
       return serverPaginate;
     }
 

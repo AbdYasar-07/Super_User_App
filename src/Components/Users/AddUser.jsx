@@ -11,7 +11,7 @@ import {
 } from "../../store/auth0Slice";
 import PasswordValidation from "../../Utils/PasswordValidation";
 import { useNavigate } from "react-router-dom";
-import { checkUserExistsInOSC, checkUserExistsInShopify, createUserInOSC, createUserInOSCSystem, createUserInShopifySystem, getUserFieldFromAuth0, updateUserInAuth0 } from "../BusinessLogics/Logics";
+import { checkUserExistsInOSC, checkUserExistsInShopify, createUserInOSCSystem, createUserInShopifySystem, getUserFieldFromAuth0, updateUserInAuth0 } from "../BusinessLogics/Logics";
 import { RadioButton } from "primereact/radiobutton";
 
 function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteCancel, setIsPasteCancel, buttonLabel, isForMember = false, getMemberDetail, isForBPScreen = false }) {
@@ -187,7 +187,12 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
   };
 
   const handleIntimations = async (responseState, auth0Id, scope) => {
+    console.log(`Response state : ${responseState}, auth0Id : ${auth0Id}, scope : ${scope}`);
     if (String(responseState).startsWith("EX_")) {
+      if (String(responseState).substring(3) == "null") {
+        toast.error(`Error while checking this customer exists in shopify so unable to create. Please try later`, { theme: "colored" });
+        return;
+      }
       toast.warning(`User already exists in the ${scope} system.`, { theme: "colored" });
       await patchUserInAuth0(auth0Id, String(responseState).substring(3), scope);
       return;
@@ -217,7 +222,6 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
   const userCreationInShopify = async () => {
     if (userEmail) {
       const userCheckingResponse = await checkUserExistsInShopify(userEmail);
-      console.log(`${isForMember} :: ${userCheckingResponse}`);
       if (typeof userCheckingResponse === "boolean" && !userCheckingResponse) {
         let user = {
           name: userEmail,
@@ -352,7 +356,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
 
   return (
     <div className={`${!userInfo?.accessToken ? "cursorDisable" : ""}`}>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
       <button
         type="button"
         class="btn btn-primary"
