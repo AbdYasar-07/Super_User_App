@@ -186,11 +186,19 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
     }
   };
 
+  const errorMessageFor = (purpose, message) => {
+    return `Error while ${purpose} this customer ${message} so unable to create. Please try later`;
+  }
+
   const handleIntimations = async (responseState, auth0Id, scope) => {
     console.log(`Response state : ${responseState}, auth0Id : ${auth0Id}, scope : ${scope}`);
     if (String(responseState).startsWith("EX_")) {
-      if (String(responseState).substring(3) == "null") {
-        toast.error(`Error while checking this customer exists in shopify so unable to create. Please try later`, { theme: "colored" });
+      if (String(responseState).substring(3) == "null" || String(responseState).substring(3).startsWith("Error")) {
+        if (String(responseState).substring(3) == "null") {
+          toast.error(errorMessageFor('searching', 'exists in shopify'), { theme: "colored" });
+        } if (String(responseState).substring(3) == "Error") {
+          toast.error(errorMessageFor('creating', ''), { theme: "colored" });
+        }
         return;
       }
       toast.warning(`User already exists in the ${scope} system.`, { theme: "colored" });
@@ -251,10 +259,11 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
           email: userEmail
         };
         const userCreationResponse = await createUserInOSCSystem(isProductionEnvironment(), user);
+        console.log("user creation response in shopify :::", userCreationResponse);
         if (userCreationResponse && typeof userCreationResponse === "object") {
           return userCreationResponse?.id;
         } else {
-          return `Error ${userCreationResponse}`;
+          return `EX_Error ${userCreationResponse}`;
         }
       } else {
         return `EX_${userCheckingResponse}`;
