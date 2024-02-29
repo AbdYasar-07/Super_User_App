@@ -82,6 +82,11 @@ const NavTabTable = ({
   const fetchUserRoles = async () => {
     await fetchCurrentUserRoles()
       .then(async (userRoles) => {
+        if (userRoles?.length === 0 || !userRoles) {
+          setUserRoles([]);
+          setLoadSpinner(false);
+          return;
+        }
         await getClientsInfo().then((clientsInfo) => {
           var mappedAppNames = toMapApplicationNames(userRoles, clientsInfo);
           if (mappedAppNames && mappedAppNames.length > 0) {
@@ -105,6 +110,7 @@ const NavTabTable = ({
   };
 
   const getUserAllRoles = async (accessToken, userId) => {
+
     var response = null;
     if (memberId) {
       response = await Axios(
@@ -292,6 +298,8 @@ const NavTabTable = ({
         console.log("None of the scope hasn't been matched");
     }
   }, [userGroups, userAllGroups, userRoles, userAllRoles]);
+
+  // console.log(userRoles, "userRoles");
   return (
     <>
       {loadSpinner && <AppSpinner />}

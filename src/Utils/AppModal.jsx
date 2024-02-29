@@ -213,7 +213,7 @@ const AppModal = ({
       console.error(error);
     }
   };
-  console.log(checkboxData, "checkboxDatacheckboxData", isLoaded);
+  
   return (
     <>
       {showButton && (
