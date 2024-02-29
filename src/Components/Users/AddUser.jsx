@@ -165,6 +165,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
       });
       if (!isForMember) {
         console.log("createdUserId ***", createdUserId);
+        toast.success(`User has been created in the Auth0 system.`, { autoClose: false });
         await handleUserCreationAcrossSystems(buttonLabel, createdUserId);
       }
     }
@@ -195,16 +196,17 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
     if (String(responseState).startsWith("EX_")) {
       if (String(responseState).substring(3) == "null" || String(responseState).substring(3).startsWith("Error")) {
         if (String(responseState).substring(3) == "null") {
-          toast.error(errorMessageFor('searching', 'exists in shopify'), { theme: "colored" });
+          toast.error(errorMessageFor('searching', 'in shopify'), { theme: "colored", autoClose: false });
         } if (String(responseState).substring(3) == "Error") {
-          toast.error(errorMessageFor('creating', ''), { theme: "colored" });
+          toast.error(errorMessageFor('creating', '.'), { theme: "colored", autoClose: false });
         }
         return;
       }
-      toast.warning(`User already exists in the ${scope} system.`, { theme: "colored" });
+      toast.warning(`User already exists in the ${scope} system.`, { theme: "colored", autoClose: false });
       await patchUserInAuth0(auth0Id, String(responseState).substring(3), scope);
       return;
     } else if (typeof responseState === "number") {
+      toast.success(`User has been created in the ${scope} system.`, { autoClose: false });
       await patchUserInAuth0(auth0Id, responseState, scope);
       return;
     }

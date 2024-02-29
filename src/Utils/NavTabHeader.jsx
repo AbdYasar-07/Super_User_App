@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-concat */
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
 
 function NavTabHeader({ showTab, tabsHeaders }) {
@@ -38,10 +38,9 @@ function NavTabHeader({ showTab, tabsHeaders }) {
               <li class="nav-item" role="presentation" key={index + 1}>
                 <button
                   className={
-                    `${
-                      index === 0
-                        ? "nav-link active btn-primary "
-                        : "nav-link  btn-primary"
+                    `${index === 0
+                      ? "nav-link active btn-primary "
+                      : "nav-link  btn-primary"
                     }` + "text-decoration-none"
                   }
                   id="pills-home-tab"

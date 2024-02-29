@@ -57,8 +57,8 @@ export const updateUserInAuth0 = async (url, userId, body, token) => {
     return false;
   }
 };
-export const getUserFieldFromAuth0 = async (userId, field, managementToken) => {
-  let url = `https://dev-34chvqyi4i2beker.jp.auth0.com/api/v2/users/${userId}?fields=${field}`;
+export const getUserFieldFromAuth0 = async (userId, field, managementToken, getAllInformations = false) => {
+  let url = (getAllInformations) ? `https://dev-34chvqyi4i2beker.jp.auth0.com/api/v2/users/${userId}` : `https://dev-34chvqyi4i2beker.jp.auth0.com/api/v2/users/${userId}?fields=${field}`;
   const response = await Axios(url, 'GET', null, managementToken, true, false, false);
   if (!axios.isAxiosError(response)) {
     return response;

@@ -6,6 +6,7 @@ import { FaTimes } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import { error } from "jquery";
 import { toMapApplicationNames } from "../Components/BusinessLogics/Logics";
+import { toast } from "react-toastify";
 
 const NavTabTable = ({
   showTable,
@@ -82,7 +83,8 @@ const NavTabTable = ({
     await fetchCurrentUserRoles()
       .then(async (userRoles) => {
         await getClientsInfo().then((clientsInfo) => {
-          if (toMapApplicationNames(userRoles, clientsInfo).length > 0) {
+          var mappedAppNames = toMapApplicationNames(userRoles, clientsInfo);
+          if (mappedAppNames && mappedAppNames.length > 0) {
             let roles = toMapApplicationNames(userRoles, clientsInfo);
             if (memberId) {
               const filteredRoles = roles.filter((role) =>
@@ -212,9 +214,11 @@ const NavTabTable = ({
           localStorage.getItem("auth_access_token")
         )
           .then((response) => {
+            toast.success(`Role has been removed successfully.`, { theme: "colored" });
             setIsDeleted(true);
           })
           .catch((error) => {
+            toast.error(`Error while removing the role ${error}`, { theme: "colored" });
             console.error(
               `Error while removing user from a ${scope} :::`,
               error

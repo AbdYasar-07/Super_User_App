@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Axios from "../Utils/Axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   roleFilter,
   toMapApplicationNames,
 } from "../Components/BusinessLogics/Logics";
+import { toast } from "react-toastify";
 const AppModal = ({
   buttonLabel,
   dialogBoxHeader,
@@ -20,6 +21,7 @@ const AppModal = ({
   const [checkboxData, setCheckboxData] = useState([]);
   const [selectedCheckboxes, setSelectedCheckboxes] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const navigate = useNavigate();
   const { userId, memberId } = useParams();
   const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
 
@@ -130,7 +132,7 @@ const AppModal = ({
           error
         );
       })
-      .finally(() => {});
+      .finally(() => { });
   };
 
   useEffect(() => {
@@ -184,10 +186,12 @@ const AppModal = ({
       localStorage.getItem("auth_access_token")
     )
       .then((response) => {
+        toast.success(`${selectedCheckboxes.length == 1 ? 'Role' : 'Roles'} has been added successfully.`, { theme: "colored" });
         setIsAdded(true);
         closeModal();
       })
       .catch((error) => {
+        toast.error(`Error while adding ${selectedCheckboxes.length == 1 ? 'role' : 'roles'}`, { theme: "colored" });
         console.error("Error while adding a user to role", error);
       });
   };
@@ -339,7 +343,7 @@ const AppModal = ({
                         data-bs-dismiss="modal"
                         onClick={closeModal}
                       >
-                        CANCEL
+                        CLOSE
                       </button>
                       <button
                         disabled={selectedCheckboxes.length === 0}

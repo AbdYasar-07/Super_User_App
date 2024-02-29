@@ -6,16 +6,21 @@ import { useParams } from "react-router-dom";
 import Axios from "../../../Utils/Axios";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserFieldFromAuth0 } from "../../BusinessLogics/Logics";
+import { addManagementAccessToken, renderingCurrentUser } from "../../../store/auth0Slice";
 
 const MemberHeader = ({ userProfile }) => {
 
     const { memberId } = useParams();
     const [assignedBP, setAssignedBP] = useState({});
+    const endpoint = process.env.REACT_APP_MANAGEMENT_API;
     const auth0Context = useSelector((store) => store?.auth0Context);
     const resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
+    const dispatch = useDispatch();
 
     useEffect(() => {
+        handleUserProfileOnHardRefresh(memberId, userProfile);
         getGroupsForRenderedUser();
     }, []);
 
@@ -31,6 +36,43 @@ const MemberHeader = ({ userProfile }) => {
         } else {
             toast.error("Error while retriving BP", { theme: "colored" });
             console.error("Error ***", response);
+        }
+    };
+
+    const fetchManagementToken = async () => {
+        const body = {
+            grant_type: process.env.REACT_APP_AUTH_GRANT_TYPE,
+            client_id: process.env.REACT_APP_M2M_CLIENT_ID,
+            client_secret: process.env.REACT_APP_M2M_CLIENT_SECRET,
+            audience: process.env.REACT_APP_AUDIENCE,
+        };
+        return await Axios(endpoint, "POST", body, null, true).then((response) => {
+            dispatch(
+                addManagementAccessToken({
+                    managementAccessToken: response.access_token,
+                })
+            );
+            return response;
+        });
+    };
+
+    const handleUserProfileOnHardRefresh = async (memberId, userProfile) => {
+        if (!memberId) {
+            toast.error(`Invalid member id. Unable to fetch user information`, { theme: "colored", autoClose: false });
+            return;
+        }
+
+        // check only when the user profile not exists in the member header component
+        if (typeof userProfile === "object" && Object.keys(userProfile).length === 0) {
+            try {
+                const response = await fetchManagementToken();
+                const requiredInformations = await getUserFieldFromAuth0(memberId, null, response?.access_token, true);
+                dispatch(renderingCurrentUser({ currentUser: JSON.parse(JSON.stringify(requiredInformations)) }));
+                return requiredInformations;
+            }
+            catch {
+                toast.error(`Error while retriving user member information`, { theme: "colored" });
+            }
         }
     };
 
