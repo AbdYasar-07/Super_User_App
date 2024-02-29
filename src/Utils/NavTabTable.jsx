@@ -110,7 +110,6 @@ const NavTabTable = ({
   };
 
   const getUserAllRoles = async (accessToken, userId) => {
-
     var response = null;
     if (memberId) {
       response = await Axios(
@@ -127,6 +126,7 @@ const NavTabTable = ({
         accessToken
       );
     }
+
     await getClientsInfo()
       .then(async (clientsInfo) => {
         if (memberId) {
@@ -152,7 +152,7 @@ const NavTabTable = ({
         setLoadSpinner(false);
       });
   };
-
+  // console.log(userAllRoles, "userAllRolesuserAllRolesuserAllRoles");
   const getManagementToken = async () => {
     let managementApi = process.env.REACT_APP_MANAGEMENT_API;
     let data = {
@@ -281,25 +281,25 @@ const NavTabTable = ({
 
     switch (scope) {
       case "Group":
-        userGroups.length === 0 ? setTableValue(true) : setTableValue(false);
+        (userGroups?.length === 0 || !userGroups) ? setTableValue(true) : setTableValue(false);
         break;
       case "All-Groups":
-        userAllGroups.length === 0 ? setTableValue(true) : setTableValue(false);
+        (userAllGroups?.length === 0 || !userAllGroups) ? setTableValue(true) : setTableValue(false);
         break;
       case "Roles":
       case "Assigned-Roles":
-        userRoles.length === 0 ? setTableValue(true) : setTableValue(false);
+        (userRoles?.length === 0 || !userRoles) ? setTableValue(true) : setTableValue(false);
         break;
       case "All-Roles":
       case "Unassigned-Roles":
-        userAllRoles.length === 0 ? setTableValue(true) : setTableValue(false);
+        (userAllRoles?.length === 0 || !userAllRoles) ? setTableValue(true) : setTableValue(false);
         break;
       default:
         console.log("None of the scope hasn't been matched");
     }
   }, [userGroups, userAllGroups, userRoles, userAllRoles]);
 
-  // console.log(userRoles, "userRoles");
+
   return (
     <>
       {loadSpinner && <AppSpinner />}
