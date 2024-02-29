@@ -3,17 +3,23 @@ import NavTabBody from "../../../Utils/NavTabBody";
 import NavTabTable from "../../../Utils/NavTabTable";
 import { useSelector } from "react-redux";
 import NavTabBodyButton from "../../../Utils/NavTabBodyButton";
+import { useNavigate, useParams } from "react-router-dom";
 
 const RoleUnassigned = () => {
-
+  let { memberId } = useParams();
   const [isAdded, setIsAdded] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const currentSelectedUser = useSelector((store) => store.auth0Context.renderingUser);
   const userName = JSON.parse(JSON.stringify(currentSelectedUser)).name;
-
+  const navigate = useNavigate();
   useEffect(() => {
     setIsDeleted(false);
-    if (isAdded) setIsAdded(false);
+    if (isAdded) {
+      setIsAdded(false);
+      if (memberId) {
+        navigate(`/members/${memberId}/roles/assigned`);
+      }
+    };
   }, [isDeleted, isAdded]);
 
   return (

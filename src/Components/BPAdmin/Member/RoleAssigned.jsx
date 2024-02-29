@@ -15,7 +15,9 @@ const RoleAssigned = () => {
 
   useEffect(() => {
     setIsDeleted(false);
-    if (isAdded) setIsAdded(false);
+    if (isAdded) {
+      setIsAdded(false);
+    };
   }, [isDeleted, isAdded]);
 
   return (

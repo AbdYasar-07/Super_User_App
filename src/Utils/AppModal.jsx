@@ -44,7 +44,7 @@ const AppModal = ({
           (item) => !response.some((obj) => obj._id === item._id)
         );
         setCheckboxData(rem_groups);
-        setIsLoaded(true);
+        setIsLoaded(false);
       });
     } catch (error) {
       console.error(error);
@@ -118,7 +118,7 @@ const AppModal = ({
                   setCheckboxData(toMapApplicationNames(remRoles, clientsinfo));
                 }
               }
-              setIsLoaded(true);
+              setIsLoaded(false);
             });
           })
           .catch((error) => {
@@ -213,7 +213,7 @@ const AppModal = ({
       console.error(error);
     }
   };
-
+  console.log(checkboxData, "checkboxDatacheckboxData", isLoaded);
   return (
     <>
       {showButton && (
@@ -221,97 +221,78 @@ const AppModal = ({
           <button
             type="button"
             class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#exampleModal"
-            data-bs-whatever="@mdo"
             onClick={openModal}
           >
             + {buttonLabel}
           </button>
 
-          <div
-            class="modal fade"
-            id="exampleModal"
-            tabindex="-1"
-            aria-labelledby="exampleModalLabel"
-            aria-hidden="true"
-          >
-            <div class="modal-dialog" style={{ width: "fit-content" }}>
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">
-                    {dialogBoxHeader}
-                  </h5>
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                  ></button>
-                </div>
-                {checkboxData && checkboxData.length > 0 && (
-                  <div class="modal-body">
-                    <table>
-                      <thead>
-                        <tr>
-                          {tableRow?.map((tableRow, index) => {
-                            return (
-                              <>
-                                <th
-                                  key={index + 1}
-                                  style={{
-                                    textAlign: "left",
-                                    paddingLeft: "10px",
-                                  }}
-                                >
-                                  {tableRow}
-                                </th>
-                              </>
-                            );
-                          })}
-                          {isRoles && <th>Application Name</th>}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {checkboxData &&
-                          checkboxData.map((checkbox) => (
-                            <tr key={checkbox._id}>
-                              <td>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    id={checkbox._id}
-                                    style={{ marginRight: "5px" }}
-                                    checked={selectedCheckboxes.includes(
-                                      checkbox._id
-                                    )}
-                                    onChange={() =>
-                                      handleCheckboxChange(checkbox._id)
-                                    }
-                                  />
-                                  <label htmlFor={checkbox.id}>
-                                    {checkbox.name}
-                                  </label>
-                                </div>
-                              </td>
-                              <td>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "right",
-                                    textAlign: "left",
-                                    paddingLeft: "10px",
-                                  }}
-                                >
-                                  {checkbox.description}
-                                </div>
-                              </td>
-                              {checkbox.applicationName && (
+          {showModal &&
+            <div
+              class="modal fade show"
+              style={{ display: "block", background: "#adadad70" }}
+            >
+              <div class="modal-dialog" style={{ width: "fit-content" }}>
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                      {dialogBoxHeader}
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      onClick={closeModal}
+                    ></button>
+                  </div>
+                  {checkboxData && checkboxData.length > 0 && (
+                    <div class="modal-body">
+                      <table>
+                        <thead>
+                          <tr>
+                            {tableRow?.map((tableRow, index) => {
+                              return (
+                                <>
+                                  <th
+                                    key={index + 1}
+                                    style={{
+                                      textAlign: "left",
+                                      paddingLeft: "10px",
+                                    }}
+                                  >
+                                    {tableRow}
+                                  </th>
+                                </>
+                              );
+                            })}
+                            {isRoles && <th>Application Name</th>}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {checkboxData &&
+                            checkboxData.map((checkbox) => (
+                              <tr key={checkbox._id}>
+                                <td>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      id={checkbox._id}
+                                      style={{ marginRight: "5px" }}
+                                      checked={selectedCheckboxes.includes(
+                                        checkbox._id
+                                      )}
+                                      onChange={() =>
+                                        handleCheckboxChange(checkbox._id)
+                                      }
+                                    />
+                                    <label htmlFor={checkbox.id}>
+                                      {checkbox.name}
+                                    </label>
+                                  </div>
+                                </td>
                                 <td>
                                   <div
                                     style={{
@@ -321,48 +302,60 @@ const AppModal = ({
                                       paddingLeft: "10px",
                                     }}
                                   >
-                                    {checkbox.applicationName}
+                                    {checkbox.description}
                                   </div>
                                 </td>
-                              )}
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-                {!isLoaded && checkboxData?.length === 0 && (
-                  <h5>No more {scopes} to add.</h5>
-                )}
-                <div class="modal-footer">
-                  {checkboxData && checkboxData.length > 0 && (
-                    <>
-                      <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal"
-                        onClick={closeModal}
-                      >
-                        CLOSE
-                      </button>
-                      <button
-                        disabled={selectedCheckboxes.length === 0}
-                        style={{
-                          pointerEvents: "auto",
-                          cursor: handleCursorBehaviour(),
-                        }}
-                        type="button"
-                        class="btn btn-primary"
-                        onClick={handleAdd}
-                      >
-                        ADD
-                      </button>
-                    </>
+                                {checkbox.applicationName && (
+                                  <td>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "right",
+                                        textAlign: "left",
+                                        paddingLeft: "10px",
+                                      }}
+                                    >
+                                      {checkbox.applicationName}
+                                    </div>
+                                  </td>
+                                )}
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
+                  {!isLoaded && checkboxData?.length === 0 && (
+                    <h5>No more {scopes} to add.</h5>
+                  )}
+                  <div class="modal-footer">
+                    {checkboxData && checkboxData.length > 0 && (
+                      <>
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          onClick={closeModal}
+                        >
+                          CLOSE
+                        </button>
+                        <button
+                          disabled={selectedCheckboxes.length === 0}
+                          style={{
+                            pointerEvents: "auto",
+                            cursor: handleCursorBehaviour(),
+                          }}
+                          type="button"
+                          class="btn btn-primary"
+                          onClick={handleAdd}
+                        >
+                          ADD
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </div>}
         </>
       )}
     </>

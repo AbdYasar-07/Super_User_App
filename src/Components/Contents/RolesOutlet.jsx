@@ -12,7 +12,7 @@ const RolesOutlet = () => {
 
   return (
     <div>
-      <NavTabHeader showTab={true} tabsHeaders={["ROLES", "ALL ROLES"]} />
+      <NavTabHeader showTab={true} tabsHeaders={["ROLES", "ALL ROLES"]} defultValue={["show", "allroles"]} />
       <Outlet />
     </div>
   );

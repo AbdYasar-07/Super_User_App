@@ -7,12 +7,12 @@ const GroupsOutlet = () => {
 
   useEffect(() => {
     navigate("show");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div>
-      <NavTabHeader showTab={true} tabsHeaders={["GROUPS", "ALL GROUPS"]} />
+      <NavTabHeader showTab={true} tabsHeaders={["GROUPS", "ALL GROUPS"]} defultValue={["show", "allgroups"]} />
       <Outlet />
     </div>
   );

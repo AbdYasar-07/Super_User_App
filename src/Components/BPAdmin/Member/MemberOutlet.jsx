@@ -154,6 +154,7 @@ const MemberOutlet = () => {
       <NavTabHeader
         showTab={true}
         tabsHeaders={["Roles Assigned", "Roles Unassigned"]}
+        defultValue={["assigned", "unassigned"]}
       />
       <ToastContainer />
       <Outlet />
