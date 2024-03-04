@@ -165,7 +165,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
       });
       if (!isForMember) {
         console.log("createdUserId ***", createdUserId);
-        toast.success(`User has been created in the Auth0 system.`, { autoClose: false });
+        toast.success(`User has been created in the Auth0 system.`, { autoClose: false, theme: "colored" });
         await handleUserCreationAcrossSystems(buttonLabel, createdUserId);
       }
     }
@@ -206,7 +206,7 @@ function AddUser({ setIsUserAdded, isTokenFetched, setIsPasteModelShow, isPasteC
       await patchUserInAuth0(auth0Id, String(responseState).substring(3), scope);
       return;
     } else if (typeof responseState === "number") {
-      toast.success(`User has been created in the ${scope} system.`, { autoClose: false });
+      toast.success(`User has been created in the ${scope} system.`, { autoClose: false, theme: "colored" });
       await patchUserInAuth0(auth0Id, responseState, scope);
       return;
     }
