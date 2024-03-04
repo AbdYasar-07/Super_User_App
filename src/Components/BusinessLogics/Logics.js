@@ -81,7 +81,78 @@ export const assignMembersInGroup = async (bpId, memberIds) => {
     return `Error while assign member${memberIds?.length === 1 ? "" : "'s"} into BP, ${response?.message}`
   }
 };
+export const getGroupInformationAcrossSystems = async (groupId) => {
 
+  if (!groupId)
+    return "Invalid group id.";
+
+  let resource = process.env.REACT_APP_AUTH_EXT_RESOURCE;
+
+  try {
+    const group_response = await Axios(resource + `/groups/${groupId}`, "GET", null, localStorage.getItem("auth_access_token"), false);
+    const businessPartnerObj = {
+      id: group_response?._id,
+      BPID: group_response?.name?.substring(3),
+      BPName: group_response?.name,
+      IsInShopify: "",
+      IsInOSCDev: "",
+      IsInOSCProd: "",
+      shopifyId: "",
+      devOscId: "",
+      prodOscId: "",
+      IsOSCStoreInBothSystem: false
+    };
+
+    const bpCode = businessPartnerObj?.BPID;
+    await getOSCStoreIDByBPCodeHelper(bpCode, businessPartnerObj);
+    await getOSCStoreIDByBPCodeHelper(bpCode, businessPartnerObj, true);
+    await getShopifyCompaniesHelper(bpCode, businessPartnerObj);
+    businessPartnerObj['IsOSCStoreInBothSystem'] = (businessPartnerObj?.IsInOSCDev == "Yes" && businessPartnerObj?.IsInOSCProd == "Yes") ? true : false;
+    return businessPartnerObj;
+  }
+  catch (ex) {
+    return `Error : ${ex}`;
+  }
+
+};
+
+const getOSCStoreIDByBPCodeHelper = async (bpCode, bpObject, isForProd = false) => {
+  let oscIdOfBpCode = null;
+  await getOSCStoreIDByBPCode(bpCode, isForProd).then((result) => {
+    if (result && result?.count == 0) {
+      oscIdOfBpCode = false;
+    } else {
+      const oscId = (result && result?.rows && result?.rows.length > 0) ? result?.rows[0][0] : null;
+      oscIdOfBpCode = oscId;
+    }
+  });
+
+  if (!oscIdOfBpCode) {
+    bpObject[isForProd ? "IsInOSCProd" : "IsInOSCDev"] = "Inaccessible";
+    bpObject[isForProd ? "prodOscId" : "devOscId"] = null;
+    return;
+  }
+
+  bpObject[isForProd ? "IsInOSCProd" : "IsInOSCDev"] = oscIdOfBpCode ? "Yes" : "No"
+  bpObject[isForProd ? "prodOscId" : "devOscId"] = oscIdOfBpCode;
+};
+
+const getShopifyCompaniesHelper = async (bpCode, bpObject) => {
+  const result = await getShopifyCompaniesId();
+  if (result && result['data'] && result['data']['companies'] && result['data']['companies']['edges'] && Array.isArray(result['data']['companies']['edges'])) {
+    return result['data']['companies']['edges'];
+  }
+
+  if (!result) {
+    bpObject["IsInShopify"] = "Inaccessible";
+    bpObject["shopifyId"] = null;
+    return;
+  }
+
+  const filteredNode = result.find((node) => node?.node?.externalId === bpCode);
+  bpObject['IsInShopify'] = filteredNode?.node?.externalId && filteredNode?.node?.externalId.length > 0 ? "Yes" : "No";
+  bpObject['shopifyId'] = filteredNode?.node?.id;
+};
 
 /**
  *  OSC CONTACT RELATED APIs 

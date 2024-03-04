@@ -8,8 +8,8 @@ import DataGridTable from "../../../Utils/DataGridTable";
 import AppSpinner from "../../../Utils/AppSpinner";
 import { Button } from "primereact/button";
 import { useDispatch, useSelector } from "react-redux";
-import { addManagementAccessToken } from "../../../store/auth0Slice";
-import { assignMembersInGroup, checkUserExistsInOSC, checkUserExistsInShopify, getAllSystemGroupsFromAuth0, getCompanyContactIdInShopify, getUserFieldFromAuth0, linkingCustomerWithCompany, unlinkingCustomerWithCompany, updateUserWithOSCOrganization } from "../../BusinessLogics/Logics";
+import { addCurrentBusinessPartner, addManagementAccessToken } from "../../../store/auth0Slice";
+import { assignMembersInGroup, checkUserExistsInOSC, checkUserExistsInShopify, getAllSystemGroupsFromAuth0, getCompanyContactIdInShopify, getGroupInformationAcrossSystems, getUserFieldFromAuth0, linkingCustomerWithCompany, unlinkingCustomerWithCompany, updateUserWithOSCOrganization } from "../../BusinessLogics/Logics";
 import AddUser from "../../Users/AddUser";
 import ImportUserModal from "../../../Utils/ImportUserModal";
 import TableData from "../../../Utils/TableData";
@@ -632,6 +632,16 @@ const BPDetailMembers = () => {
     }
   };
 
+  const fetchCurrentBusinessPartnerInformation = async (bpId) => {
+    try {
+      const response = await getGroupInformationAcrossSystems(bpId);
+      dispatch(addCurrentBusinessPartner({ businessPartner: response }))
+    }
+    catch (ex) {
+      console.error("Error :", ex);
+    }
+
+  };
 
   useEffect(() => {
     if (value === "OutBP") {
@@ -639,6 +649,14 @@ const BPDetailMembers = () => {
     }
     renderOutBP(value);
   }, [value]);
+
+  useEffect(() => {
+    if (typeof auth0Context?.currentBusinessPartner === "object" && Object.keys(auth0Context?.currentBusinessPartner).length === 0) {
+      // current business partner is not in the redux store so need to adding current business partner to the system
+      fetchCurrentBusinessPartnerInformation(bpId);
+      return;
+    }
+  }, [auth0Context?.currentBusinessPartner]);
 
   return (
     <>
